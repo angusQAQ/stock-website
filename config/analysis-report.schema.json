@@ -1,0 +1,17 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["verdict","summary","reasons","risks","entryPrice","targetPrice","stopLoss","details","sources","missingData"],
+  "properties": {
+    "verdict": {"type":"string","enum":["buy","hold","reduce","avoid","insufficient-data"]},
+    "summary": {"type":"string"},
+    "reasons": {"type":"array","items":{"type":"string"}},
+    "risks": {"type":"array","items":{"type":"string"}},
+    "entryPrice": {"type":["number","null"]},
+    "targetPrice": {"type":["number","null"]},
+    "stopLoss": {"type":["number","null"]},
+    "details": {"type":"string"},
+    "sources": {"type":"array","items":{"type":"object","additionalProperties":false,"required":["title","url","asOf"],"properties":{"title":{"type":"string"},"url":{"type":"string"},"asOf":{"type":"string"}}}},
+    "missingData": {"type":"array","items":{"type":"string"}}
+  }
+}
