@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "python": "3.11.17",
+  "longbridge_cli_version": "v0.31.1",
+  "sources": [
+    {
+      "id": "longbridge",
+      "repository": "longbridge/skills",
+      "commit": "38900e9884027782c1f4e480b451d5f55a479d95",
+      "skills": [
+        {
+          "path": "skills/longbridge/SKILL.md",
+          "name": "longbridge",
+          "single_file": false
+        },
+        {
+          "path": "skills/longbridge-content/SKILL.md",
+          "name": "longbridge-content",
+          "single_file": false
+        },
+        {
+          "path": "skills/longbridge-derivatives/SKILL.md",
+          "name": "longbridge-derivatives",
+          "single_file": false
+        },
+        {
+          "path": "skills/longbridge-earnings/SKILL.md",
+          "name": "longbridge-earnings",
+          "single_file": false
+        },
+        {
+          "path": "skills/longbridge-fundamentals/SKILL.md",
+          "name": "longbridge-fundamentals",
+          "single_file": false
+        },
+        {
+          "path": "skills/longbridge-intel/SKILL.md",
+          "name": "longbridge-intel",
+          "single_file": false
+        },
+        {
+          "path": "skills/longbridge-market-data/SKILL.md",
+          "name": "longbridge-market-data",
+          "single_file": false
+        },
+        {
+          "path": "skills/longbridge-portfolio/SKILL.md",
+          "name": "longbridge-portfolio",
+          "single_file": false
+        },
+        {
+          "path": "skills/longbridge-quant/SKILL.md",
+          "name": "longbridge-quant",
+          "single_file": false
+        },
+        {
+          "path": "skills/longbridge-research/SKILL.md",
+          "name": "longbridge-research",
+          "single_file": false
+        },
+        {
+          "path": "skills/longbridge-technical/SKILL.md",
+          "name": "longbridge-technical",
+          "single_file": false
+        },
+        {
+          "path": "skills/longbridge-value-investing/SKILL.md",
+          "name": "longbridge-value-investing",
+          "single_file": false
+        },
+        {
+          "path": "skills/longbridge-watchlist/SKILL.md",
+          "name": "longbridge-watchlist",
+          "single_file": false
+        }
+      ]
+    },
+    {
+      "id": "tradingagents",
+      "repository": "tauricresearch/tradingagents",
+      "commit": "9fa1196fffbcfd9de5146d2dd2869df84ab99838",
+      "skills": []
+    },
+    {
+      "id": "openbb",
+      "repository": "openbq-org/OpenBB",
+      "commit": "2a392e890f6eb1f0f4e3a71742720af8f056333a",
+      "skills": [
+        {
+          "path": "openbb_platform/extensions/mcp_server/openbb_mcp_server/skills/build_workspace_app/SKILL.md",
+          "name": "openbb-build-workspace-app",
+          "single_file": false
+        },
+        {
+          "path": "openbb_platform/extensions/mcp_server/openbb_mcp_server/skills/configure_mcp_server/SKILL.md",
+          "name": "openbb-configure-mcp-server",
+          "single_file": false
+        },
+        {
+          "path": "openbb_platform/extensions/mcp_server/openbb_mcp_server/skills/develop_extension/SKILL.md",
+          "name": "openbb-develop-extension",
+          "single_file": false
+        },
+        {
+          "path": "openbb_platform/extensions/mcp_server/openbb_mcp_server/skills/use_openbb_cli/SKILL.md",
+          "name": "openbb-use-openbb-cli",
+          "single_file": false
+        },
+        {
+          "path": "openbb_platform/extensions/mcp_server/openbb_mcp_server/skills/work_with_server/SKILL.md",
+          "name": "openbb-work-with-server",
+          "single_file": false
+        }
+      ]
+    },
+    {
+      "id": "daily-stock-analysis",
+      "repository": "ZhuLinsen/daily_stock_analysis",
+      "commit": "a52c325fb1389303de23b9826ec1e0190fa309c0",
+      "skills": [
+        {
+          "path": "SKILL.md",
+          "name": "stock-analyzer",
+          "single_file": true
+        }
+      ]
+    },
+    {
+      "id": "ai-berkshire",
+      "repository": "xbtlin/ai-berkshire",
+      "commit": "ab758d78803d01ce585bf3dd1e241e23330116cd",
+      "skills": [
+        {
+          "path": "codex-skills/bottleneck-hunter/SKILL.md",
+          "name": "bottleneck-hunter",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/deep-company-series/SKILL.md",
+          "name": "deep-company-series",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/dyp-ask/SKILL.md",
+          "name": "dyp-ask",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/earnings-review/SKILL.md",
+          "name": "earnings-review",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/earnings-team/SKILL.md",
+          "name": "earnings-team",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/era-alpha/SKILL.md",
+          "name": "era-alpha",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/financial-data/SKILL.md",
+          "name": "financial-data",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/income-investment/SKILL.md",
+          "name": "income-investment",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/industry-funnel/SKILL.md",
+          "name": "industry-funnel",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/industry-research/SKILL.md",
+          "name": "industry-research",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/investment-checklist/SKILL.md",
+          "name": "investment-checklist",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/investment-memo-craft/SKILL.md",
+          "name": "investment-memo-craft",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/investment-research/SKILL.md",
+          "name": "investment-research",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/investment-team/SKILL.md",
+          "name": "investment-team",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/management-deep-dive/SKILL.md",
+          "name": "management-deep-dive",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/news-pulse/SKILL.md",
+          "name": "news-pulse",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/portfolio-review/SKILL.md",
+          "name": "portfolio-review",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/private-company-research/SKILL.md",
+          "name": "private-company-research",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/quality-screen/SKILL.md",
+          "name": "quality-screen",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/thesis-drift/SKILL.md",
+          "name": "thesis-drift",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/thesis-tracker/SKILL.md",
+          "name": "thesis-tracker",
+          "single_file": false
+        },
+        {
+          "path": "codex-skills/wechat-article/SKILL.md",
+          "name": "wechat-article",
+          "single_file": false
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "All investment-related Codex skills are registered; Daily Stock Analysis PR/issue collaboration skills and its Grok Bot example remain in the source checkout, not registered as investment skills.",
+    "OpenBB names and stock_analyzer are normalized to hyphenated names for Codex; original source files are unchanged."
+  ]
+}
