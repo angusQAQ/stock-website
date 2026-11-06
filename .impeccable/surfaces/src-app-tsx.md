@@ -21,6 +21,8 @@ Mode: Operate. Build path: code-led (app screen; no standing build-path preferen
 
 **FIRST VIEWPORT:** A white top bar holds Northstar, three navigation items, search and a record-funds action. A bold market heading leads into four quiet ETF summaries. Below, a compact stock list, wide quote/chart/research column and asset column form the workspace. On narrow screens the list becomes a horizontal stock strip; quote and analysis lead the vertical flow. The signature move is a single orange selection language connecting active navigation, chosen ticker, time range and explicit analysis action, without colouring inactive data.
 
+Current browser steering supersedes the promotional heading above: remove its title/subtitle and the analysis introduction. A compact source/time row now leads into ETF data and the research columns. Pages without an account API uses a compact official TradingView ticker strip and chart; connected Yahoo mode retains its ETF summaries. Preserve the incumbent white/orange world and three destinations. Inspect the user's 790×730 and 1466×730 viewports as well as standard desktop/mobile. Official-host denial is a real error state with recovery, not proof of live chart availability; local contract frames contain no market data.
+
 **FORM:** User-pinned reference: Longbridge Hong Kong public website. No concept roll or image comp; this is the requested competitor-like path and a working app. `seed: none (user-pinned direction; launcher unavailable)`.
 
 **FINISH:** unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

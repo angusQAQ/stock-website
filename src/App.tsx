@@ -9,6 +9,7 @@ import AnalysisPanel from './AnalysisPanel';
 import PortfolioView from './PortfolioView';
 import TransactionModal from './TransactionModal';
 import ReportsView from './ReportsView';
+import { PublicMarketChart, PublicMarketOverview } from './PublicMarket';
 
 const usd=(n:number)=>n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2});
 const pct=(n:number|null)=>n===null?'—':`${n>=0?'+':''}${n.toFixed(2)}%`;
@@ -27,6 +28,8 @@ export default function App() {
   const [quoteErrors,setQuoteErrors]=useState<Record<string,string>>({});
   const [chart,setChart]=useState<Quote|null>(null);
   const [chartError,setChartError]=useState('');
+  const [chartSource,setChartSource]=useState<'public'|'api'>(API_AVAILABLE?'api':'public');
+  const publicChart=!API_AVAILABLE||chartSource==='public';
   const [portfolio,setPortfolio]=useState<Portfolio|null>(null);
   const [accountChecked,setAccountChecked]=useState(false);
   const [watchlist,setWatchlist]=useState<string[]>([]);
@@ -67,7 +70,7 @@ export default function App() {
   },[symbols,refresh,accountChecked]);
   useEffect(()=>{
     setChart(previous=>previous?.symbol===selected&&previous.range===range?previous:null);setChartError('');
-    if(range==='1D'||!API_AVAILABLE)return;
+    if(range==='1D'||!API_AVAILABLE||publicChart)return;
     const controller=new AbortController();let working=false;
     async function poll(){
       if(working||document.hidden||controller.signal.aborted)return;working=true;
@@ -76,7 +79,8 @@ export default function App() {
     }
     poll();const timer=setInterval(poll,5000);document.addEventListener('visibilitychange',poll);
     return()=>{controller.abort();clearInterval(timer);document.removeEventListener('visibilitychange',poll)};
-  },[selected,range,refresh]);
+  },[selected,range,refresh,publicChart]);
+  useEffect(()=>{if(quoteErrors[selected]||chartError)setChartSource('public')},[selected,quoteErrors,chartError]);
   const loadAccount=useCallback(async(force=false)=>{
     if(accountRequest.current&&!force)return;
     accountRequest.current?.abort();const controller=new AbortController();accountRequest.current=controller;
@@ -169,25 +173,25 @@ export default function App() {
 
     <main className="main-content" id="main-content" tabIndex={-1}>
       <div className="workspace">
-        {page==='market'&&<div className="page-title market-title">
-          <div><h1><span>美股研究，</span><span>心中有數。</span></h1><p>看懂行情、衡量風險，讓每個投資決定都有依據。</p></div>
+        {page==='market'&&<div className="market-status-bar">
+          <h1 className="sr-only">市場研究</h1>
           <div className="market-meta">
-            <span className="live-label"><span className={`status-dot ${quote&&!stale&&!quoteErrors[selected]?'online':''}`}/>{API_AVAILABLE?'每 5 秒檢查行情':'資料服務待連接'}</span>
+            <span className="live-label"><span className={`status-dot ${!publicChart&&quote&&!stale&&!quoteErrors[selected]?'online':''}`}/>{publicChart?'TradingView 公開行情':'每 5 秒檢查行情'}</span>
             <span className="market-clock"><Clock3 size={14}/>{new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hour12:false}).format(clock)}<small>紐約時間</small></span>
           </div>
         </div>}
         {serviceError&&<div className="notice service-notice" role="status">
-          <Database size={17}/><span>{API_AVAILABLE?`資料服務連線：${serviceError}`:'資料服務尚未連接。行情、資金記錄及分析將在連線後開放。'}</span>
+          <Database size={17}/><span>{API_AVAILABLE?`資料服務連線：${serviceError}`:'資金帳本與 Codex 分析尚未連接；公開行情由 TradingView 獨立載入。'}</span>
           <button className="text-button" onClick={()=>loadAccount(true)}>重新檢查<ArrowRight size={14}/></button>
         </div>}
 
         {page==='market'&&<>
-          <section className="market-cards" aria-label="市場 ETF 概覽">
+          {publicChart?<PublicMarketOverview/>:<section className="market-cards" aria-label="市場 ETF 概覽">
             {([['SPY','標普 500'],['QQQ','納斯達克 100'],['VOO','美國大型股'],['BND','美國綜合債券']] as const).map(([symbol,label])=>{const q=quotes[symbol];return <button className="market-card" key={symbol} onClick={()=>select(symbol)}>
               <div className="market-card-name"><span>{label}</span><small>{symbol}<ChevronRight size={13}/></small></div>
               <div className="market-card-bottom"><strong>{q?q.price.toFixed(2):'—'}</strong><span className={!q?'muted':q.changePercent!==null&&q.changePercent<0?'down':'up'}>{q?pct(q.changePercent):'等待行情'}</span></div>
             </button>})}
-          </section>
+          </section>}
           <div className="market-layout">
             <aside className="market-sidebar panel" aria-label="股票清單">
               <div className="panel-heading"><h2>市場清單</h2><ListFilter size={16} aria-hidden="true"/></div>
@@ -197,7 +201,7 @@ export default function App() {
               <div className="stock-list">
                 {displayed.map(symbol=>{const q=quotes[symbol],stock=UNIVERSE.find(x=>x.symbol===symbol);return <button key={symbol} className={`stock-row ${selected===symbol?'selected':''}`} aria-pressed={selected===symbol} onClick={()=>select(symbol)}>
                   <span className="stock-identity"><strong>{symbol}</strong><span>{stock?.name??symbol}</span></span>
-                  <span className="stock-quote"><strong>{q?q.price.toFixed(2):'—'}</strong><span className={!q?'muted':q.changePercent!==null&&q.changePercent<0?'down':'up'}>{q?pct(q.changePercent):'待更新'}</span></span>
+                  <span className="stock-quote"><strong>{q?q.price.toFixed(2):publicChart?'查看圖表':'—'}</strong><span className={!q?'muted':q.changePercent!==null&&q.changePercent<0?'down':'up'}>{q?pct(q.changePercent):publicChart?'來源內報價':'待更新'}</span></span>
                 </button>})}
                 {!displayed.length&&<div className="sidebar-empty"><Star size={22}/><p>把關注的股票放在一起。</p><span>{API_AVAILABLE?'在個股頁點擊星號，建立自選清單。':'連接資料服務後，即可儲存自選清單。'}</span></div>}
               </div>
@@ -209,16 +213,19 @@ export default function App() {
                 <div className="quote-heading">
                   <div className="company-icon" aria-hidden="true">{selected.slice(0,1)}</div>
                   <div className="company-name"><div><h2>{selected}</h2><span className="badge">US</span><button className={`star-button ${watchlist.includes(selected)?'starred':''}`} onClick={toggleWatch} disabled={!API_AVAILABLE} aria-label={watchlist.includes(selected)?'移除自選':'加入自選'} aria-pressed={watchlist.includes(selected)}><Star size={18} fill={watchlist.includes(selected)?'currentColor':'none'}/></button></div><p>{quote?.name??UNIVERSE.find(x=>x.symbol===selected)?.name??selected}</p></div>
-                  <div className="quote-market-status"><span className={`status-dot ${quote?.session==='regular'?'online':''}`}/>{quote?sessionNames[quote.session]:API_AVAILABLE?'行情連接中':'待連接行情'}</div>
+                  <div className="quote-market-status"><span className={`status-dot ${!publicChart&&quote?.session==='regular'?'online':''}`}/>{publicChart?'TradingView':quote?sessionNames[quote.session]:'行情連接中'}</div>
                 </div>
-                <div className="price-heading"><strong>{quote?quote.price.toFixed(2):'—'}<small>USD</small></strong><span className={!quote?'muted':quote.changePercent!==null&&quote.changePercent<0?'down':'up'}>{quote?.change!==null&&quote?`${quote.change>=0?'+':''}${quote.change.toFixed(2)}`:'—'} <b>{quote?pct(quote.changePercent):''}</b></span><button className="icon-button" aria-label="重新整理行情" onClick={()=>setRefresh(value=>value+1)}><RefreshCw size={16}/></button></div>
+                <div className="chart-source-control"><label>圖表來源<select aria-label="圖表來源" value={publicChart?'public':'api'} onChange={event=>setChartSource(event.target.value as 'public'|'api')}><option value="public">TradingView 公開行情</option><option value="api" disabled={!API_AVAILABLE}>Yahoo Finance · 雲端 API</option></select></label></div>
+                {!publicChart&&<><div className="price-heading"><strong>{quote?quote.price.toFixed(2):'—'}<small>USD</small></strong><span className={!quote?'muted':quote.changePercent!==null&&quote.changePercent<0?'down':'up'}>{quote?.change!==null&&quote?`${quote.change>=0?'+':''}${quote.change.toFixed(2)}`:'—'} <b>{quote?pct(quote.changePercent):''}</b></span><button className="icon-button" aria-label="重新整理行情" onClick={()=>setRefresh(value=>value+1)}><RefreshCw size={16}/></button></div>
                 <div className="quote-facts">{[['開盤',latest?.open],['最高',latest?.high],['最低',latest?.low],['前收',quote?.previousClose]].map(([label,value])=><div key={String(label)}><span>{label}</span><strong>{typeof value==='number'?value.toFixed(2):'—'}</strong></div>)}<div><span>成交量 · 所選 K 線</span><strong>{latest&&!latest.volumeMissing?compact(latest.volume):'—'}</strong></div></div>
-                {quoteErrors[selected]&&<div className="quote-error" role="status"><Activity size={14}/><span>{quoteErrors[selected]}{quote&&' 保留先前報價，請留意時間。'}</span></div>}
-                <div className="chart-toolbar"><div className="range-tabs" aria-label="圖表期間">{['1D','5D','1M','3M','1Y','5Y','MAX'].map(value=><button key={value} className={range===value?'active':''} aria-pressed={range===value} onClick={()=>setRange(value)}>{value}</button>)}</div><div className="chart-tools"><span><i className="legend-dot amber-bg"/>MA20</span><span><i className="legend-dot blue-bg"/>MA50</span><span><BarChart3 size={14}/>K 線</span></div></div>
+                {quoteErrors[selected]&&<div className="quote-error" role="status"><Activity size={14}/><span>{quoteErrors[selected]}{quote&&' 保留先前報價，請留意時間。'}</span></div>}</>}
+                <div className="chart-toolbar"><div className="range-tabs" aria-label="圖表期間">{['1D','5D','1M','3M','1Y','5Y','MAX'].map(value=><button key={value} className={range===value?'active':''} aria-pressed={range===value} onClick={()=>setRange(value)}>{value}</button>)}</div><div className="chart-tools">{!publicChart&&<><span><i className="legend-dot amber-bg"/>MA20</span><span><i className="legend-dot blue-bg"/>MA50</span></>}<span><BarChart3 size={14}/>K 線</span></div></div>
+                {publicChart?<PublicMarketChart symbol={selected} range={range}/>:<>
                 {chartError&&<div className="quote-error" role="status">K 線更新失敗：{chartError} {activeChart?'保留上次圖表，請留意資料時間。':'尚無可用圖表。'}</div>}
                 <StockChart key={`${selected}-${range}`} bars={bars} symbol={selected}/>
                 <div className="chart-footer"><span>MA20 <b className="amber">{tech.ma20?.toFixed(2)??'—'}</b></span><span>MA50 <b className="blue">{tech.ma50?.toFixed(2)??'—'}</b></span><span>RSI(14) <b>{tech.rsi14?.toFixed(1)??'—'}</b></span><span className="chart-source">{activeChart?.source??'Yahoo Finance'} · K 線 {bars.at(-1)?new Date(bars.at(-1)!.time*1000).toLocaleString('zh-HK'):'尚無資料'}</span></div>
                 <p className="data-freshness">報價時間 {quote?new Date(quote.timestamp*1000).toLocaleString('zh-HK'):'—'} · 來源延遲 {quote?.exchangeDelayMinutes!==null&&quote?.exchangeDelayMinutes!==undefined?`${quote.exchangeDelayMinutes} 分鐘`:'未提供'}{stale?' · 報價時間較早':''}。每 5 秒檢查更新；盤前／盤後及最新一根 K 線可能未完成，來源不保證交易所即時行情。</p>
+                </>}
               </section>
               <AnalysisPanel symbol={selected} horizon={horizon} risk={risk} setHorizon={setHorizon} setRisk={setRisk} online={bridge.online} enabled={bridge.enabled} job={currentJob} analyze={analyze} busy={busy} error={analysisError} portfolio={portfolio} quotes={quotes} settings={settings} pendingJob={pendingJob} editSettings={()=>{setRiskEditorOpen(true);setPage('portfolio')}} cancel={cancelJob} cancellingId={cancellingId}/>
             </div>

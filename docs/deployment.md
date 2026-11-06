@@ -38,7 +38,7 @@ npm run dev:api
 
 Pages 建置使用 configure-pages 回傳的 base_path，確保專案子路徑的 JavaScript、CSS 和 favicon 可載入。環境旗標 VITE_DEPLOYMENT_TARGET=github-pages 區分 Pages 與同源 Worker 執行模式。
 
-若未設定 VITE_API_BASE_URL，仍可發佈網站介面，頁面會清楚顯示「尚未連接雲端 API」，不送出資金寫入、不輪詢不存在的行情代理、不啟動模型分析。這只是前端發佈，不代表完整投資平台可用。
+若未設定 VITE_API_BASE_URL，0.3.1 會直接在瀏覽器載入 TradingView 官方 K 線及 ETF 報價帶；不用 Cloudflare 或 API 金鑰。頁面仍明示帳本／Codex 未連接，不送出金融寫入、不輪詢不存在的代理、不啟動模型。來源實際可用性與延遲需在訪客瀏覽器核對，詳見 [公開行情連接](public-market.md)。
 
 後端部署完成後，將真實 API origin 設為 GitHub Actions Variable VITE_API_BASE_URL。Worker 部署設定會從 config/site.json 自動帶入 https://angusqaq.github.io 作為允許的前端 origin；只有需要覆寫時才設定 FRONTEND_ORIGIN（scheme + host，不含專案路徑），再重新部署 Worker 及 Pages。這是跨來源設定，不是登入保護。Cloudflare token 不是 Pages 前端發佈的必要條件，但啟用 Cloudflare 後端仍需它。
 

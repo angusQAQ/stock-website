@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ArrowUpRight, Cpu, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowUpRight, ShieldCheck, Sparkles } from 'lucide-react';
 import type { AnalysisJob, Horizon, Portfolio, Quote, Risk, RiskSettings } from '../shared/types';
 import { HORIZONS } from '../shared/types';
 import { RISK_NAMES, RISK_ORDER, percent } from '../shared/risk';
@@ -30,6 +30,6 @@ export default function AnalysisPanel({symbol,horizon,risk,setHorizon,setRisk,on
     {queueMessage&&<div className="notice" role="status">{queueMessage}</div>}
     {(error||queueError)&&<div className="notice error" role="alert">{error||queueError}</div>}
     {job?.status==='failed'&&<div className={`notice ${job.cancelledAt?'':'error'}`}>{job.error}</div>}
-    {job?.status==='completed'&&job.result?<ResearchReport key={job.id} job={job} portfolio={portfolio} quotes={quotes}/>:<div className="analysis-empty"><div className="ai-mark"><Cpu size={25}/></div><div><h3>{job?.status==='running'?'正在整理證據與配置建議':job?.status==='queued'?'已排隊，等待你的 Mac 執行':'從數據出發，形成自己的判斷'}</h3><p>選擇投資期間，讓分析結合行情、持倉與風險設定。<br/>報告會先呈現結論、理由和風險，再展開研究依據。</p></div><ArrowUpRight size={21}/></div>}
+    {job?.status==='completed'&&job.result&&<ResearchReport key={job.id} job={job} portfolio={portfolio} quotes={quotes}/>}
   </section>;
 }
