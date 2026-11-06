@@ -1,8 +1,8 @@
-# Northstar · 美股研究工作台
+# Northstar · 美股研究平台
 
 正式前端入口：[https://angusqaq.github.io/stock-website/](https://angusqaq.github.io/stock-website/)。後續更新沿用同一網址。
 
-以 GitHub Pages 固定網址發佈的個人美股網站：公開行情與 K 線、自選股、美元資金帳本、持倉及按需 Codex 分析。證券平台式深色介面，支援桌面與手機。不執行券商交易。
+以 GitHub Pages 固定網址發佈的個人美股網站：公開行情與 K 線、自選股、美元資金帳本、持倉及按需 Codex 分析。介面採用白色與淺灰表面、黑色標題、橙色主要操作及橫向導覽，支援桌面與手機。不執行券商交易。
 
 ```sh
 npm ci
@@ -15,6 +15,7 @@ npm run dev:api
 開發介面時，可在另一個終端執行 `npm run dev`，Vite 會把 API 請求轉給本機 Worker。
 
 - [功能與限制](docs/product-requirements.md)
+- [Northstar 設計規範](DESIGN.md) · [改版方向與參考核對限制](docs/northstar-redesign-brief.zh-Hant.md)
 - [部署、固定網址與 Mac 連接](docs/deployment.md)
 - [五組研究來源與 42 個專案 skills](docs/research-tools.md)
 - [Impeccable 繁體中文詳細使用手冊](docs/impeccable-guide.zh-Hant.md) · [網頁版](public/guides/impeccable.html) · [PDF](public/guides/impeccable.zh-Hant.pdf)

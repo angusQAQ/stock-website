@@ -41,7 +41,7 @@ web
 - 名稱：Northstar，美股研究平台。
 - 使用者於 2026-11-06 明確要求高度仿照 Longbridge 指定網站的字詞、色彩及排版，先深度分析參考，再制定藝術風格與實作。
 - 綁定參考：https://longbridge.com/hk/en?channel=OWNN00060 。此要求授權替換原有視覺風格；維持證券網站的資訊密度與易讀的分析報告。
-- Longbridge 目前尚未成功讀取，不能將推測的顏色、字體或版型記為已觀察事實。參考分析狀態見 `docs/northstar-redesign-brief.zh-Hant.md`。
+- Longbridge 目前尚未成功讀取。使用者在得知限制後再次要求依照其風格實作，故繼續以清楚標示的視覺詮釋完成改版；不能將採用的色碼、字體或版型記為已量測的參考網站樣式。參考分析狀態見 `docs/northstar-redesign-brief.zh-Hant.md`。
 
 ## Evidence on Hand
 

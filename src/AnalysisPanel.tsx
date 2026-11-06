@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowUpRight, ChevronDown, Cpu, ExternalLink, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowUpRight, ChevronDown, CircleAlert, Cpu, ExternalLink, ShieldCheck, Sparkles } from 'lucide-react';
 import type { AnalysisJob, Horizon, Portfolio, Quote, Risk } from '../shared/types';
 import { positionSizing, RISK_PROFILES } from '../shared/portfolio';
 import { API_AVAILABLE } from './api';
@@ -24,8 +24,8 @@ export default function AnalysisPanel({ symbol, horizon, risk, setHorizon, setRi
     } catch (e) { sizingError=(e as Error).message; }
   }
   return <section className="panel analysis-panel">
-    <div className="panel-heading"><h2><Sparkles size={17}/> 投資分析</h2><span className="badge purple">CODEX RESEARCH</span></div>
-    <div className="analysis-controls"><div><span className="field-label">投資期間</span><div className="segmented">{([['short','短線'],['swing','波段'],['long','長期']] as const).map(([id,label])=><button key={id} className={horizon===id?'active':''} onClick={()=>setHorizon(id)}>{label}</button>)}</div></div>
+    <div className="panel-heading"><h2><Sparkles size={17}/> 投資分析</h2><span className="badge research-badge">CODEX RESEARCH</span></div>
+    <div className="analysis-controls"><div><span className="field-label">投資期間</span><div className="segmented">{([['short','短線'],['swing','波段'],['long','長期']] as const).map(([id,label])=><button key={id} className={horizon===id?'active':''} aria-pressed={horizon===id} onClick={()=>setHorizon(id)}>{label}</button>)}</div></div>
       <label className="risk-select"><ShieldCheck size={14}/><select aria-label="風險設定" value={risk} onChange={e=>setRisk(e.target.value as Risk)}>{Object.entries(RISK_PROFILES).map(([id,p])=><option value={id} key={id}>{p.label}配置</option>)}</select></label>
       <button className="button primary" onClick={analyze} disabled={!API_AVAILABLE || busy || job?.status==='queued' || job?.status==='running'}><Sparkles size={15}/>{busy?'提交中…':job?.status==='queued'?'等待 Mac 接收':job?.status==='running'?'Codex 分析中…':`分析 ${symbol}`}</button>
     </div>
@@ -34,7 +34,7 @@ export default function AnalysisPanel({ symbol, horizon, risk, setHorizon, setRi
     {job?.status==='failed' && <div className="notice error">{job.error}</div>}
     {report ? <div className="report">
       <div className="report-lead"><span className={`verdict ${report.verdict}`}>{verdicts[report.verdict]}</span><span className="muted">{new Date(job!.updatedAt).toLocaleString('zh-HK')}</span></div>
-      <h3>{report.summary}</h3><div className="report-columns"><div><h4>支持理由</h4>{report.reasons.map((r,i)=><p key={i}><span className="up">↗</span>{r}</p>)}</div><div><h4>主要風險</h4>{report.risks.map((r,i)=><p key={i}><span className="amber">!</span>{r}</p>)}</div></div>
+      <h3>{report.summary}</h3><div className="report-columns"><div><h4>支持理由</h4>{report.reasons.map((r,i)=><p key={i}><ArrowUpRight size={14} className="up"/>{r}</p>)}</div><div><h4>主要風險</h4>{report.risks.map((r,i)=><p key={i}><CircleAlert size={14} className="amber"/>{r}</p>)}</div></div>
       <div className="price-plan">{[['參考買入',report.entryPrice],['參考目標',report.targetPrice],['止損條件',report.stopLoss]].map(([label,value])=><div key={String(label)}><span>{label}</span><strong>{typeof value==='number'?money(value):'未提供'}</strong></div>)}</div>
       {report.verdict==='buy' && <div className="sizing-box"><h4>按你的美元資產計算倉位</h4><label>預計總交易費用（USD）<input value={fee} onChange={e=>setFee(e.target.value)} inputMode="decimal" placeholder="填寫已核對的費用後計算"/></label>
         {sizing ? <p>最多參考投入 <strong>{money(sizing.amount)}</strong>（{sizing.shares} 股），配置後占比 <strong>{sizing.positionPercent.toFixed(1)}%</strong>；按止損價估算損失 {money(sizing.riskAmount)}，已含所填費用。</p> : <p className="muted">{sizingError || '需要完整持倉估值、有效止損價及費用，才會顯示投入金額。'}</p>}

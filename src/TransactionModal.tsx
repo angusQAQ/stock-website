@@ -10,7 +10,15 @@ export default function TransactionModal({ initial, close, saved }: { initial: L
   const [busy, setBusy] = useState(false);
   const requestId = useRef(crypto.randomUUID());
   const cashOnly = kind === 'deposit' || kind === 'withdrawal';
-  useEffect(() => { dialog.current?.showModal(); }, []);
+  useEffect(() => {
+    const element = dialog.current;
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    element?.showModal();
+    return () => {
+      element?.close();
+      if (opener?.isConnected) opener.focus({ preventScroll: true });
+    };
+  }, []);
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); setError(''); setBusy(true);
     const fields = Object.fromEntries(new FormData(event.currentTarget)) as Record<string,string>;

@@ -1,5 +1,16 @@
 # 驗證紀錄
 
+2026-11-06 Northstar 視覺改版：以白色／淺灰表面、近黑色文字、橙色操作與頂部導覽替換原有深色固定側欄；涵蓋市場、資產、報告、連線、搜尋與記帳表單。設計規範見 `../DESIGN.md`，視覺參考限制見 `northstar-redesign-brief.zh-Hant.md`。Longbridge 指定頁面仍被環境代理以 CONNECT 403 拒絕；實作是已披露的風格詮釋，未核對原站精確樣式或相似程度。
+
+- 最終程式的 24 項網站測試、TypeScript 檢查與 Vite GitHub Pages 子路徑建置通過。
+- Chromium 1440／768／390／320px 共 28 組前端狀態檢查通過：四個頁面、股票／ETF 篩選、搜尋、期間與風險選擇、記帳表單。未設定 API 時沒有 API 請求、沒有未處理 JavaScript 錯誤、沒有整頁橫向溢出；金融儲存與分析維持停用。
+- 四種尺寸另以僅存在本機瀏覽器攔截器的資料驗證真實圖表元件繪製、長文報告、來源展開、倉位計算、持倉與行情／分析錯誤狀態。分析只在明確按鈕操作後送出。測試資料與報告沒有寫入正式資料庫、應用程式或部署資產，沒有執行真實模型工作。
+- 八組鍵盤焦點檢查通過：1440px 及 320px 下，Escape、關閉按鈕、背景關閉及本機攔截的成功儲存，均返回各自原始觸發按鈕。320px 長表單的底部按鈕可在原生對話框內捲動到達；搜尋方向鍵與 Enter 選股通過。
+- 八組主要文字／背景 token 對比為 5.00:1 至 17.24:1。Impeccable SHA-256 已核對的 engine 0.1.18 執行一次掃描，只有 Helvetica 字型常見度的提示；依 Operate 指引保留適合控制項與數字的系統無襯線字體，不將提示誤報為零項發現。
+- 獨立完成審查查看 16 張有效截圖並通過所提供的視覺狀態；提出的一項對話框焦點回復問題已修正。後續 verdict 將該項評為 resolved、disposition 為 ship，範圍是該項修正；不擴張為 Longbridge 相似度或正式後端可用性的證明。
+
+本次截圖、瀏覽器驗證程式與結果留在被忽略的 `.impeccable/review/`、`.local/northstar-redesign/`。正式 GitHub Actions／Pages 發布結果仍受網絡限制，需與本機建置成功、Git 推送成功分開判讀。
+
 2026-11-06 Impeccable 安裝：CLI/skill 4.8.0、engine 0.1.18。官方遠端 bundle 網域被拒絕，改用官方安裝器的 IMPECCABLE_BUNDLE_PATH 支援，來源固定於 pbakaus/impeccable commit c3bb418ee38ee49a6b999b7752c1368f3123a2bd。引擎 SHA-256 與發佈的 manifest 相符，63 個 skill 檔案與上游一致，既有 41 個上游投資 skills 及工具入口保留。重跑安裝顯示 up to date。CLI 62 條規則可列出，官方 overused-font 測試 fixture 掃描回傳 13 項發現及預期 exit 2；src 掃描 exit 0 不代表已做完整設計評估。專案 hook 已註冊，客戶端信任仍由使用者核准。網站 24 項測試及正式 build 通過；19 章繁體中文手冊的桌面、390px/320px 版面及目錄連結驗證通過，另匯出 16 頁 PDF。未執行網站改版或付費模型分析。
 
 2026-11-06 正式入口記錄：使用者提供並確認 https://angusqaq.github.io/stock-website/。雲端直接請求仍被代理以 CONNECT 403 拒絕；此網址的上線狀態屬使用者回報，非雲端獨立 HTTP 驗證。已將網址保存至 config/site.json，供後續部署和後端 origin 設定共用。
