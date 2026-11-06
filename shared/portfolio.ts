@@ -1,6 +1,8 @@
-import type { LedgerInput, LedgerRow, Portfolio, Risk } from './types';
+import type { LedgerInput, LedgerRow, Portfolio, Risk, RiskLimits } from './types';
+import { InputError } from './errors';
+import { DEFAULT_LIMITS, RISK_NAMES, RISK_ORDER, validateRiskLimits } from './risk';
 
-export class InputError extends Error {}
+export { InputError } from './errors';
 const SCALE = 1_000_000n;
 
 export function fixed(value: string, decimals: number): number {
@@ -90,23 +92,25 @@ export function portfolioFromLedger(ledger: LedgerRow[]): Portfolio {
   };
 }
 
-export const RISK_PROFILES: Record<Risk, { label: string; maxPosition: number; riskPerTrade: number }> = {
-  conservative: { label: '保守', maxPosition: 0.10, riskPerTrade: 0.005 },
-  balanced: { label: '平衡', maxPosition: 0.15, riskPerTrade: 0.01 },
-  aggressive: { label: '進取', maxPosition: 0.25, riskPerTrade: 0.02 },
-};
+export const RISK_PROFILES = Object.fromEntries(RISK_ORDER.map(risk => [risk, {
+  label: RISK_NAMES[risk], maxPosition: DEFAULT_LIMITS[risk].maxPositionBps / 10000,
+  riskPerTrade: DEFAULT_LIMITS[risk].riskPerTradeBps / 10000,
+}])) as Record<Risk, { label: string; maxPosition: number; riskPerTrade: number }>;
 
 export function positionSizing(input: { cash: number; equity: number; existingValue: number;
-  entry: number; stopLoss: number; fees: number; risk: Risk }) {
+  entry: number; stopLoss: number; fees: number; risk: Risk; limits?: RiskLimits }) {
   const { cash, equity, existingValue, entry, stopLoss, fees, risk } = input;
   if (![cash, equity, existingValue, entry, stopLoss, fees].every(Number.isFinite) || cash < 0 || equity <= 0 ||
       existingValue < 0 || entry <= 0 || stopLoss <= 0 || stopLoss >= entry || fees < 0)
     throw new InputError('完整資產估值、有效買入價及低於買入價的止損價，才能計算倉位。');
-  const profile = RISK_PROFILES[risk];
-  const budget = Math.max(0, Math.min(cash - fees, equity * profile.maxPosition - existingValue));
-  const riskBudget = Math.max(0, equity * profile.riskPerTrade - fees);
+  const limits = validateRiskLimits(input.limits ?? DEFAULT_LIMITS[risk]);
+  const maxPosition = limits.maxPositionBps / 10000, riskPerTrade = limits.riskPerTradeBps / 10000;
+  const afterFees = Math.max(0, equity - fees);
+  const budget = Math.max(0, Math.min(cash - fees, afterFees * maxPosition - existingValue));
+  const riskBudget = Math.max(0, equity * riskPerTrade - fees);
   const shares = Math.max(0, Math.floor(Math.min(budget / entry, riskBudget / (entry - stopLoss))));
-  return { shares, amount: shares * entry, fees, riskAmount: shares * (entry - stopLoss) + fees,
-    positionPercent: (existingValue + shares * entry) / equity * 100,
-    maxPositionPercent: profile.maxPosition * 100, riskPercent: profile.riskPerTrade * 100 };
+  return { shares, amount: shares * entry, fees, riskAmount: shares > 0 ? shares * (entry - stopLoss) + fees : 0,
+    cashRequired: shares > 0 ? shares * entry + fees : 0,
+    positionPercent: shares > 0 ? (existingValue + shares * entry) / afterFees * 100 : existingValue / equity * 100,
+    maxPositionPercent: maxPosition * 100, riskPercent: riskPerTrade * 100 };
 }

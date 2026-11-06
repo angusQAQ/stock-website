@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-06T05:27:55.899180Z",
+  "generatedAt": "2026-11-06T06:04:58.610714Z",
   "title": "Design System: Northstar",
   "extensions": {
     "colorMeta": {
@@ -474,7 +474,7 @@
       },
       "headline": {
         "displayName": "一般頁標",
-        "purpose": "資產、報告與連線頁主標。"
+        "purpose": "資產與報告頁主標。"
       },
       "quote": {
         "displayName": "主報價",
@@ -601,8 +601,8 @@
       "name": "Horizontal navigation",
       "kind": "nav",
       "refersTo": "nav-active",
-      "description": "四項橫向導覽，選取以近黑文字及橙色底線辨識。",
-      "html": "<nav class=\"ds-primary-nav\" aria-label=\"主要導覽\"><button class=\"ds-nav-active\" aria-current=\"page\">市場研究</button><button>我的資產</button><button>研究報告</button><button>資料連線</button></nav>",
+      "description": "三項橫向導覽，選取以近黑文字及橙色底線辨識。",
+      "html": "<nav class=\"ds-primary-nav\" aria-label=\"主要導覽\"><button class=\"ds-nav-active\" aria-current=\"page\">市場研究</button><button>我的資產</button><button>研究報告</button></nav>",
       "css": ".ds-primary-nav{display:flex;align-items:stretch;gap:20px;height:82px}.ds-primary-nav button{font-family:'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Noto Sans CJK TC', 'Microsoft JhengHei', sans-serif;position:relative;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 2px;border:0;background:none;color:var(--muted);font-size:14px;font-weight:550;white-space:nowrap;cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out,border-color 160ms ease-out;}.ds-primary-nav button::after{content:\"\";position:absolute;height:2px;left:0;right:0;bottom:0;background:transparent}.ds-primary-nav button.ds-nav-active{color:var(--ink);font-weight:650}.ds-primary-nav button.ds-nav-active::after{background:var(--brand)}.ds-primary-nav button:hover{color:var(--ink)}.ds-primary-nav button:focus-visible{outline:2px solid var(--brand-ink);outline-offset:4px;}@media(max-width:1000px){.ds-primary-nav{width:100%;height:46px;gap:30px}}@media(max-width:640px){.ds-primary-nav{gap:0;justify-content:space-between}.ds-primary-nav button{font-size:13px;padding:0 7px}}@media(max-width:360px){.ds-primary-nav button{font-size:12px}}@media(prefers-reduced-motion:reduce){.ds-primary-nav button{transition:none!important;scroll-behavior:auto!important}}"
     },
     {

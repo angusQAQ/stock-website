@@ -224,11 +224,6 @@ select { color-scheme: light; }
 .holding-mini>span:last-child { text-align: right; }
 .holding-mini strong { font-size: 12px; overflow-wrap: anywhere; }
 .holding-mini small { color: var(--muted); font-size: 11px; }
-.research-note { padding: 25px 23px; background: #fff0e5; border-radius: var(--radius); }
-.research-note>svg { color: var(--brand-ink); }
-.research-note h3 { font-size: 23px; line-height: 1.5; letter-spacing: -.02em; margin-top: 15px; }
-.research-note p { font-size: 12px; color: #7c4a2c; line-height: 1.9; margin: 14px 0 20px; }
-.research-note .text-button { font-size: 12px; }
 .portfolio-view { display: flex; flex-direction: column; gap: 26px; }
 .portfolio-view>.page-title { padding-bottom: 6px; }
 .asset-cards { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 18px; }
@@ -253,15 +248,6 @@ th:first-child, td:first-child { text-align: left; }
 .empty-state>svg { color: #777f89; margin-bottom: 24px; }
 .empty-state h3 { font-size: 20px; }
 .empty-state p { font-size: 14px; color: var(--muted); line-height: 1.9; max-width: 50ch; margin: 12px 0 24px; }
-.connection-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
-.connection-card { padding: 30px; display: flex; flex-direction: column; align-items: flex-start; }
-.connection-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; margin-bottom: 23px; }
-.connection-heading>svg { color: var(--muted); }
-.connection-label { font-size: 12px; line-height: 1.5; padding: 5px 9px; background: #f5f6f7; border-radius: 6px; }
-.connection-card h2 { font-size: 21px; letter-spacing: -.015em; margin-bottom: 16px; }
-.connection-card p { font-size: 14px; color: #505862; line-height: 1.95; max-width: 65ch; margin-bottom: 16px; }
-.connection-card .button, .connection-card .text-button { margin-top: auto; }
-.connection-card small { color: var(--muted); line-height: 1.8; }
 .report-list>button { display: flex; align-items: center; gap: 20px; width: 100%; text-align: left; padding: 25px 28px; background: none; border-bottom: 1px solid var(--border); }
 .report-list>button:last-child { border-bottom: none; }
 .report-list>button:hover { background: #fafbfc; }
@@ -332,12 +318,6 @@ th:first-child, td:first-child { text-align: left; }
   .header-deposit { padding: 10px 14px; }
   .market-layout { grid-template-columns: 190px minmax(0,1fr); }
   .context-column { grid-column: 2; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; }
-  .research-note { grid-column: 1/-1; }
-  .research-note h3 br { display: none; }
-  .research-note { padding: 26px; }
-  .research-note>svg { float: left; margin-right: 14px; }
-  .research-note h3 { margin-top: 0; font-size: 22px; }
-  .research-note p { margin: 12px 0; }
   .asset-card { padding: 22px; }
   .asset-card strong { font-size: 26px; }
 }
@@ -459,9 +439,6 @@ th:first-child, td:first-child { text-align: left; }
   .ai-mark svg { width: 21px; }
   .analysis-panel>.notice { margin-left: 16px; margin-right: 16px; }
   .context-column { grid-template-columns: minmax(0,1fr); }
-  .research-note { grid-column: auto; padding: 25px; }
-  .research-note>svg { float: none; }
-  .research-note h3 { margin-top: 14px; }
   .asset-cards { gap: 12px; }
   .asset-card { padding: 20px 16px; gap: 14px; }
   .asset-card>span { font-size: 11px; }
@@ -475,11 +452,6 @@ th:first-child, td:first-child { text-align: left; }
   .empty-state { padding: 42px 20px; }
   .empty-state h3 { font-size: 18px; }
   .empty-state p { font-size: 13px; }
-  .connection-grid { grid-template-columns: minmax(0,1fr); gap: 18px; }
-  .connection-card { padding: 24px; }
-  .connection-card h2 { font-size: 20px; }
-  .connection-card p { font-size: 13px; }
-  .connection-heading { margin-bottom: 20px; }
   .report-list>button { padding: 20px 16px; gap: 10px; flex-wrap: wrap; }
   .report-list-icon { display: none; }
   .report-list-content { flex-basis: calc(100% - 30px); }
@@ -523,8 +495,72 @@ th:first-child, td:first-child { text-align: left; }
   .analysis-controls { column-gap: 7px; }
   .risk-select { gap: 1px; }
   .risk-select select { max-width: 96px; }
-  .asset-card strong { font-size: 23px; }
+  .asset-cards { grid-template-columns: minmax(0,1fr); }
+  .asset-card strong { font-size: 26px; }
   .asset-card { padding: 18px 14px; }
   .form-grid { gap: 10px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+
+/* Research workflow additions inherit the Northstar interface system. */
+.analysis-limits { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; padding: 0 24px 14px; font-size: 11px; color: var(--muted); line-height: 1.8; }
+.analysis-limits .text-button { margin-left: auto; font-size: 11px; }
+.queue-controls { display: flex; align-items: center; gap: 12px; padding: 13px 24px; background: var(--brand-soft); font-size: 12px; line-height: 1.8; }
+.queue-controls .text-button { margin-left: auto; white-space: nowrap; font-size: 12px; }
+.report-context { display: flex; flex-direction: column; gap: 5px; margin-top: 15px; color: var(--muted); font-size: 11px; line-height: 1.8; }
+.report-history-note { color: var(--muted); font-size: 13px; line-height: 1.9; margin: 18px 0; max-width: 70ch; }
+.reports-view>.notice { margin-bottom: 22px; }
+.report-filters { display: grid; grid-template-columns: minmax(160px,280px) minmax(120px,160px) 1fr; align-items: end; gap: 20px; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+.report-filters label { display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--muted); min-width: 0; }
+.report-filters select { width: 100%; font-size: 13px; }
+.report-filters>span { justify-self: end; font-size: 12px; line-height: 1.8; padding-bottom: 10px; }
+.archive-meta { display: flex; align-items: center; justify-content: space-between; gap: 14px 24px; padding: 18px 24px; font-size: 12px; line-height: 1.8; color: var(--muted); flex-wrap: wrap; }
+.archive-meta .text-button { font-size: 12px; }
+.archive-pagination { padding: 24px; border-top: 1px solid var(--border); display: flex; justify-content: center; }
+.job-status.cancelled { color: var(--muted); background: #f0f2f4; }
+.risk-settings { scroll-margin-top: 120px; }
+.risk-settings>summary { min-height: 64px; padding: 19px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; list-style: none; cursor: pointer; }
+.risk-settings>summary::-webkit-details-marker { display: none; }
+.risk-settings>summary>span:first-child { display: inline-flex; align-items: center; gap: 9px; font-size: 16px; font-weight: 650; }
+.settings-summary { display: inline-flex; align-items: center; gap: 12px; color: var(--muted); font-size: 12px; white-space: nowrap; }
+.risk-settings[open]>summary { border-bottom: 1px solid var(--border); }
+.risk-settings[open] .settings-summary svg { transform: rotate(180deg); }
+.settings-body { padding: 24px; }
+.settings-intro { color: #505862; font-size: 14px; line-height: 1.9; max-width: 70ch; margin-bottom: 20px; }
+.settings-body>.notice { margin-bottom: 20px; }
+.settings-note { font-size: 12px; line-height: 1.9; color: var(--muted); margin: 0 0 20px; max-width: 80ch; }
+.risk-profile-fields { min-width: 0; border: 0; padding: 0; margin: 0 0 24px; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 28px; }
+.risk-profile { border: 0; padding: 0; margin: 0; min-width: 0; }
+.risk-profile legend { padding: 0; margin-bottom: 4px; font-size: 16px; font-weight: 650; }
+.risk-profile label { display: flex; flex-direction: column; gap: 9px; color: var(--muted); font-size: 12px; margin-top: 16px; }
+.risk-profile input { width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+.risk-profile-fields:disabled input { color: var(--muted); background: #fafbfc; }
+.settings-actions { display: flex; align-items: center; gap: 12px 22px; flex-wrap: wrap; margin-top: 24px; }
+.settings-actions .text-button { font-size: 12px; }
+.settings-actions .text-button:last-child { margin-left: auto; }
+.settings-saved { font-size: 13px; color: var(--green); line-height: 1.8; }
+@media (max-width:640px) {
+  .analysis-limits { padding: 0 16px 14px; font-size: 10px; }
+  .analysis-limits .text-button { font-size: 11px; }
+  .queue-controls { padding: 13px 16px; font-size: 12px; flex-wrap: wrap; gap: 6px 12px; }
+  .report-context { font-size: 11px; }
+  .report-filters { grid-template-columns: repeat(2,minmax(0,1fr)); padding: 18px 16px; gap: 14px; }
+  .report-filters select { font-size: 12px; padding: 10px; }
+  .report-filters>span { grid-column: 1/-1; padding-bottom: 0; font-size: 11px; }
+  .archive-meta { padding: 18px 16px; font-size: 12px; }
+  .archive-detail>.panel-heading .text-button { font-size: 12px; }
+  .risk-settings>summary { padding: 18px 16px; }
+  .risk-settings>summary>span:first-child { font-size: 14px; }
+  .settings-summary { font-size: 11px; gap: 8px; }
+  .settings-body { padding: 20px 16px; }
+  .settings-intro { font-size: 13px; }
+  .risk-profile-fields { grid-template-columns: minmax(0,1fr); gap: 24px; }
+  .risk-profile { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+  .risk-profile legend { margin-bottom: 0; font-size: 15px; }
+  .risk-profile label { font-size: 11px; margin-top: 12px; }
+  .risk-profile input { font-size: 16px; }
+  .settings-actions { gap: 15px; }
+  .settings-actions .button { width: 100%; }
+  .settings-actions .text-button { font-size: 11px; }
+  .settings-note { font-size: 11px; }
+}

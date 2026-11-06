@@ -24,6 +24,8 @@ npm run dev:api
 
 本機 schema migration 可重跑；不會建立遠端資料庫或把本機帳本複製到雲端。Vite 開發介面另執行 `npm run dev`。`npm run dev:api` 提供完整已建置網站與本機 API。
 
+0.2 版新增 `0002_research_workflow.sql`，保存三組風險設定及取消排隊時間；本機與正式後端都需套用全部 migrations。`/api/health` 會實際檢查資料表與新欄位，成功時回報 `version: 0.2.0`、`schemaVersion: 2`。更新不需清空原有帳本或報告；功能與資料契約見 [架構說明](architecture.md)。
+
 `wrangler.jsonc` 的全零 database_id 僅供本機開發，部署腳本會拒絕它。個人資料、套件快取、Wrangler 本機資料庫及建置產物都被 Git 忽略。
 
 ## GitHub Pages 正式前端

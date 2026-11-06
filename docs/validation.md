@@ -1,5 +1,16 @@
 # 驗證紀錄
 
+2026-11-06 Northstar 0.2 功能延伸：保留已接受的視覺方向，移除「機會與風險，一起看清楚。」區塊與「資料連線」入口／頁面，改為市場研究、我的資產、研究報告三個主要入口。新增可保存的三組風險設定、固定歷史快照、精確報告閱讀與分頁、排隊取消；詳見 [架構說明](architecture.md)。
+
+- 42 項網站測試通過，涵蓋真實 SQLite 遷移保留舊帳本／報告、設定版本衝突、分析快照不可變、同時建立時間的穩定分頁、精確報告 ID、取消與領取競爭，以及扣費後倉位上限。TypeScript、Worker 與 GitHub Pages 子路徑建置、Worker 部署 dry run、Mac bridge Python 編譯均通過。
+- 在獨立本機 Worker／D1 經 UI 驗證記帳、儲存後重整、跨視窗 409 衝突保留草稿、36 份歷史紀錄與篩選、讀取舊報告及取消尚未領取的工作。健康檢查實際回報 `version: 0.2.0`、`schemaVersion: 2`，不是以綁定存在代替 schema 驗證。
+- Chromium 1440／768／390／320px 檢查通過，無整頁橫向溢出或未處理 JavaScript 錯誤。320px 的資產卡改為單欄，金額維持完整一行。Pages 未配置 API 的四種尺寸均無 API 請求、資金／設定寫入及分析維持停用，已刪區塊沒有出現。
+- 鍵盤實測通過：取消後返回風險選單、調整限額開啟設定、歷史閱讀聚焦標題、返回聚焦原報告，以及載入最後一頁後聚焦第一筆新增報告，下一個 Tab 可繼續到下一筆。
+- 本輪僅執行一次 Impeccable detector：2 項 warning（既有 Helvetica 常見度及對已宣告 Helvetica Neue 的字型比對提示）與 103 項 advisory（局部 token 涵蓋的色彩、字級及圓角）。保留已接受的字型與風格；不把掃描結果描述為零項發現。
+- 獨立完成審查檢視所提供的 13 張有效畫面，提出最後一頁載入後焦點及兩份設計文件過期導覽描述兩項修正。兩項均完成，scoring-only 最終複核為 resolved、disposition 為 ship；該 verdict 僅涵蓋原兩項修正。
+
+本輪本機行情來自明示的瀏覽器測試攔截，歷史報告是獨立測試資料庫的預置紀錄，模型呼叫為 0。截圖、程式及結果留在被忽略的 `.impeccable/review/workflow-v02/` 與 `.local/workflow-validation-v02/`；沒有把測試資金、報告或憑證加入部署資產。正式 API、Yahoo／富途與 Mac 訂閱分析仍未連接驗證；GitHub 推送、本機建置與線上 Actions／Pages 成功須分開判讀。
+
 2026-11-06 Northstar 視覺改版：以白色／淺灰表面、近黑色文字、橙色操作與頂部導覽替換原有深色固定側欄；涵蓋市場、資產、報告、連線、搜尋與記帳表單。設計規範見 `../DESIGN.md`，視覺參考限制見 `northstar-redesign-brief.zh-Hant.md`。Longbridge 指定頁面仍被環境代理以 CONNECT 403 拒絕；實作是已披露的風格詮釋，未核對原站精確樣式或相似程度。
 
 - 最終程式的 24 項網站測試、TypeScript 檢查與 Vite GitHub Pages 子路徑建置通過。

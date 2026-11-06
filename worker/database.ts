@@ -1,5 +1,25 @@
 import { InputError, normalizeLedger, portfolioFromLedger } from '../shared/portfolio';
-import type { LedgerInput, LedgerRow } from '../shared/types';
+import type { LedgerInput, LedgerRow, RiskSettings } from '../shared/types';
+import { initialRiskSettings, parseRiskSettings } from '../shared/risk';
+
+export async function getRiskSettings(db: D1Database): Promise<RiskSettings> {
+  const row = await db.prepare('SELECT profiles,revision,updated_at FROM research_settings WHERE id=1')
+    .first<{ profiles: string; revision: number; updated_at: string }>();
+  if (!row) return initialRiskSettings();
+  const parsed = parseRiskSettings({ revision: row.revision, profiles: JSON.parse(row.profiles) });
+  return { ...parsed, updatedAt: row.updated_at };
+}
+export async function saveRiskSettings(db: D1Database, input: unknown): Promise<RiskSettings | null> {
+  const value = parseRiskSettings(input), now = new Date().toISOString();
+  // Compare the revision in the atomic write; concurrent browser tabs cannot
+  // silently replace each other's investment limits.
+  const result = await db.prepare(`INSERT INTO research_settings(id,profiles,revision,updated_at)
+    SELECT 1,?,1,? WHERE ?=0 OR EXISTS(SELECT 1 FROM research_settings WHERE id=1 AND revision=?)
+    ON CONFLICT(id) DO UPDATE SET profiles=excluded.profiles,revision=research_settings.revision+1,updated_at=excluded.updated_at
+    WHERE research_settings.revision=?`)
+    .bind(JSON.stringify(value.profiles), now, value.revision, value.revision, value.revision).run();
+  return result.meta.changes ? getRiskSettings(db) : null;
+}
 
 export async function getPortfolio(db: D1Database) {
   const { results } = await db.prepare('SELECT * FROM ledger ORDER BY id').all<LedgerRow>();

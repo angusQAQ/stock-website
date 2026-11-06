@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { InputError } from '../shared/portfolio';
-import { UNIVERSE, type AnalysisJob, type LedgerInput } from '../shared/types';
-import { addLedger, getPortfolio } from './database';
+import { UNIVERSE, type LedgerInput } from '../shared/types';
+import { addLedger, getPortfolio, getRiskSettings, saveRiskSettings } from './database';
+import { getAnalysisHistory, publicJob } from './analysis';
 import { fetchQuote, MarketError } from './market';
 
 interface Env { DB: D1Database; ASSETS: Fetcher; APP_ORIGIN?: string; BRIDGE_TOKEN?: string; BRIDGE_ENABLED?: string }
@@ -19,10 +20,6 @@ async function body(request: Request) {
   if (text.length > 100_000) throw new InputError('資料量超出限制。');
   try { return JSON.parse(text); } catch { throw new InputError('JSON 格式無效。'); }
 }
-function publicJob(row: any): AnalysisJob {
-  return { id: row.id, symbol: row.symbol, horizon: row.horizon, risk: row.risk, status: row.status,
-    result: row.result ? JSON.parse(row.result) : null, error: row.error, createdAt: row.created_at, updatedAt: row.updated_at };
-}
 async function bridgeAuthorized(request: Request, env: Env) {
   if (!env.BRIDGE_TOKEN || env.BRIDGE_ENABLED !== 'true') return false;
   const expected = new TextEncoder().encode(`Bearer ${env.BRIDGE_TOKEN}`);
@@ -35,7 +32,16 @@ async function bridgeAuthorized(request: Request, env: Env) {
 
 async function api(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   const url = new URL(request.url), path = url.pathname, method = request.method;
-  if (path === '/api/health') return json({ status: 'ok', storage: !!env.DB, version: '0.1.0' });
+  if (path === '/api/health' && method === 'GET') {
+    try {
+      await env.DB.prepare('SELECT id FROM ledger LIMIT 1').first();
+      await getRiskSettings(env.DB);
+      await env.DB.prepare('SELECT cancelled_at FROM analysis_jobs LIMIT 1').first();
+      return json({ status: 'ok', service: 'northstar-api', storage: true, version: '0.2.0', schemaVersion: 2,
+        capabilities: ['portfolio','quotes','risk-settings','analysis-history','queue-cancel'] });
+    } catch { return json({ status: 'unavailable', service: 'northstar-api', storage: false,
+      error: '帳本尚未就緒，請檢查資料庫連線與結構更新。' }, 503); }
+  }
   if (path === '/api/universe') return json(UNIVERSE);
   if (path === '/api/quote' && method === 'GET') {
     const symbol = (url.searchParams.get('symbol') ?? '').toUpperCase();
@@ -51,6 +57,13 @@ async function api(request: Request, env: Env, ctx: ExecutionContext): Promise<R
   }
   if (path === '/api/portfolio' && method === 'GET') return json(await getPortfolio(env.DB));
   if (path === '/api/ledger' && method === 'POST') return json(await addLedger(env.DB, await body(request) as LedgerInput), 201);
+  if (path === '/api/settings/risk') {
+    if (method === 'GET') return json(await getRiskSettings(env.DB));
+    if (method === 'POST') {
+      const settings = await saveRiskSettings(env.DB, await body(request));
+      return settings ? json(settings) : json({ error: '風險設定已在其他視窗更新，請重新載入後再儲存。' }, 409);
+    }
+  }
   if (path === '/api/watchlist') {
     if (method === 'GET') {
       const { results } = await env.DB.prepare('SELECT symbol FROM watchlist ORDER BY added_at,symbol').all<{symbol:string}>();
@@ -69,18 +82,36 @@ async function api(request: Request, env: Env, ctx: ExecutionContext): Promise<R
       online: !!state && Date.now() - Date.parse(state.last_seen) < 90_000, lastSeen: state?.last_seen ?? null });
   }
   if (path === '/api/analysis/jobs' && method === 'GET') {
-    const { results } = await env.DB.prepare('SELECT * FROM analysis_jobs ORDER BY created_at DESC LIMIT 30').all();
+    const { results } = await env.DB.prepare('SELECT * FROM analysis_jobs ORDER BY created_at DESC,id DESC LIMIT 30').all();
     return json(results.map(publicJob));
+  }
+  if (path === '/api/analysis/history' && method === 'GET') return json(await getAnalysisHistory(env.DB, url.searchParams));
+  const jobPath = path.match(/^\/api\/analysis\/jobs\/([a-f0-9-]{36})(\/cancel)?$/);
+  if (jobPath && ((method === 'GET' && !jobPath[2]) || (method === 'POST' && jobPath[2]))) {
+    let row = await env.DB.prepare('SELECT * FROM analysis_jobs WHERE id=?').bind(jobPath[1]).first<any>();
+    if (!row) return json({ error: '找不到這份分析紀錄。' }, 404);
+    if (method === 'GET' || row.cancelled_at) return json(publicJob(row));
+    const now = new Date().toISOString();
+    const changed = await env.DB.prepare(`UPDATE analysis_jobs SET status='failed',cancelled_at=?,updated_at=?,error='已取消排隊，未執行分析。'
+      WHERE id=? AND status='queued' RETURNING *`).bind(now, now, row.id).first<any>();
+    if (changed) return json(publicJob(changed));
+    row = await env.DB.prepare('SELECT * FROM analysis_jobs WHERE id=?').bind(jobPath[1]).first<any>();
+    return row?.cancelled_at ? json(publicJob(row)) : json({ error: '工作已開始或已結束，不能再取消排隊。' }, 409);
   }
   if (path === '/api/analysis/jobs' && method === 'POST') {
     if (!env.BRIDGE_TOKEN || env.BRIDGE_ENABLED !== 'true') return json({ error: 'Mac 分析端尚未設定，請先完成本機連接。' }, 503);
     const input = z.object({ symbol: z.enum(UNIVERSE.map(x => x.symbol) as [string,...string[]]),
-      horizon: z.enum(['short','swing','long']), risk: z.enum(['conservative','balanced','aggressive']) }).parse(await body(request));
+      horizon: z.enum(['short','swing','long']), risk: z.enum(['conservative','balanced','aggressive']),
+      settingsRevision: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER).optional() }).parse(await body(request));
+    const settings = await getRiskSettings(env.DB);
+    if (input.settingsRevision !== undefined && input.settingsRevision !== settings.revision)
+      return json({ error: '風險設定已更新，請重新載入設定後再分析。' }, 409);
     const now = new Date().toISOString();
     await env.DB.prepare("UPDATE analysis_jobs SET status='failed',error='Mac 工作中斷，請重新分析。',updated_at=? WHERE status='running' AND updated_at<?")
       .bind(now, new Date(Date.now()-900_000).toISOString()).run();
     const [quote, portfolio] = await Promise.all([fetchQuote(input.symbol), getPortfolio(env.DB)]);
-    const snapshot = { quote, portfolio, horizon: input.horizon, risk: input.risk, capturedAt: now };
+    const snapshot = { quote, portfolio, horizon: input.horizon, risk: input.risk, capturedAt: now,
+      riskLimits: settings.profiles[input.risk], settingsRevision: settings.revision };
     const id = crypto.randomUUID();
     const inserted = await env.DB.prepare(`INSERT INTO analysis_jobs (id,symbol,horizon,risk,snapshot,created_at,updated_at)
       SELECT ?,?,?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM analysis_jobs WHERE status IN ('queued','running'))`)

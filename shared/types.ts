@@ -1,5 +1,12 @@
 export type Horizon = 'short' | 'swing' | 'long';
 export type Risk = 'conservative' | 'balanced' | 'aggressive';
+export interface RiskLimits { maxPositionBps: number; riskPerTradeBps: number }
+export interface RiskSettings {
+  revision: number;
+  updatedAt: string | null;
+  profiles: Record<Risk, RiskLimits>;
+}
+export interface RiskSettingsInput { revision: number; profiles: Record<Risk, RiskLimits> }
 export type LedgerKind = 'deposit' | 'withdrawal' | 'opening' | 'buy' | 'sell';
 export interface LedgerInput {
   requestId: string; kind: LedgerKind; symbol?: string;
@@ -33,7 +40,13 @@ export interface AnalysisJob {
   status: 'queued' | 'running' | 'completed' | 'failed';
   result: AnalysisReport | null; error: string | null;
   createdAt: string; updatedAt: string;
+  riskLimits?: RiskLimits | null;
+  settingsRevision?: number | null;
+  capturedAt?: string | null;
+  quoteTimestamp?: number | null;
+  cancelledAt?: string | null;
 }
+export interface AnalysisHistory { items: AnalysisJob[]; nextCursor: string | null }
 export const UNIVERSE = [
   { symbol: 'AAPL', name: 'Apple', sector: '科技' }, { symbol: 'MSFT', name: 'Microsoft', sector: '科技' },
   { symbol: 'NVDA', name: 'NVIDIA', sector: '半導體' }, { symbol: 'GOOGL', name: 'Alphabet', sector: '通訊' },

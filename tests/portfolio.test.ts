@@ -58,8 +58,16 @@ describe('cash-only dollar portfolio',()=>{
 });
 describe('risk-based sizing',()=>{
   it('respects existing exposure, available cash and fees',()=>{
+    const p=positionSizing({cash:5000,equity:10000,existingValue:1390,entry:100,stopLoss:90,fees:2,risk:'balanced'});
+    expect(p.shares).toBe(1);expect(p.positionPercent).toBeLessThanOrEqual(15);expect(p.riskAmount).toBe(12);expect(p.cashRequired).toBe(102);
+  });
+  it('does not cross the concentration limit when fees reduce the remaining equity',()=>{
     const p=positionSizing({cash:5000,equity:10000,existingValue:1400,entry:100,stopLoss:90,fees:2,risk:'balanced'});
-    expect(p.shares).toBe(1);expect(p.positionPercent).toBe(15);expect(p.riskAmount).toBe(12);
+    expect(p.shares).toBe(0);expect(p.cashRequired).toBe(0);
+  });
+  it('uses the report limits instead of the named profile defaults',()=>{
+    const p=positionSizing({cash:5000,equity:10000,existingValue:0,entry:100,stopLoss:90,fees:0,risk:'balanced',limits:{maxPositionBps:3000,riskPerTradeBps:25}});
+    expect(p.shares).toBe(2);expect(p.riskAmount).toBe(20);expect(p.riskPercent).toBe(0.25);
   });
   it('returns zero shares when current concentration is already too high',()=>{
     expect(positionSizing({cash:5000,equity:10000,existingValue:2000,entry:100,stopLoss:90,fees:1,risk:'balanced'}).shares).toBe(0);

@@ -15,6 +15,7 @@ npm run dev:api
 開發介面時，可在另一個終端執行 `npm run dev`，Vite 會把 API 請求轉給本機 Worker。
 
 - [功能與限制](docs/product-requirements.md)
+- [功能架構與 0.2 更新：風險設定、歷史報告與排隊控制](docs/architecture.md)
 - [Northstar 設計規範](DESIGN.md) · [改版方向與參考核對限制](docs/northstar-redesign-brief.zh-Hant.md)
 - [部署、固定網址與 Mac 連接](docs/deployment.md)
 - [五組研究來源與 42 個專案 skills](docs/research-tools.md)

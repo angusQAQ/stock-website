@@ -1,9 +1,10 @@
 import { ArrowDownToLine, Plus, Wallet } from 'lucide-react';
-import type { LedgerKind, Portfolio, Quote } from '../shared/types';
+import RiskSettingsPanel from './RiskSettingsPanel';
+import type { LedgerKind, Portfolio, Quote, RiskSettings, RiskSettingsInput } from '../shared/types';
 
 const usd=(value:number)=>value.toLocaleString('en-US',{style:'currency',currency:'USD'});
 const kindNames={deposit:'美元入金',withdrawal:'美元出金',opening:'既有持倉',buy:'買入',sell:'賣出'};
-export default function PortfolioView({ portfolio, quotes, open, select }: { portfolio:Portfolio|null;quotes:Record<string,Quote>;open:(kind:LedgerKind)=>void;select:(symbol:string)=>void }) {
+export default function PortfolioView({ portfolio, quotes, open, select, settings, saveSettings, reloadSettings, settingsOpen, toggleSettings }: { portfolio:Portfolio|null;quotes:Record<string,Quote>;open:(kind:LedgerKind)=>void;select:(symbol:string)=>void;settings:RiskSettings|null;saveSettings:(value:RiskSettingsInput)=>Promise<RiskSettings>;reloadSettings:()=>Promise<RiskSettings>;settingsOpen:boolean;toggleSettings:(value:boolean)=>void }) {
   const positions=portfolio?.positions??[];
   const complete=!!portfolio && positions.every(p=>!!quotes[p.symbol]);
   const marketValue=complete?positions.reduce((sum,p)=>sum+p.quantity*quotes[p.symbol].price,0):null;
@@ -15,6 +16,7 @@ export default function PortfolioView({ portfolio, quotes, open, select }: { por
     <section className="panel"><div className="panel-heading"><h2>持倉明細 <span className="count">{portfolio?positions.length:'—'}</span></h2><button className="text-button" onClick={()=>open('opening')}><Plus size={14}/>輸入既有持倉</button></div>
       {positions.length?<div className="table-scroll"><table><thead><tr><th>股票</th><th>股數</th><th>平均成本</th><th>最新價格</th><th>持倉市值</th><th>未實現損益</th><th>倉位比例</th></tr></thead><tbody>{positions.map(p=>{const q=quotes[p.symbol],value=q?p.quantity*q.price:null;const pnl=value===null?null:value-p.costCents/100;return <tr key={p.symbol} onClick={()=>select(p.symbol)} className="clickable"><td><button className="ticker-link" onClick={event=>{event.stopPropagation();select(p.symbol)}}>{p.symbol}</button><span className="cell-sub">{q?.name??'美股持倉'}</span></td><td>{p.quantity.toLocaleString('en-US',{maximumFractionDigits:6})}</td><td>{usd(p.averageCost)}</td><td>{q?usd(q.price):'待行情'}</td><td>{value===null?'—':usd(value)}</td><td className={pnl!==null&&pnl<0?'down':'up'}>{pnl===null?'—':usd(pnl)}</td><td>{value!==null&&marketValue!==null&&marketValue+(portfolio?.cashCents??0)/100>0?(value/(marketValue+(portfolio?.cashCents??0)/100)*100).toFixed(1)+'%':'—'}</td></tr>})}</tbody></table></div>:<div className="empty-state"><Wallet size={30}/><h3>建立你的第一份資產紀錄</h3><p>先輸入目前可用美元現金，再加入既有股票的股數與平均成本。</p><button className="button secondary" onClick={()=>open('deposit')}>輸入美元現金</button></div>}
     </section>
+    <RiskSettingsPanel settings={settings} save={saveSettings} reload={reloadSettings} expanded={settingsOpen} toggle={toggleSettings}/>
     <section className="panel"><div className="panel-heading"><h2>資金與交易帳本</h2><span className="muted">所有金額以 USD 計算</span></div><div className="table-scroll"><table><thead><tr><th>時間</th><th>類型</th><th>股票</th><th>股數</th><th>價格</th><th>費用</th><th>現金變動</th></tr></thead><tbody>{[...(portfolio?.ledger??[])].reverse().map(row=><tr key={row.id}><td className="muted">{new Date(row.created_at).toLocaleString('zh-HK')}</td><td>{kindNames[row.kind]}</td><td>{row.symbol??'—'}</td><td>{row.quantity_units?row.quantity_units/1e6:'—'}</td><td>{row.price_units?usd(row.price_units/1e6):'—'}</td><td>{usd(row.fee_cents/100)}</td><td className={row.cash_delta_cents<0?'down':'up'}>{usd(row.cash_delta_cents/100)}</td></tr>)}</tbody></table>{!portfolio?.ledger.length&&<p className="table-empty">尚未有資金或交易紀錄</p>}</div></section>
   </div>;
 }
