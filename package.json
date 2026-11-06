@@ -1,6 +1,6 @@
 {
   "name": "stock-website",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -12,6 +12,8 @@
     "build": "tsc --noEmit && vite build",
     "check": "tsc --noEmit",
     "test": "vitest run",
+    "test:research": "python3 -m unittest discover -s tests -p test_research_data.py",
+    "schema:report": "node --experimental-strip-types scripts/generate-report-schema.mjs",
     "db:local": "wrangler d1 migrations apply DB --local",
     "deploy": "npm run build && node scripts/prepare-deploy.mjs && wrangler d1 migrations apply DB --remote --config .local/deploy/wrangler.json && wrangler deploy --config .local/deploy/wrangler.json"
   },

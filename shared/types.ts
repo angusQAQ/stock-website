@@ -1,4 +1,5 @@
-export type Horizon = 'short' | 'swing' | 'long';
+export type Horizon = 'month' | 'short' | 'swing' | 'long';
+export const HORIZONS: Record<Horizon,string> = {month:'一個月',short:'短線',swing:'波段',long:'長期'};
 export type Risk = 'conservative' | 'balanced' | 'aggressive';
 export interface RiskLimits { maxPositionBps: number; riskPerTradeBps: number }
 export interface RiskSettings {
@@ -19,14 +20,36 @@ export interface LedgerRow {
 }
 export interface Position { symbol: string; quantity: number; costCents: number; averageCost: number; realizedCents: number }
 export interface Portfolio { cashCents: number; positions: Position[]; realizedCents: number; depositsCents: number; ledger: LedgerRow[] }
-export interface Bar { time: number; open: number; high: number; low: number; close: number; volume: number }
+export interface Bar { time: number; open: number; high: number; low: number; close: number; volume: number; volumeMissing?:boolean }
 export interface Quote {
   symbol: string; name: string; currency: string; price: number; previousClose: number | null;
   change: number | null; changePercent: number | null; timestamp: number;
   session: 'pre' | 'regular' | 'post' | 'closed' | 'unknown';
   source: string; fetchedAt: string; exchangeDelayMinutes: number | null;
   bars: Bar[]; range: string; marketCap: number | null;
+  interval?: string; sourceUrl?: string; priceBasis?: string;
 }
+export type Rating = 'strong-buy' | 'moderate-buy' | 'hold' | 'moderate-sell' | 'strong-sell';
+export const RATINGS: Record<Rating,string> = {'strong-buy':'強烈買入','moderate-buy':'適度買入',hold:'持有','moderate-sell':'適度賣出','strong-sell':'強烈賣出'};
+export interface ResearchEvidence {
+  kind:'financials'|'market'|'flows'|'insiders'|'options';
+  status:'available'|'unavailable'|'not-applicable'; asOf:string|null; summary:string; sourceIndices:number[];
+  metrics:{label:string;value:number;unit:string;period:string;sourceIndices:number[]}[];
+}
+export interface ResearchV2 {
+  version:2; rating:Rating|null; outlook:string; plainLanguage:string; technicalSummary:string;
+  newsImpact:{date:string;title:string;impact:string;sourceIndices:number[]}[];
+  evidence:ResearchEvidence[];
+  scenarios:{case:'bull'|'base'|'bear';condition:string;outcome:string;targetPrice:number|null}[];
+  conflicts:string;
+}
+export interface TechnicalEvidence {
+  ma20:number|null;ma50:number|null;ma200:number|null;rsi14:number|null;
+  macd:number|null;macdSignal:number|null;macdHistogram:number|null;
+  bollingerUpper:number|null;bollingerLower:number|null;atr14:number|null;
+  support20:number|null;resistance20:number|null;relativeVolume20:number|null;cmf20:number|null;obv:number|null;
+}
+export interface ResearchSnapshot { chart:Quote|null; indicators:TechnicalEvidence|null; window:{start:string;end:string}; missingData:string[] }
 export interface AnalysisReport {
   verdict: 'buy' | 'hold' | 'reduce' | 'avoid' | 'insufficient-data';
   summary: string; reasons: string[]; risks: string[];
@@ -34,6 +57,7 @@ export interface AnalysisReport {
   details: string;
   sources: { title: string; url: string; asOf: string }[];
   missingData: string[];
+  research?:ResearchV2;
 }
 export interface AnalysisJob {
   id: string; symbol: string; horizon: Horizon; risk: Risk;
@@ -45,6 +69,7 @@ export interface AnalysisJob {
   capturedAt?: string | null;
   quoteTimestamp?: number | null;
   cancelledAt?: string | null;
+  researchSnapshot?:ResearchSnapshot|null;
 }
 export interface AnalysisHistory { items: AnalysisJob[]; nextCursor: string | null }
 export const UNIVERSE = [

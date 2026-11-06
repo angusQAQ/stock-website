@@ -5,6 +5,7 @@ import worker from '../worker/index';
 import { getRiskSettings, saveRiskSettings } from '../worker/database';
 import { initialRiskSettings, parseRiskSettings } from '../shared/risk';
 import { sqliteD1 } from './support/sqlite';
+import { researchReport } from './support/research';
 
 let env: any;
 const ctx = { waitUntil() {} } as any;
@@ -94,6 +95,35 @@ async function seedHistory(count: number) {
   return rows;
 }
 describe('exact historical reports and queue cancellation', () => {
+  it('captures daily evidence for a new one-month report and protects it after completion', async()=>{
+    const now=Math.floor(Date.now()/1000);
+    vi.stubGlobal('fetch',vi.fn(async()=>Response.json({chart:{result:[{meta:{currency:'USD',instrumentType:'EQUITY',regularMarketPrice:100,regularMarketTime:now,previousClose:99},timestamp:Array.from({length:252},(_,i)=>now-(251-i)*86400),indicators:{quote:[{open:Array(252).fill(100),high:Array(252).fill(102),low:Array(252).fill(98),close:Array(252).fill(100),volume:Array(252).fill(1000)}]}}]}})));
+    const response=await request('/analysis/jobs',{symbol:'AAPL',horizon:'month',risk:'balanced'});expect(response.status).toBe(201);
+    const job=await response.json() as any;expect(job.researchSnapshot.chart.range).toBe('1Y');expect(job.researchSnapshot.chart.bars).toHaveLength(252);expect(job.researchSnapshot.indicators.ma200).toBe(100);
+    const start=Date.parse(job.researchSnapshot.window.start),end=Date.parse(job.researchSnapshot.window.end);expect(end-start).toBe(30*86400000);
+    const claim=await (await request('/bridge/claim',{},true)).json() as any;
+    const report=researchReport();report.verdict='buy';report.research!.rating='moderate-buy';report.sources=[{title:'Test company filing',url:'https://example.com/filing',asOf:new Date().toISOString().slice(0,10)}];
+    report.research!.evidence[0]={kind:'financials',status:'available',asOf:new Date().toISOString().slice(0,10),summary:'Test filing only',sourceIndices:[0],metrics:[{label:'Test revenue',value:100,unit:'USD',period:'Test quarter only',sourceIndices:[0]}]};
+    expect((await request('/bridge/result',{id:job.id,claimToken:claim.claimToken,report},true)).status).toBe(200);
+    vi.stubGlobal('fetch',vi.fn(async()=>new Response('',{status:503})));
+    const stored=await (await request('/analysis/jobs/'+job.id)).json() as any;
+    expect(stored.result.research.rating).toBe('moderate-buy');expect(stored.researchSnapshot.chart.bars).toEqual(job.researchSnapshot.chart.bars);expect(fetch).not.toHaveBeenCalled();
+  });
+  it('rejects a substantive rating without enough actual candles',async()=>{
+    const job=await (await request('/analysis/jobs',{symbol:'AAPL',horizon:'month',risk:'balanced'})).json() as any;
+    const claim=await (await request('/bridge/claim',{},true)).json() as any;
+    const report=researchReport();report.verdict='hold';report.research!.rating='hold';
+    const response=await request('/bridge/result',{id:job.id,claimToken:claim.claimToken,report},true);
+    expect(response.status).toBe(400);expect((await response.json() as any).error).toContain('日 K 線');
+    expect((await request('/bridge/result',{id:job.id,claimToken:claim.claimToken,report:researchReport()},true)).status).toBe(200);
+  });
+  it('still accepts a legacy result for a genuinely old queued job',async()=>{
+    const id='dddddddd-0000-4000-8000-000000000000',stamp=new Date().toISOString();
+    await env.DB.prepare('INSERT INTO analysis_jobs(id,symbol,horizon,risk,snapshot,created_at,updated_at) VALUES(?,?,?,?,?,?,?)').bind(id,'AAPL','swing','balanced','{}',stamp,stamp).run();
+    const claim=await (await request('/bridge/claim',{},true)).json() as any;
+    const report=researchReport();delete report.research;
+    expect((await request('/bridge/result',{id,claimToken:claim.claimToken,report},true)).status).toBe(200);
+  });
   it('paginates beyond 30 reports without losing tied timestamps', async () => {
     const rows = await seedHistory(35), collected: string[] = [];
     let cursor: string | null = null;

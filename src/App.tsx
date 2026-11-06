@@ -26,6 +26,7 @@ export default function App() {
   const [quotes,setQuotes]=useState<Record<string,Quote>>({});
   const [quoteErrors,setQuoteErrors]=useState<Record<string,string>>({});
   const [chart,setChart]=useState<Quote|null>(null);
+  const [chartError,setChartError]=useState('');
   const [portfolio,setPortfolio]=useState<Portfolio|null>(null);
   const [accountChecked,setAccountChecked]=useState(false);
   const [watchlist,setWatchlist]=useState<string[]>([]);
@@ -33,7 +34,7 @@ export default function App() {
   const [bridge,setBridge]=useState({enabled:false,online:false,lastSeen:null as string|null});
   const [serviceError,setServiceError]=useState('');
   const [analysisError,setAnalysisError]=useState('');
-  const [horizon,setHorizon]=useState<Horizon>('swing');
+  const [horizon,setHorizon]=useState<Horizon>('month');
   const [risk,setRisk]=useState<Risk>('balanced');
   const [busy,setBusy]=useState(false);
   const [settings,setSettings]=useState<RiskSettings|null>(null);
@@ -47,7 +48,7 @@ export default function App() {
 
   useEffect(()=>{window.scrollTo(0,0)},[page]);
   const displayed=useMemo(()=>listMode==='watchlist'?watchlist:listMode==='etf'?UNIVERSE.filter(x=>x.sector==='ETF').map(x=>x.symbol):UNIVERSE.slice(0,8).map(x=>x.symbol),[listMode,watchlist]);
-  const symbols=useMemo(()=>[...new Set([...displayed,selected,'SPY','QQQ','VOO','BND',...(portfolio?.positions??[]).map(p=>p.symbol)])].slice(0,40).join(','),[displayed,selected,portfolio?.positions]);
+  const symbols=useMemo(()=>[...new Set([selected,...displayed,'SPY','QQQ','VOO','BND',...(portfolio?.positions??[]).map(p=>p.symbol)])].slice(0,40).join(','),[displayed,selected,portfolio?.positions]);
   useEffect(()=>{const timer=setInterval(()=>setClock(Date.now()),1000);return()=>clearInterval(timer)},[]);
   useEffect(()=>{
     if(!accountChecked||!API_AVAILABLE)return;
@@ -56,7 +57,7 @@ export default function App() {
     async function poll(){
       if(working||document.hidden)return;working=true;
       const pending=symbols.split(',');
-      await Promise.allSettled(Array.from({length:3},async()=>{while(pending.length){const symbol=pending.shift()!;
+      await Promise.allSettled(Array.from({length:3},async()=>{while(pending.length&&!cancelled){const symbol=pending.shift()!;
         try {const q=await api<Quote>(`/quote?symbol=${encodeURIComponent(symbol)}&range=1D`,{signal:controller.signal});if(!cancelled){setQuotes(old=>({...old,[symbol]:q}));setQuoteErrors(old=>{const next={...old};delete next[symbol];return next})}}
         catch(e){if(!cancelled)setQuoteErrors(old=>({...old,[symbol]:(e as Error).message}))}
       }}));working=false;
@@ -65,11 +66,16 @@ export default function App() {
     return()=>{cancelled=true;controller.abort();clearInterval(timer);document.removeEventListener('visibilitychange',poll)};
   },[symbols,refresh,accountChecked]);
   useEffect(()=>{
-    if(range==='1D'){setChart(null);return;}
-    const controller=new AbortController();
-    setChart(null);
-    api<Quote>(`/quote?symbol=${selected}&range=${range}`,{signal:controller.signal}).then(setChart).catch(()=>{});
-    return()=>controller.abort();
+    setChart(previous=>previous?.symbol===selected&&previous.range===range?previous:null);setChartError('');
+    if(range==='1D'||!API_AVAILABLE)return;
+    const controller=new AbortController();let working=false;
+    async function poll(){
+      if(working||document.hidden||controller.signal.aborted)return;working=true;
+      try {const value=await api<Quote>(`/quote?symbol=${selected}&range=${range}`,{signal:controller.signal});if(!controller.signal.aborted){setChart(value);setChartError('')}}
+      catch(error){if(!controller.signal.aborted)setChartError((error as Error).message)}finally{working=false}
+    }
+    poll();const timer=setInterval(poll,5000);document.addEventListener('visibilitychange',poll);
+    return()=>{controller.abort();clearInterval(timer);document.removeEventListener('visibilitychange',poll)};
   },[selected,range,refresh]);
   const loadAccount=useCallback(async(force=false)=>{
     if(accountRequest.current&&!force)return;
@@ -104,7 +110,7 @@ export default function App() {
 
   const select=(symbol:string)=>{setSelected(symbol);setPage('market');setSearchOpen(false);setQuery('');setAnalysisError('');window.scrollTo(0,0)};
   const quote=quotes[selected];
-  const activeChart=range==='1D'?quote:chart;
+  const activeChart=range==='1D'?quote:chart?.symbol===selected&&chart.range===range?chart:null;
   const bars=activeChart?.bars??[];
   const tech=technicals(bars);
   const latest=bars.at(-1);
@@ -206,11 +212,13 @@ export default function App() {
                   <div className="quote-market-status"><span className={`status-dot ${quote?.session==='regular'?'online':''}`}/>{quote?sessionNames[quote.session]:API_AVAILABLE?'行情連接中':'待連接行情'}</div>
                 </div>
                 <div className="price-heading"><strong>{quote?quote.price.toFixed(2):'—'}<small>USD</small></strong><span className={!quote?'muted':quote.changePercent!==null&&quote.changePercent<0?'down':'up'}>{quote?.change!==null&&quote?`${quote.change>=0?'+':''}${quote.change.toFixed(2)}`:'—'} <b>{quote?pct(quote.changePercent):''}</b></span><button className="icon-button" aria-label="重新整理行情" onClick={()=>setRefresh(value=>value+1)}><RefreshCw size={16}/></button></div>
-                <div className="quote-facts">{[['開盤',latest?.open],['最高',latest?.high],['最低',latest?.low],['前收',quote?.previousClose]].map(([label,value])=><div key={String(label)}><span>{label}</span><strong>{typeof value==='number'?value.toFixed(2):'—'}</strong></div>)}<div><span>成交量 · 所選 K 線</span><strong>{latest?compact(latest.volume):'—'}</strong></div></div>
+                <div className="quote-facts">{[['開盤',latest?.open],['最高',latest?.high],['最低',latest?.low],['前收',quote?.previousClose]].map(([label,value])=><div key={String(label)}><span>{label}</span><strong>{typeof value==='number'?value.toFixed(2):'—'}</strong></div>)}<div><span>成交量 · 所選 K 線</span><strong>{latest&&!latest.volumeMissing?compact(latest.volume):'—'}</strong></div></div>
                 {quoteErrors[selected]&&<div className="quote-error" role="status"><Activity size={14}/><span>{quoteErrors[selected]}{quote&&' 保留先前報價，請留意時間。'}</span></div>}
-                <div className="chart-toolbar"><div className="range-tabs" aria-label="圖表期間">{['1D','5D','1M','3M','1Y','5Y'].map(value=><button key={value} className={range===value?'active':''} aria-pressed={range===value} onClick={()=>setRange(value)}>{value}</button>)}</div><div className="chart-tools"><span><i className="legend-dot amber-bg"/>MA20</span><span><i className="legend-dot blue-bg"/>MA50</span><span><BarChart3 size={14}/>K 線</span></div></div>
+                <div className="chart-toolbar"><div className="range-tabs" aria-label="圖表期間">{['1D','5D','1M','3M','1Y','5Y','MAX'].map(value=><button key={value} className={range===value?'active':''} aria-pressed={range===value} onClick={()=>setRange(value)}>{value}</button>)}</div><div className="chart-tools"><span><i className="legend-dot amber-bg"/>MA20</span><span><i className="legend-dot blue-bg"/>MA50</span><span><BarChart3 size={14}/>K 線</span></div></div>
+                {chartError&&<div className="quote-error" role="status">K 線更新失敗：{chartError} {activeChart?'保留上次圖表，請留意資料時間。':'尚無可用圖表。'}</div>}
                 <StockChart key={`${selected}-${range}`} bars={bars} symbol={selected}/>
-                <div className="chart-footer"><span>MA20 <b className="amber">{tech.ma20?.toFixed(2)??'—'}</b></span><span>MA50 <b className="blue">{tech.ma50?.toFixed(2)??'—'}</b></span><span>RSI(14) <b>{tech.rsi14?.toFixed(1)??'—'}</b></span><span className="chart-source">Yahoo Finance · {quote?new Date(quote.timestamp*1000).toLocaleTimeString('zh-HK',{hour12:false}):'尚無資料'}{stale?' · 報價時間較早':''}</span></div>
+                <div className="chart-footer"><span>MA20 <b className="amber">{tech.ma20?.toFixed(2)??'—'}</b></span><span>MA50 <b className="blue">{tech.ma50?.toFixed(2)??'—'}</b></span><span>RSI(14) <b>{tech.rsi14?.toFixed(1)??'—'}</b></span><span className="chart-source">{activeChart?.source??'Yahoo Finance'} · K 線 {bars.at(-1)?new Date(bars.at(-1)!.time*1000).toLocaleString('zh-HK'):'尚無資料'}</span></div>
+                <p className="data-freshness">報價時間 {quote?new Date(quote.timestamp*1000).toLocaleString('zh-HK'):'—'} · 來源延遲 {quote?.exchangeDelayMinutes!==null&&quote?.exchangeDelayMinutes!==undefined?`${quote.exchangeDelayMinutes} 分鐘`:'未提供'}{stale?' · 報價時間較早':''}。每 5 秒檢查更新；盤前／盤後及最新一根 K 線可能未完成，來源不保證交易所即時行情。</p>
               </section>
               <AnalysisPanel symbol={selected} horizon={horizon} risk={risk} setHorizon={setHorizon} setRisk={setRisk} online={bridge.online} enabled={bridge.enabled} job={currentJob} analyze={analyze} busy={busy} error={analysisError} portfolio={portfolio} quotes={quotes} settings={settings} pendingJob={pendingJob} editSettings={()=>{setRiskEditorOpen(true);setPage('portfolio')}} cancel={cancelJob} cancellingId={cancellingId}/>
             </div>

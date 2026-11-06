@@ -3,6 +3,8 @@ import { ArrowUpRight, ChevronDown, CircleAlert, ExternalLink } from 'lucide-rea
 import type { AnalysisJob, Portfolio, Quote } from '../shared/types';
 import { fixed, positionSizing } from '../shared/portfolio';
 import { percent, RISK_NAMES } from '../shared/risk';
+import { RATINGS } from '../shared/types';
+import ResearchEvidence from './ResearchEvidence';
 
 const verdicts = { buy:'考慮買入', hold:'持有觀察', reduce:'考慮減倉', avoid:'暫不買入', 'insufficient-data':'資料不足' };
 const money = (value:number) => value.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2});
@@ -27,7 +29,7 @@ export default function ResearchReport({ job, portfolio, quotes, historical=fals
     } catch(error) { sizingError=(error as Error).message; }
   }
   return <div className="report">
-    <div className="report-lead"><span className={`verdict ${report.verdict}`}>{verdicts[report.verdict]}</span><span className="muted">{date(job.updatedAt)}</span></div>
+    <div className="report-lead"><strong>{job.symbol}</strong><span className={`verdict ${report.verdict}`}>{report.research?(report.research.rating?RATINGS[report.research.rating]:'資料不足，暫不評級'):verdicts[report.verdict]}</span><span className="muted">{date(job.updatedAt)}</span></div>
     <h3>{report.summary}</h3>
     <div className="report-context">
       <span>{RISK_NAMES[job.risk]}配置{job.settingsRevision!==null&&job.settingsRevision!==undefined?` · 設定版本 ${job.settingsRevision}`:''}</span>
@@ -41,6 +43,7 @@ export default function ResearchReport({ job, portfolio, quotes, historical=fals
       <div><h4>主要風險</h4>{report.risks.length?report.risks.map((reason,index)=><p key={index}><CircleAlert size={14} className="amber"/>{reason}</p>):<p className="muted">這份報告未提供風險說明。</p>}</div>
     </div>
     <div className="price-plan">{[['參考買入',report.entryPrice],['參考目標',report.targetPrice],['止損條件',report.stopLoss]].map(([label,value])=><div key={String(label)}><span>{label}</span><strong>{typeof value==='number'?money(value):'未提供'}</strong></div>)}</div>
+    <ResearchEvidence job={job}/>
     {historical?<p className="report-history-note">這是當時的報告，保留原有價格與風險設定。需要目前的投入建議，請回到個股頁重新分析。</p>:report.verdict==='buy'&&<div className="sizing-box">
       <h4>按這份報告與目前帳本估算倉位</h4>
       {job.riskLimits?<>

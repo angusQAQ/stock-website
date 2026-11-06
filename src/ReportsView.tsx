@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronRight, FileText, RefreshCw } from 'lucide-react';
-import { UNIVERSE, type AnalysisHistory, type AnalysisJob, type Horizon, type Portfolio, type Quote } from '../shared/types';
+import { UNIVERSE, HORIZONS, type AnalysisHistory, type AnalysisJob, type Horizon, type Portfolio, type Quote } from '../shared/types';
 import { RISK_NAMES } from '../shared/risk';
 import { api, API_AVAILABLE } from './api';
 import ResearchReport from './ResearchReport';
 
-const horizons={short:'短線',swing:'波段',long:'長期'};
+const horizons=HORIZONS;
 const status=(job:AnalysisJob)=>job.cancelledAt?'已取消':({queued:'排隊中',running:'分析中',completed:'已完成',failed:'未完成'}[job.status]);
 export default function ReportsView({jobs,portfolio,quotes,select,cancel}:
   {jobs:AnalysisJob[];portfolio:Portfolio|null;quotes:Record<string,Quote>;select:(symbol:string)=>void;cancel:(id:string)=>Promise<AnalysisJob>}) {

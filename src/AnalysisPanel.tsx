@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { ArrowUpRight, Cpu, ShieldCheck, Sparkles } from 'lucide-react';
 import type { AnalysisJob, Horizon, Portfolio, Quote, Risk, RiskSettings } from '../shared/types';
+import { HORIZONS } from '../shared/types';
 import { RISK_NAMES, RISK_ORDER, percent } from '../shared/risk';
 import { API_AVAILABLE } from './api';
 import ResearchReport from './ResearchReport';
@@ -19,7 +20,7 @@ export default function AnalysisPanel({symbol,horizon,risk,setHorizon,setRisk,on
   }
   return <section className="panel analysis-panel">
     <div className="panel-heading"><h2><Sparkles size={17}/>投資分析</h2><span className="badge research-badge">CODEX RESEARCH</span></div>
-    <div className="analysis-controls"><div><span className="field-label">投資期間</span><div className="segmented">{([['short','短線'],['swing','波段'],['long','長期']] as const).map(([key,label])=><button key={key} className={horizon===key?'active':''} aria-pressed={horizon===key} onClick={()=>setHorizon(key)}>{label}</button>)}</div></div>
+    <div className="analysis-controls"><div><span className="field-label">投資期間 · 一個月為未來 30 天</span><div className="segmented">{(Object.entries(HORIZONS) as [Horizon,string][]).map(([key,label])=><button key={key} className={horizon===key?'active':''} aria-pressed={horizon===key} onClick={()=>setHorizon(key)}>{label}</button>)}</div></div>
       <label className="risk-select"><ShieldCheck size={14}/><select ref={riskSelect} aria-label="風險設定" value={risk} onChange={event=>setRisk(event.target.value as Risk)}>{RISK_ORDER.map(key=><option value={key} key={key}>{RISK_NAMES[key]}配置</option>)}</select></label>
       <button className="button primary" onClick={analyze} disabled={!API_AVAILABLE||!settings||!enabled||busy||!!pendingJob}><Sparkles size={15}/>{busy?'提交中…':pendingJob?pendingJob.id===job?.id?(pendingJob.status==='queued'?'等待 Mac 接收':'Codex 分析中…'):'等待其他分析完成':`分析 ${symbol}`}</button>
     </div>

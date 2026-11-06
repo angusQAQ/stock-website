@@ -1,17 +1,378 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "additionalProperties": false,
-  "required": ["verdict","summary","reasons","risks","entryPrice","targetPrice","stopLoss","details","sources","missingData"],
   "properties": {
-    "verdict": {"type":"string","enum":["buy","hold","reduce","avoid","insufficient-data"]},
-    "summary": {"type":"string"},
-    "reasons": {"type":"array","items":{"type":"string"}},
-    "risks": {"type":"array","items":{"type":"string"}},
-    "entryPrice": {"type":["number","null"]},
-    "targetPrice": {"type":["number","null"]},
-    "stopLoss": {"type":["number","null"]},
-    "details": {"type":"string"},
-    "sources": {"type":"array","items":{"type":"object","additionalProperties":false,"required":["title","url","asOf"],"properties":{"title":{"type":"string"},"url":{"type":"string"},"asOf":{"type":"string"}}}},
-    "missingData": {"type":"array","items":{"type":"string"}}
-  }
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "buy",
+        "hold",
+        "reduce",
+        "avoid",
+        "insufficient-data"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "reasons": {
+      "maxItems": 12,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 2000
+      }
+    },
+    "risks": {
+      "maxItems": 12,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 2000
+      }
+    },
+    "entryPrice": {
+      "anyOf": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "targetPrice": {
+      "anyOf": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stopLoss": {
+      "anyOf": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "details": {
+      "type": "string",
+      "maxLength": 30000
+    },
+    "sources": {
+      "maxItems": 40,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "url": {
+            "type": "string",
+            "format": "starts_with",
+            "pattern": "^https:\\/\\/.*"
+          },
+          "asOf": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "title",
+          "url",
+          "asOf"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "missingData": {
+      "maxItems": 30,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      }
+    },
+    "research": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "number",
+          "const": 2
+        },
+        "rating": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "strong-buy",
+                "moderate-buy",
+                "hold",
+                "moderate-sell",
+                "strong-sell"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "outlook": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "plainLanguage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "technicalSummary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "newsImpact": {
+          "maxItems": 12,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "impact": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "sourceIndices": {
+                "minItems": 1,
+                "maxItems": 12,
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 39
+                }
+              }
+            },
+            "required": [
+              "date",
+              "title",
+              "impact",
+              "sourceIndices"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "evidence": {
+          "minItems": 5,
+          "maxItems": 5,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "financials",
+                  "market",
+                  "flows",
+                  "insiders",
+                  "options"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "available",
+                  "unavailable",
+                  "not-applicable"
+                ]
+              },
+              "asOf": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "summary": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "sourceIndices": {
+                "maxItems": 12,
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 39
+                }
+              },
+              "metrics": {
+                "maxItems": 12,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    },
+                    "value": {
+                      "type": "number"
+                    },
+                    "unit": {
+                      "type": "string",
+                      "maxLength": 80
+                    },
+                    "period": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    },
+                    "sourceIndices": {
+                      "minItems": 1,
+                      "maxItems": 12,
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 39
+                      }
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value",
+                    "unit",
+                    "period",
+                    "sourceIndices"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "status",
+              "asOf",
+              "summary",
+              "sourceIndices",
+              "metrics"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "scenarios": {
+          "minItems": 3,
+          "maxItems": 3,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "case": {
+                "type": "string",
+                "enum": [
+                  "bull",
+                  "base",
+                  "bear"
+                ]
+              },
+              "condition": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "outcome": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "targetPrice": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "case",
+              "condition",
+              "outcome",
+              "targetPrice"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "conflicts": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "version",
+        "rating",
+        "outlook",
+        "plainLanguage",
+        "technicalSummary",
+        "newsImpact",
+        "evidence",
+        "scenarios",
+        "conflicts"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "verdict",
+    "summary",
+    "reasons",
+    "risks",
+    "entryPrice",
+    "targetPrice",
+    "stopLoss",
+    "details",
+    "sources",
+    "missingData",
+    "research"
+  ],
+  "additionalProperties": false
 }

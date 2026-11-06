@@ -1,5 +1,16 @@
 # 驗證紀錄
 
+2026-11-06 Northstar 0.3：按使用者確認直接修改網站，加入持續更新的多期間 K 線、預設 30 天研究、五級評級、新聞影響與白話解說、互動報告圖表及可追溯量化證據。詳細來源與限制見 [研究說明](research-data.md)。
+
+- 56 項 Vitest 與 6 項 Python 標準庫測試通過。真實 SQLite 工作流程驗證新月報、不可變日線快照、新舊報告相容及不足證據不得評級；另驗證技術指標參考算式／暖身期、引用與日期／評級一致性、CLI schema 與後端一致，以及財報單季／累計／未來申報、Form 4 代碼、期權覆蓋、來源拒絕、新聞日期與 SEC 聯絡設定。
+- TypeScript、一般及 GitHub Pages 子路徑正式建置、Mac bridge／資料擷取 Python 編譯、最終 Worker deploy dry run 通過。新增 Python 測試亦納入 GitHub Actions；沒有執行遠端資源建立或正式模型分析。
+- Chromium 1440／768／390／320px 通過多期間更新、MAX、同一 canvas 保留、RSI／MACD 切換與顯示全部、技術及財務證據展開、歷史閱讀、資料不足及來源失敗保留圖表；沒有整頁橫向溢出、未處理 JavaScript 錯誤、金融寫入或模型請求。3M 已實際等待下一輪 5 秒更新，不是只測手動刷新。
+- Pages 子路徑四種尺寸均沒有 API 請求；風險儲存、帳本寫入及分析維持停用，三入口與之前刪除項目保持一致。截圖共 10 張：四種主要尺寸、桌面／手機歷史報告、手機完整缺漏、320px 來源失敗及桌面／手機 Pages 無 API。明示測試標籤與合成行情／報告只存在本機瀏覽器攔截器，沒有加入出貨資產或正式帳本。
+- 本輪 Impeccable detector 執行一次，2 warnings（繼承字型及 Helvetica Neue 宣告比對提示）與 107 advisories（5 色彩／96 字級／6 圓角）。保留使用者接受的世界及局部 token 範圍，不稱零發現；既有側車過期與展示頁 buildPath 未設定提示已記錄，未藉功能工作重寫設計系統。
+- 獨立 finish reviewer 確認 10 張 required captures 有效，五段合約完整，disposition 為 ship、無 material fixes；範圍是本地功能延伸及提供狀態，不涵蓋正式行情、資料授權或法律合規認證。
+
+實際讀取 yfinance 官方 README，並核對固定版本 OpenBB SEC provider；Investing.com 實際讀取仍被代理 CONNECT 403 拒絕。正式 API、真實 Yahoo／SEC／期權／新聞擷取及 Mac 訂閱分析仍待連接與驗證，沒有宣稱網站已接通交易所即時行情。驗證程式、截圖及 detector 結果位於被忽略的 `.local/research-v03/`、`.impeccable/review/research-v03/`；Git 推送與 Actions／Pages 線上發布結果分開判讀。
+
 2026-11-06 Northstar 0.2 功能延伸：保留已接受的視覺方向，移除「機會與風險，一起看清楚。」區塊與「資料連線」入口／頁面，改為市場研究、我的資產、研究報告三個主要入口。新增可保存的三組風險設定、固定歷史快照、精確報告閱讀與分頁、排隊取消；詳見 [架構說明](architecture.md)。
 
 - 42 項網站測試通過，涵蓋真實 SQLite 遷移保留舊帳本／報告、設定版本衝突、分析快照不可變、同時建立時間的穩定分頁、精確報告 ID、取消與領取競爭，以及扣費後倉位上限。TypeScript、Worker 與 GitHub Pages 子路徑建置、Worker 部署 dry run、Mac bridge Python 編譯均通過。

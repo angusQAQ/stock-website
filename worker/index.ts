@@ -4,15 +4,10 @@ import { UNIVERSE, type LedgerInput } from '../shared/types';
 import { addLedger, getPortfolio, getRiskSettings, saveRiskSettings } from './database';
 import { getAnalysisHistory, publicJob } from './analysis';
 import { fetchQuote, MarketError } from './market';
+import { reportSchema, validateResearchReport } from '../shared/report-schema';
+import { captureResearch } from './research';
 
 interface Env { DB: D1Database; ASSETS: Fetcher; APP_ORIGIN?: string; BRIDGE_TOKEN?: string; BRIDGE_ENABLED?: string }
-const reportSchema = z.object({
-  verdict: z.enum(['buy','hold','reduce','avoid','insufficient-data']), summary: z.string().min(1).max(2000),
-  reasons: z.array(z.string().max(2000)).max(12), risks: z.array(z.string().max(2000)).max(12),
-  entryPrice: z.number().positive().nullable(), targetPrice: z.number().positive().nullable(), stopLoss: z.number().positive().nullable(),
-  details: z.string().max(30000), sources: z.array(z.object({ title: z.string().max(500), url: z.url().startsWith('https://'), asOf: z.string().max(100) })).max(30),
-  missingData: z.array(z.string().max(1000)).max(30),
-});
 function json(data: unknown, status = 200) { return Response.json(data, { status, headers: { 'Cache-Control': 'no-store' } }); }
 async function body(request: Request) {
   if (!request.headers.get('Content-Type')?.startsWith('application/json')) throw new InputError('請使用 JSON 格式。');
@@ -37,8 +32,8 @@ async function api(request: Request, env: Env, ctx: ExecutionContext): Promise<R
       await env.DB.prepare('SELECT id FROM ledger LIMIT 1').first();
       await getRiskSettings(env.DB);
       await env.DB.prepare('SELECT cancelled_at FROM analysis_jobs LIMIT 1').first();
-      return json({ status: 'ok', service: 'northstar-api', storage: true, version: '0.2.0', schemaVersion: 2,
-        capabilities: ['portfolio','quotes','risk-settings','analysis-history','queue-cancel'] });
+      return json({ status: 'ok', service: 'northstar-api', storage: true, version: '0.3.0', schemaVersion: 2,
+        capabilities: ['portfolio','quotes','risk-settings','analysis-history','queue-cancel','research-v2'] });
     } catch { return json({ status: 'unavailable', service: 'northstar-api', storage: false,
       error: '帳本尚未就緒，請檢查資料庫連線與結構更新。' }, 503); }
   }
@@ -101,7 +96,7 @@ async function api(request: Request, env: Env, ctx: ExecutionContext): Promise<R
   if (path === '/api/analysis/jobs' && method === 'POST') {
     if (!env.BRIDGE_TOKEN || env.BRIDGE_ENABLED !== 'true') return json({ error: 'Mac 分析端尚未設定，請先完成本機連接。' }, 503);
     const input = z.object({ symbol: z.enum(UNIVERSE.map(x => x.symbol) as [string,...string[]]),
-      horizon: z.enum(['short','swing','long']), risk: z.enum(['conservative','balanced','aggressive']),
+      horizon: z.enum(['month','short','swing','long']), risk: z.enum(['conservative','balanced','aggressive']),
       settingsRevision: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER).optional() }).parse(await body(request));
     const settings = await getRiskSettings(env.DB);
     if (input.settingsRevision !== undefined && input.settingsRevision !== settings.revision)
@@ -109,9 +104,9 @@ async function api(request: Request, env: Env, ctx: ExecutionContext): Promise<R
     const now = new Date().toISOString();
     await env.DB.prepare("UPDATE analysis_jobs SET status='failed',error='Mac 工作中斷，請重新分析。',updated_at=? WHERE status='running' AND updated_at<?")
       .bind(now, new Date(Date.now()-900_000).toISOString()).run();
-    const [quote, portfolio] = await Promise.all([fetchQuote(input.symbol), getPortfolio(env.DB)]);
+    const [quote, portfolio, researchSnapshot] = await Promise.all([fetchQuote(input.symbol), getPortfolio(env.DB),captureResearch(input.symbol,input.horizon,new Date(now))]);
     const snapshot = { quote, portfolio, horizon: input.horizon, risk: input.risk, capturedAt: now,
-      riskLimits: settings.profiles[input.risk], settingsRevision: settings.revision };
+      riskLimits: settings.profiles[input.risk], settingsRevision: settings.revision,researchSnapshot,reportVersion:2 };
     const id = crypto.randomUUID();
     const inserted = await env.DB.prepare(`INSERT INTO analysis_jobs (id,symbol,horizon,risk,snapshot,created_at,updated_at)
       SELECT ?,?,?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM analysis_jobs WHERE status IN ('queued','running'))`)
@@ -138,6 +133,20 @@ async function api(request: Request, env: Env, ctx: ExecutionContext): Promise<R
     if (path === '/api/bridge/result' && method === 'POST') {
       const input = z.object({ id:z.string(),claimToken:z.string(),report:reportSchema.optional(),error:z.string().max(1000).optional() }).parse(await body(request));
       if (!input.report && !input.error) throw new InputError('分析結果為空。');
+      const row=await env.DB.prepare("SELECT snapshot FROM analysis_jobs WHERE id=? AND claim_token=? AND status='running'").bind(input.id,input.claimToken).first<{snapshot:string}>();
+      if(!row)return json({error:'工作已結束或租約不符。'},409);
+      if(input.report){
+        const saved=JSON.parse(row.snapshot);
+        if(saved.reportVersion===2&&!input.report.research)throw new InputError('這份工作需要新版研究報告，請更新 Mac 分析連接程式。');
+        const invalid=validateResearchReport(input.report);if(invalid)throw new InputError(invalid);
+        if(input.report.research?.rating!==null&&input.report.research){
+          const fundamentals=input.report.research.evidence.find(item=>item.kind==='financials');
+          const isETF=UNIVERSE.find(stock=>stock.symbol===saved.quote?.symbol)?.sector==='ETF';
+          const hasFinancials=fundamentals?.status==='available'&&fundamentals.metrics.length>0||isETF&&fundamentals?.status==='not-applicable';
+          if(!saved.researchSnapshot?.chart||saved.researchSnapshot.chart.bars.length<50||!hasFinancials)
+            throw new InputError('日 K 線或財務證據不足，請改用資料不足狀態並列明缺漏。');
+        }
+      }
       const updated = await env.DB.prepare("UPDATE analysis_jobs SET status=?,result=?,error=?,updated_at=? WHERE id=? AND claim_token=? AND status='running'")
         .bind(input.report?'completed':'failed',input.report?JSON.stringify(input.report):null,input.report?null:input.error,now,input.id,input.claimToken).run();
       return updated.meta.changes ? json({ok:true}) : json({error:'工作已結束或租約不符。'},409);

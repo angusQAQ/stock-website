@@ -5,7 +5,7 @@
 - Canonical frontend URL, confirmed by the user: https://angusqaq.github.io/stock-website/. Keep future deployments at this URL. `config/site.json` records it; backend CORS defaults to its origin. The cloud agent has not independently verified live HTTP access because the network proxy denies this host.
 
 - Personal US stock research site, Traditional Chinese, dense broker-style quotes/charts/tables, readable expandable analysis reports.
-- Large-cap US stocks and ordinary non-leveraged ETFs first. No live order execution, margin, short selling, options, leveraged or inverse ETFs.
+- Large-cap US stocks and ordinary non-leveraged ETFs first. No live order execution, margin, short selling, options trading, leveraged or inverse ETFs. Public Call/Put data may be analyzed as evidence; never equate call volume with bullish buying or put volume with bearish buying.
 - Manual USD cash, initial holdings and buy/sell transaction entry; deposits are ledger entries. HKD is excluded from US position-sizing cash. Use applicable Futu Hong Kong fees, versioned by effective date; allow actual fee corrections.
 - Select short-term, swing or long-term horizon before analysis. Offer configurable conservative/balanced/aggressive risk profiles; earlier numeric examples remain proposals, not finalized policy.
 - User explicitly presses Analyze; do not schedule model calls or call on every quote update.
@@ -23,6 +23,7 @@
 - Run `python3 scripts/install-research-tools.py` to install/refresh pinned tools, and `python3 scripts/verify-research-tools.py` for offline readiness checks. Read `docs/research-tools.md` for entry points and limitations.
 - The React/Vite frontend, Cloudflare Worker/D1 API, manual USD ledger, quote proxy, analysis queue and Mac CLI bridge are implemented. Read `docs/deployment.md` for setup. Production deployment, real Yahoo data access, Futu fee verification and Mac subscription usage remain unverified; do not claim otherwise.
 - Run `npm test` and `npm run build` for application changes. Tests under `tests/` exercise actual SQLite SQL and the worker workflow. Keep third-party source tests out of the site's Vitest discovery; their representative checks have a separate runner.
+- Version 0.3 defaults to a 30-calendar-day research window. Read `docs/research-data.md` and the actual `config/research-prompt.zh-Hant.md`. Keep `shared/report-schema.ts` and the generated CLI schema aligned via `npm run schema:report`; run `npm run test:research` for stdlib source parsers. Preserve legacy reports. Daily technical evidence comes from immutable source candles, not model-generated OHLC. SEC requests require a genuine contact User-Agent; denied sources stay unavailable. No new model call occurs on polling. This version does not require a new D1 migration.
 
 ## Design toolkit and handbook
 

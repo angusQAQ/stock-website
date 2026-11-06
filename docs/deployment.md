@@ -24,7 +24,7 @@ npm run dev:api
 
 本機 schema migration 可重跑；不會建立遠端資料庫或把本機帳本複製到雲端。Vite 開發介面另執行 `npm run dev`。`npm run dev:api` 提供完整已建置網站與本機 API。
 
-0.2 版新增 `0002_research_workflow.sql`，保存三組風險設定及取消排隊時間；本機與正式後端都需套用全部 migrations。`/api/health` 會實際檢查資料表與新欄位，成功時回報 `version: 0.2.0`、`schemaVersion: 2`。更新不需清空原有帳本或報告；功能與資料契約見 [架構說明](architecture.md)。
+0.2 版新增 `0002_research_workflow.sql`，保存三組風險設定及取消排隊時間；本機與正式後端都需套用全部 migrations。0.3 沿用同一 schema，`/api/health` 成功回報 `version: 0.3.0`、`schemaVersion: 2`。更新不需清空帳本或報告；見 [架構說明](architecture.md) 及 [新版研究與來源](research-data.md)。
 
 `wrangler.jsonc` 的全零 database_id 僅供本機開發，部署腳本會拒絕它。個人資料、套件快取、Wrangler 本機資料庫及建置產物都被 Git 忽略。
 
@@ -70,6 +70,8 @@ GitHub 自動部署：在私人倉庫的 Actions Secrets 設 `CLOUDFLARE_API_TOK
 4. 部署時設定 `BRIDGE_ENABLED=true`。GitHub 自動部署也需設定對應 Variable，否則下次部署會回到關閉狀態。已儲存的 Worker secret 不會寫入部署 JSON。
 5. 在 Mac 執行 `python3 scripts/mac-analysis-bridge.py --url https://實際網站或API的origin --check`。它只檢查 CLI 登入與連線，不呼叫模型，也不證明扣款方式。
 6. 執行 `python3 scripts/mac-analysis-bridge.py --url https://實際網站或API的origin`。只在網站按分析後才有工作，Mac 離線時留在佇列。Ctrl-C 停止橋接。
+
+0.3 需同步更新 Mac 的 bridge、`research_data.py`、研究提示及 JSON schema。新工作要求結構化報告，舊 bridge 的結果會被明確拒絕。需要 SEC 財報／Form 4 自動擷取時，在 Mac 設定 `NORTHSTAR_SEC_USER_AGENT`（應用名稱及真實聯絡電郵）；未設定會列明缺漏。公開新聞、Yahoo options 及 SEC 擷取只在領取工作後執行，不在 `--check` 或行情輪詢時執行；排隊超過 30 分鐘會要求重新分析而不呼叫模型。
 
 CLI 使用 `codex --search exec --sandbox read-only --ephemeral --output-schema …`；由你本機支援的 CLI 決定實際帳戶與模型服務。沒有使用繞過 sandbox 或關閉批准的旗標。報告與執行日誌只放在被 Git 忽略的 `.local/analysis-bridge/`，不擷取憑證。JSON 結構及價格欄位會在雲端再驗證。
 

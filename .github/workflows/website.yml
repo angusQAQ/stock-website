@@ -2,9 +2,9 @@ name: Website
 on:
   push:
     branches: [main]
-    paths: ['src/**', 'shared/**', 'worker/**', 'migrations/**', 'public/**', 'tests/**', 'package*.json', '*config*', 'config/site.json', 'index.html', 'scripts/prepare-deploy.mjs', '.github/workflows/website.yml']
+    paths: ['src/**', 'shared/**', 'worker/**', 'migrations/**', 'public/**', 'tests/**', 'package*.json', '*config*', 'config/**', 'index.html', 'scripts/prepare-deploy.mjs', 'scripts/mac-analysis-bridge.py', 'scripts/research_data.py', 'scripts/generate-report-schema.mjs', '.github/workflows/website.yml']
   pull_request:
-    paths: ['src/**', 'shared/**', 'worker/**', 'tests/**', 'package*.json', '*config*', 'index.html']
+    paths: ['src/**', 'shared/**', 'worker/**', 'tests/**', 'package*.json', '*config*', 'config/**', 'scripts/mac-analysis-bridge.py', 'scripts/research_data.py', 'scripts/generate-report-schema.mjs', 'index.html']
   workflow_dispatch:
     inputs:
       target:
@@ -27,6 +27,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - run: npm run test:research
       - run: npm run build
 
   cloudflare:

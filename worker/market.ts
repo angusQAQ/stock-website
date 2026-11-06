@@ -5,6 +5,7 @@ const RANGES: Record<string, { range: string; interval: string }> = {
   '1D': { range: '1d', interval: '1m' }, '5D': { range: '5d', interval: '5m' },
   '1M': { range: '1mo', interval: '1d' }, '3M': { range: '3mo', interval: '1d' },
   '1Y': { range: '1y', interval: '1d' }, '5Y': { range: '5y', interval: '1wk' },
+  'MAX': { range: 'max', interval: '1mo' },
 };
 const number = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n);
 
@@ -20,7 +21,8 @@ export function parseYahoo(symbol: string, range: string, data: any, now = Date.
     if (!number(time) || !values.every(number)) return [];
     const [open, high, low, close] = values as number[];
     if (low <= 0 || high < Math.max(open, close) || low > Math.min(open, close)) return [];
-    return [{ time, open, high, low, close, volume: number(q?.volume?.[i]) ? q.volume[i] : 0 }];
+    const volumeMissing=!number(q?.volume?.[i])||q.volume[i]<0;
+    return [{ time, open, high, low, close, volume:volumeMissing?0:q.volume[i],...(volumeMissing?{volumeMissing:true}:{}) }];
   }).sort((a: Bar, b: Bar) => a.time - b.time);
   const unique = bars.filter((bar, i) => i === 0 || bar.time !== bars[i - 1].time);
   let session: Quote['session'] = 'closed';
@@ -40,7 +42,9 @@ export function parseYahoo(symbol: string, range: string, data: any, now = Date.
     changePercent: previous ? (price / previous - 1) * 100 : null,
     timestamp, session, source: 'Yahoo Finance', fetchedAt: new Date(now).toISOString(),
     exchangeDelayMinutes: number(meta.exchangeDataDelayedBy) ? meta.exchangeDataDelayedBy : null,
-    bars: unique, range, marketCap: number(meta.marketCap) ? meta.marketCap : null };
+    bars: unique, range, marketCap: number(meta.marketCap) ? meta.marketCap : null,
+    interval:RANGES[range]?.interval,priceBasis:'未復權 OHLC；跨拆股比較須另行核對',
+    sourceUrl:`https://finance.yahoo.com/quote/${encodeURIComponent(symbol)}/history/` };
 }
 
 export async function fetchQuote(symbol: string, range = '1D'): Promise<Quote> {
@@ -52,7 +56,7 @@ export async function fetchQuote(symbol: string, range = '1D'): Promise<Quote> {
     try {
       const url = new URL(`https://${host}/v8/finance/chart/${encodeURIComponent(symbol)}`);
       url.search = new URLSearchParams({ ...config, includePrePost: 'true' }).toString();
-      const response = await fetch(url, { headers: { Accept: 'application/json', 'User-Agent': 'Mozilla/5.0 StockResearch/1.0' }, signal: AbortSignal.timeout(8000) });
+      const response = await fetch(url, { headers: { Accept: 'application/json', 'User-Agent': 'NorthstarPersonalResearch/0.3' }, signal: AbortSignal.timeout(5000) });
       if (!response.ok) {
         if (response.status === 404) throw new MarketError('查不到這隻美股，請確認代碼。', 404);
         throw new MarketError(response.status === 429 ? 'Yahoo Finance 暫時限流，請稍後重試。' : `行情來源暫不可用（HTTP ${response.status}）。`);

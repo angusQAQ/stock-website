@@ -21,6 +21,11 @@ describe('Yahoo source semantics',()=>{
     const data=payload();(data.chart.result[0].indicators.quote[0].close as any)[0]=null;
     expect(parseYahoo('AAPL','1D',data,time*1000).bars).toHaveLength(1);
   });
+  it('marks missing volume rather than presenting it as an observed zero',()=>{
+    const data=payload();(data.chart.result[0].indicators.quote[0].volume as any)[0]=null;
+    const quote=parseYahoo('AAPL','1D',data,time*1000);
+    expect(quote.bars[0].volumeMissing).toBe(true);expect(quote.bars[1].volumeMissing).toBeUndefined();
+  });
 });
 describe('technical indicators',()=>{
   it('requires warmup data and uses Wilder smoothing for RSI',()=>{

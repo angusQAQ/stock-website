@@ -12,6 +12,7 @@ export function publicJob(row: any): AnalysisJob {
     settingsRevision: Number.isSafeInteger(snapshot.settingsRevision) ? snapshot.settingsRevision : null,
     capturedAt: typeof snapshot.capturedAt === 'string' ? snapshot.capturedAt : null,
     quoteTimestamp: typeof snapshot.quote?.timestamp === 'number' ? snapshot.quote.timestamp : null,
+    researchSnapshot: snapshot.researchSnapshot ?? null,
   };
 }
 
@@ -25,7 +26,7 @@ export async function getAnalysisHistory(db: D1Database, params: URLSearchParams
     clauses.push('symbol=?'); values.push(symbol);
   }
   if (horizon) {
-    if (!['short','swing','long'].includes(horizon)) throw new InputError('投資期間無效。');
+    if (!['month','short','swing','long'].includes(horizon)) throw new InputError('投資期間無效。');
     clauses.push('horizon=?'); values.push(horizon);
   }
   const cursor = params.get('before');

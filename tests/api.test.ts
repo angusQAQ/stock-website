@@ -1,6 +1,7 @@
 import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
 import worker from '../worker/index';
 import { sqliteD1 } from './support/sqlite';
+import { researchReport } from './support/research';
 
 let env:any;
 const ctx={waitUntil:()=>{}} as any;
@@ -38,7 +39,9 @@ describe('cloud API and Mac analysis workflow',()=>{
     const claim:any=await (await request('/bridge/claim',{},true)).json();
     expect(claim.snapshot.quote.symbol).toBe('AAPL');
     expect(await (await request('/bridge/claim',{},true)).json()).toBeNull();
-    const report={verdict:'insufficient-data',summary:'缺少當期財報，暫不形成買入結論。',reasons:[],risks:['基本面未核實'],entryPrice:null,targetPrice:null,stopLoss:null,details:'測試輸出',sources:[],missingData:['當期財報']};
+    const report=researchReport();
+    const legacy={...report};delete legacy.research;
+    expect((await request('/bridge/result',{id:claim.id,claimToken:claim.claimToken,report:legacy},true)).status).toBe(400);
     expect((await request('/bridge/result',{id:claim.id,claimToken:'invalid-lease',report},true)).status).toBe(409);
     expect((await request('/bridge/result',{id:claim.id,claimToken:claim.claimToken,report},true)).status).toBe(200);
     const jobs:any=await (await request('/analysis/jobs')).json();
