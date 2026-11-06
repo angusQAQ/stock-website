@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowUpRight, ChevronDown, Cpu, ExternalLink, ShieldCheck, Sparkles } from 'lucide-react';
 import type { AnalysisJob, Horizon, Portfolio, Quote, Risk } from '../shared/types';
 import { positionSizing, RISK_PROFILES } from '../shared/portfolio';
+import { API_AVAILABLE } from './api';
 
 const verdicts = { buy:'考慮買入', hold:'持有觀察', reduce:'考慮減倉', avoid:'暫不買入', 'insufficient-data':'資料不足' };
 const money = (n:number) => n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2});
@@ -26,7 +27,7 @@ export default function AnalysisPanel({ symbol, horizon, risk, setHorizon, setRi
     <div className="panel-heading"><h2><Sparkles size={17}/> 投資分析</h2><span className="badge purple">CODEX RESEARCH</span></div>
     <div className="analysis-controls"><div><span className="field-label">投資期間</span><div className="segmented">{([['short','短線'],['swing','波段'],['long','長期']] as const).map(([id,label])=><button key={id} className={horizon===id?'active':''} onClick={()=>setHorizon(id)}>{label}</button>)}</div></div>
       <label className="risk-select"><ShieldCheck size={14}/><select aria-label="風險設定" value={risk} onChange={e=>setRisk(e.target.value as Risk)}>{Object.entries(RISK_PROFILES).map(([id,p])=><option value={id} key={id}>{p.label}配置</option>)}</select></label>
-      <button className="button primary" onClick={analyze} disabled={busy || job?.status==='queued' || job?.status==='running'}><Sparkles size={15}/>{busy?'提交中…':job?.status==='queued'?'等待 Mac 接收':job?.status==='running'?'Codex 分析中…':`分析 ${symbol}`}</button>
+      <button className="button primary" onClick={analyze} disabled={!API_AVAILABLE || busy || job?.status==='queued' || job?.status==='running'}><Sparkles size={15}/>{busy?'提交中…':job?.status==='queued'?'等待 Mac 接收':job?.status==='running'?'Codex 分析中…':`分析 ${symbol}`}</button>
     </div>
     <div className="bridge-status"><span className={`status-dot ${online?'online':''}`}/><span>{online?'Mac 分析端已連線':enabled?'Mac 分析端離線，工作將等待接收':'Mac 分析端尚未連接'}</span><span>僅按下分析時執行</span></div>
     {error && <div className="notice error" role="alert">{error}</div>}

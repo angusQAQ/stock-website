@@ -4,7 +4,7 @@
 
 已完成網站原始碼、真實 SQLite 帳本、行情代理、分析工作佇列、Mac CLI 連接程式與 GitHub Actions。已在本機 Cloudflare Worker/D1 執行網站。這不等於正式網站已發佈；正式平台選擇、帳戶權限與外部連線仍需完成。
 
-使用者已於 2026-11-06 確認採用 Cloudflare：Private GitHub 倉庫管理程式，Cloudflare Worker 提供同一個固定網址、靜態介面與 API，D1 保存帳本和報告。GitHub Pages 保留為替代流程，非目前部署目標。
+正式前端網址採用 GitHub Pages，程式保留在 Private GitHub 倉庫，main 的網站更新自動發佈到同一 Pages 網站。雲端帳本、行情代理與 Mac 工作佇列仍需獨立後端；目前已準備 Cloudflare Worker/D1 的部署流程，尚未連接。
 
 目前依使用者要求不設網站登入或持倉 API 存取驗證。Private GitHub 倉庫不能保護部署後的網站或 API；任何可連上它的人都可能讀寫持倉，亦可能建立分析工作。Mac 領取工作及回傳報告另外使用機器端秘密，避免任意回傳模型結果；這不限制網站訪客建立工作。未輸入任何真實本金、持倉或憑證。
 
@@ -24,6 +24,20 @@ npm run dev:api
 
 `wrangler.jsonc` 的全零 database_id 僅供本機開發，部署腳本會拒絕它。個人資料、套件快取、Wrangler 本機資料庫及建置產物都被 Git 忽略。
 
+## GitHub Pages 正式前端
+
+私人倉庫的 Pages 可用性與網站存取限制取決於 GitHub 方案，不能假設 Private 代表私有網頁。
+
+首次在 GitHub Settings → Pages，將 Build and deployment 的 Source 選為 GitHub Actions。此環境的 GitHub API 連線被網路政策拒絕，尚無法代為修改或驗證這項設定；既有 GitHub Git 存取正常，不需另提供 GitHub token。
+
+`.github/workflows/website.yml` 在每次 main 的網站變更推送後，自動執行測試、建置和 Pages 發佈；也能手動選 github-pages。首次啟用 Pages 後，如先前工作因未啟用而失敗，可在 Actions → Website 重新執行。以 GitHub deploy-pages 實際回傳的網址為準，不把預測網址當成已上線證據。
+
+Pages 建置使用 configure-pages 回傳的 base_path，確保專案子路徑的 JavaScript、CSS 和 favicon 可載入。環境旗標 VITE_DEPLOYMENT_TARGET=github-pages 區分 Pages 與同源 Worker 執行模式。
+
+若未設定 VITE_API_BASE_URL，仍可發佈網站介面，頁面會清楚顯示「尚未連接雲端 API」，不送出資金寫入、不輪詢不存在的行情代理、不啟動模型分析。這只是前端發佈，不代表完整投資平台可用。
+
+後端部署完成後，將真實 API origin 設為 GitHub Actions Variable VITE_API_BASE_URL。Worker 的 FRONTEND_ORIGIN 設為 Pages origin（scheme + host，不含專案路徑），再重新部署 Worker 及 Pages。這是跨來源設定，不是登入保護。Cloudflare token 不是 Pages 前端發佈的必要條件，但啟用 Cloudflare 後端仍需它。
+
 ## Cloudflare 正式部署
 
 使用你自己的 Cloudflare 帳戶。可在自己的終端用 `npx wrangler login` 登入，或透過部署環境的安全設定提供 `CLOUDFLARE_API_TOKEN`；不要在聊天貼 token。若平台已注入身分，先用現有身分測試，不重複登入或擷取憑證。
@@ -41,14 +55,6 @@ npm run dev:api
 GitHub 自動部署：在私人倉庫的 Actions Secrets 設 `CLOUDFLARE_API_TOKEN`，Variables 設 `CLOUDFLARE_ACCOUNT_ID` 和 `CLOUDFLARE_D1_DATABASE_ID`。缺少 database_id 時，push 只跑驗證，不會假裝已部署。設定完成後 main 的網站變更會更新同一 Worker。`.github/workflows/website.yml` 也可手動選 cloudflare 執行。
 
 無需把研究工具的 Python 環境搬上 Worker；它們屬 Mac 分析端。帳本不依賴 Mac 是否在線。
-
-## GitHub Pages 前端選項
-
-私人倉庫的 Pages 可用性與網站存取限制取決於 GitHub 方案，不能假設 Private 代表私有網頁。
-
-先完成 Worker API 部署，將真實 API origin 設為 GitHub Variable `VITE_API_BASE_URL`。Worker 部署環境的 `FRONTEND_ORIGIN` 設為 Pages origin（例如 GitHub 回傳網址的 scheme + host，不含專案路徑），再重新部署以允許該來源。自訂 origin 是跨來源設定，不是登入保護。
-
-在 GitHub Settings → Pages 選 GitHub Actions，再手動執行 Website workflow，target 選 `github-pages`。工作流程會設定專案資產路徑並使用部署動作實際回傳的網址。缺少 API origin 時會停止，避免發布一個看似有帳本但實際沒有後端的網站。
 
 ## Mac · Codex 分析端
 

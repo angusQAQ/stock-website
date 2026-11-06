@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { X, ArrowDownToLine, ReceiptText } from 'lucide-react';
 import type { LedgerInput, LedgerKind, Portfolio } from '../shared/types';
-import { post } from './api';
+import { post, API_AVAILABLE, API_UNAVAILABLE_MESSAGE } from './api';
 
 export default function TransactionModal({ initial, close, saved }: { initial: LedgerKind; close: () => void; saved: (p: Portfolio) => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -23,6 +23,7 @@ export default function TransactionModal({ initial, close, saved }: { initial: L
   return <dialog ref={dialog} className="modal" onCancel={close} onClick={event => { if (event.target === event.currentTarget && !busy) close(); }} aria-labelledby="transaction-title">
     <div className="modal-heading"><div className="modal-icon">{cashOnly ? <ArrowDownToLine size={22}/> : <ReceiptText size={22}/>}</div><button className="icon-button" aria-label="關閉" onClick={close} disabled={busy}><X size={18}/></button></div>
     <h2 id="transaction-title">記錄資金與交易</h2><p className="muted">只記帳，不會向富途送出交易指令。</p>
+    {!API_AVAILABLE && <p className="notice" role="status">{API_UNAVAILABLE_MESSAGE}</p>}
     <form onSubmit={submit}>
       <label>紀錄類型<select value={kind} onChange={e => { setKind(e.target.value as LedgerKind); requestId.current = crypto.randomUUID(); }}>
         <option value="deposit">美元入金／首次現金</option><option value="opening">輸入既有持倉</option><option value="buy">買入成交</option><option value="sell">賣出成交</option><option value="withdrawal">美元出金</option>
@@ -34,7 +35,7 @@ export default function TransactionModal({ initial, close, saved }: { initial: L
       </>}
       <label>備註（選填）<input name="note" maxLength={200} placeholder="例如：首次資產記錄" /></label>
       {error && <p role="alert" className="form-error">{error}</p>}
-      <button type="submit" className="button primary full" disabled={busy}>{busy ? '正在儲存…' : '儲存至資金帳本'}</button>
+      <button type="submit" className="button primary full" disabled={busy || !API_AVAILABLE}>{!API_AVAILABLE ? '等待雲端帳本連接' : busy ? '正在儲存…' : '儲存至資金帳本'}</button>
     </form>
   </dialog>;
 }

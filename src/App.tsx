@@ -3,7 +3,7 @@ import { Activity, ArrowDownToLine, ArrowUpRight, BarChart3, ChevronRight, Circl
 import type { AnalysisJob, Horizon, LedgerKind, Portfolio, Quote, Risk } from '../shared/types';
 import { UNIVERSE } from '../shared/types';
 import { technicals } from '../shared/indicators';
-import { api, post } from './api';
+import { api, post, API_AVAILABLE } from './api';
 import StockChart from './StockChart';
 import AnalysisPanel from './AnalysisPanel';
 import PortfolioView from './PortfolioView';
@@ -45,7 +45,7 @@ export default function App() {
   const symbols=useMemo(()=>[...new Set([...displayed,selected,'SPY','QQQ','VOO','BND',...(portfolio?.positions??[]).map(p=>p.symbol)])].slice(0,40).join(','),[displayed,selected,portfolio?.positions]);
   useEffect(()=>{const timer=setInterval(()=>setClock(Date.now()),1000);return()=>clearInterval(timer)},[]);
   useEffect(()=>{
-    if(!accountChecked)return;
+    if(!accountChecked||!API_AVAILABLE)return;
     let cancelled=false,working=false;
     const controller=new AbortController();
     async function poll(){
@@ -118,7 +118,7 @@ export default function App() {
           <div className="page-title market-title"><div><span className="eyebrow">MARKET OVERVIEW</span><h1>市場工作台<span className="live-label"><span className={`status-dot ${quote&&!quoteErrors[selected]&&!stale?'online':''}`}/>5 秒刷新</span></h1><p>觀察市場，追蹤機會，讓每個決定都有依據。</p></div><button className="button secondary small" onClick={()=>setModal('deposit')}><Plus size={15}/>記錄資金</button></div>
           <div className="market-cards">{[['SPY','標普 500'],['QQQ','納斯達克 100'],['VOO','美國大型股'],['BND','美國綜合債券']].map(([symbol,label])=>{const q=quotes[symbol];return <button className="market-card" key={symbol} onClick={()=>select(symbol)}><div><span>{label}</span><small>{symbol} · ETF</small></div><div className="market-card-bottom"><strong>{q?q.price.toFixed(2):'—'}</strong><span className={!q?'muted':q.changePercent!==null&&(q.changePercent??0)<0?'down':'up'}>{q?pct(q.changePercent):'等待來源'}<ArrowUpRight size={13}/></span></div><div className={`card-accent ${(q?.changePercent??0)<0?'negative':''}`}/></button>})}</div>
           <div className="market-layout"><div className="research-column"><section className="panel quote-panel">
-            <div className="quote-heading"><div className="company-icon">{selected.slice(0,1)}</div><div className="company-name"><div><h2>{selected}</h2><button className={`star-button ${watchlist.includes(selected)?'starred':''}`} onClick={toggleWatch} aria-label={watchlist.includes(selected)?'移除自選':'加入自選'}><Star size={17} fill={watchlist.includes(selected)?'currentColor':'none'}/></button><span className="badge">US</span></div><p>{quote?.name??UNIVERSE.find(x=>x.symbol===selected)?.name??selected}</p></div><div className="quote-market-status"><span className={`status-dot ${quote?.session==='regular'?'online':''}`}/>{quote?sessionNames[quote.session]:'行情連接中'}</div></div>
+            <div className="quote-heading"><div className="company-icon">{selected.slice(0,1)}</div><div className="company-name"><div><h2>{selected}</h2><button className={`star-button ${watchlist.includes(selected)?'starred':''}`} onClick={toggleWatch} disabled={!API_AVAILABLE} aria-label={watchlist.includes(selected)?'移除自選':'加入自選'}><Star size={17} fill={watchlist.includes(selected)?'currentColor':'none'}/></button><span className="badge">US</span></div><p>{quote?.name??UNIVERSE.find(x=>x.symbol===selected)?.name??selected}</p></div><div className="quote-market-status"><span className={`status-dot ${quote?.session==='regular'?'online':''}`}/>{quote?sessionNames[quote.session]:API_AVAILABLE?'行情連接中':'後端待連接'}</div></div>
             <div className="price-heading"><strong>{quote?quote.price.toFixed(2):'—'}<small>USD</small></strong><span className={quote?.changePercent!==null&&(quote?.changePercent??0)<0?'down':'up'}>{quote?.change!==null&&quote?`${quote.change>=0?'+':''}${quote.change.toFixed(2)}`:'—'} <b>{quote?pct(quote.changePercent):''}</b></span><button className="icon-button" aria-label="重新整理行情" onClick={()=>setRefresh(r=>r+1)}><RefreshCw size={14}/></button></div>
             <div className="quote-facts">{[['開盤',latest?.open],['最高',latest?.high],['最低',latest?.low],['前收',quote?.previousClose]].map(([label,value])=><div key={String(label)}><span>{label}</span><strong>{typeof value==='number'?value.toFixed(2):'—'}</strong></div>)}<div><span>成交量 · 所選 K 線</span><strong>{latest?compact(latest.volume):'—'}</strong></div></div>
             {quoteErrors[selected]&&<div className="quote-error"><Activity size={13}/>{quoteErrors[selected]}{quote&&' 保留先前報價，請留意時間。'}</div>}

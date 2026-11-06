@@ -56,7 +56,7 @@ jobs:
 
   github-pages:
     needs: validate
-    if: github.event_name == 'workflow_dispatch' && inputs.target == 'github-pages'
+    if: github.event_name == 'push' || inputs.target == 'github-pages'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -74,16 +74,14 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - name: Require the separately deployed API origin
-        env:
-          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
-        run: test -n "$VITE_API_BASE_URL"
       - run: npm ci
+      - uses: actions/configure-pages@v5
+        id: pages
       - run: npm run build
         env:
-          SITE_BASE_PATH: /${{ github.event.repository.name }}/
+          SITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
-      - uses: actions/configure-pages@v5
+          VITE_DEPLOYMENT_TARGET: github-pages
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

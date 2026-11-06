@@ -1,5 +1,8 @@
 const BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
+export const API_AVAILABLE = import.meta.env.VITE_DEPLOYMENT_TARGET !== 'github-pages' || BASE !== '';
+export const API_UNAVAILABLE_MESSAGE = 'GitHub Pages 目前只部署介面，尚未連接雲端 API；資金與持倉不會被儲存。';
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
+  if (!API_AVAILABLE) throw new Error(API_UNAVAILABLE_MESSAGE);
   const response = await fetch(`${BASE}/api${path}`, { ...init,
     headers: { ...(init?.body ? { 'Content-Type': 'application/json' } : {}), ...init?.headers } });
   const contentType = response.headers.get('Content-Type') ?? '';
