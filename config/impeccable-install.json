@@ -1,0 +1,13 @@
+{
+  "repository": "https://github.com/pbakaus/impeccable",
+  "commit": "c3bb418ee38ee49a6b999b7752c1368f3123a2bd",
+  "cliVersion": "4.8.0",
+  "skillVersion": "4.8.0",
+  "engineVersion": "0.1.18",
+  "provider": "codex",
+  "scope": "project",
+  "skillPath": ".agents/skills/impeccable",
+  "hookPath": ".codex/hooks.json",
+  "installation": "Official installer using IMPECCABLE_BUNDLE_PATH with the pinned upstream generated provider tree; remote impeccable.style bundle endpoint is denied by the cloud network policy.",
+  "verification": "npm lockfile integrity and engine SHA-256 matched against the upstream engine-checksums.txt; project hook registered, Codex client trust still requires user approval."
+}

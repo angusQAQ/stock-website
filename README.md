@@ -17,6 +17,9 @@ npm run dev:api
 - [功能與限制](docs/product-requirements.md)
 - [部署、固定網址與 Mac 連接](docs/deployment.md)
 - [五組研究來源與 42 個專案 skills](docs/research-tools.md)
+- [Impeccable 繁體中文詳細使用手冊](docs/impeccable-guide.zh-Hant.md) · [網頁版](public/guides/impeccable.html) · [PDF](public/guides/impeccable.zh-Hant.pdf)
+
+Impeccable 4.8.0 已安裝於 `.agents/skills/impeccable/`，在新的 Codex 專案工作階段使用 `$impeccable`。首次使用設計 hook 時，依 Codex 的 `/hooks` 介面檢查並核准。CLI 可透過 `npx --no-install impeccable` 執行；設計指令則貼在 Codex 聊天中。
 
 行情使用 Yahoo Finance 公開來源，目標每 5 秒輪詢，包含來源提供的盤前盤後資料；實際新鮮度與可用性須依來源時間判斷。沒有資料時不顯示模擬價格。雲端部署、Mac 訂閱連接及富途自動費率估算仍需完成各自的外部設定與驗證。
 

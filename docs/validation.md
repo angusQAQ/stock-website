@@ -1,5 +1,7 @@
 # 驗證紀錄
 
+2026-11-06 Impeccable 安裝：CLI/skill 4.8.0、engine 0.1.18。官方遠端 bundle 網域被拒絕，改用官方安裝器的 IMPECCABLE_BUNDLE_PATH 支援，來源固定於 pbakaus/impeccable commit c3bb418ee38ee49a6b999b7752c1368f3123a2bd。引擎 SHA-256 與發佈的 manifest 相符，63 個 skill 檔案與上游一致，既有 41 個上游投資 skills 及工具入口保留。重跑安裝顯示 up to date。CLI 62 條規則可列出，官方 overused-font 測試 fixture 掃描回傳 13 項發現及預期 exit 2；src 掃描 exit 0 不代表已做完整設計評估。專案 hook 已註冊，客戶端信任仍由使用者核准。網站 24 項測試及正式 build 通過；19 章繁體中文手冊的桌面、390px/320px 版面及目錄連結驗證通過，另匯出 16 頁 PDF。未執行網站改版或付費模型分析。
+
 2026-11-06 正式入口記錄：使用者提供並確認 https://angusqaq.github.io/stock-website/。雲端直接請求仍被代理以 CONNECT 403 拒絕；此網址的上線狀態屬使用者回報，非雲端獨立 HTTP 驗證。已將網址保存至 config/site.json，供後續部署和後端 origin 設定共用。
 
 2026-11-06 GitHub Pages 目標：24 項網站測試與專案子路徑建置通過；瀏覽器驗證 `/stock-website/` 的 CSS、JavaScript、favicon、桌面／手機版面。未配置 API 時，無 API 請求、無資金寫入、分析按鈕停用，介面明確顯示後端未連接。GitHub Pages 設定／線上發佈結果尚無法讀取，因這個環境的 GitHub API 被網路政策拒絕。

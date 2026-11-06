@@ -23,3 +23,10 @@
 - Run `python3 scripts/install-research-tools.py` to install/refresh pinned tools, and `python3 scripts/verify-research-tools.py` for offline readiness checks. Read `docs/research-tools.md` for entry points and limitations.
 - The React/Vite frontend, Cloudflare Worker/D1 API, manual USD ledger, quote proxy, analysis queue and Mac CLI bridge are implemented. Read `docs/deployment.md` for setup. Production deployment, real Yahoo data access, Futu fee verification and Mac subscription usage remain unverified; do not claim otherwise.
 - Run `npm test` and `npm run build` for application changes. Tests under `tests/` exercise actual SQLite SQL and the worker workflow. Keep third-party source tests out of the site's Vitest discovery; their representative checks have a separate runner.
+
+## Design toolkit and handbook
+
+- Impeccable CLI/skill 4.8.0 and engine 0.1.18 are installed for this project. Provenance is in `config/impeccable-install.json`; the native skill is `.agents/skills/impeccable/` and the project hook is `.codex/hooks.json`. Hook registration does not establish client trust or approval.
+- The Traditional Chinese handbook is `docs/impeccable-guide.zh-Hant.md`; its generated web edition is `public/guides/impeccable.html`. Render with `scripts/render-impeccable-guide.py` using Python Markdown (available in the AI Berkshire venv) when changing the handbook. Export the PDF from the rendered web edition before publication.
+- Installing the toolkit or writing its manual does not request a website redesign. For future UI work, preserve the user's dense broker interface and product truth; use relevant Impeccable guidance within the requested scope. Follow its workflow-specific delegation requirements only when that workflow is actually invoked.
+- Platform engines and ephemeral Impeccable output stay ignored. Preserve upstream checksums, launcher scripts and licenses. Native skill files can be updated via the official installer; do not edit its generated references as application code.

@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Impeccable 4.8.0 繁體中文操作手冊：以 Codex 與美股網站為例，說明設計指令、提示詞、審查與發布。">
+<title>用 Impeccable 製作有質感的網站：Codex 實用手冊</title><style>
+:root{font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;color:#243746;background:#f1f4f5;font-size:17px;line-height:1.9;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0}a{color:#146154;text-underline-offset:4px;text-decoration-thickness:1px}a:hover{color:#08483d}a:focus-visible,summary:focus-visible{outline:2px solid #24836f;outline-offset:4px}::selection{background:#b9dfd1;color:#102e26}
+.masthead{background:#122b36;color:#f5f9fa;border-bottom:4px solid #3b8b76}.masthead-inner{max-width:1280px;margin:auto;padding:26px 32px 32px}.topline{display:flex;justify-content:space-between;gap:16px;align-items:center;font-size:14px}.guide-actions{display:flex;gap:18px;flex-wrap:wrap}.topline a{color:#d3e8e4}.title{font-size:36px;line-height:1.45;font-weight:700;letter-spacing:-.02em;text-wrap:balance;max-width:29em;margin:25px 0 14px}.masthead p{font-size:15px;line-height:1.8;color:#d4e3e9;margin:0;max-width:60em}
+.layout{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:252px minmax(0,1fr);gap:36px;padding:34px 32px 70px}.contents{position:sticky;top:24px;align-self:start;max-height:calc(100vh - 48px);overflow:auto;padding-right:12px;font-size:14px;line-height:1.65}.contents h2{font-size:17px;margin:0 0 14px;color:#173d43}.contents ul{padding:0;list-style:none;margin:0}.contents li{margin:0}.contents a{display:block;color:#344f5b;text-decoration:none;padding:7px 0}.contents a:hover{color:#146154;text-decoration:underline}.article{background:#fff;min-width:0;padding:30px 40px 48px;border-radius:3px;box-shadow:0 8px 24px #173b4b08}.article>p:first-child{margin-top:0}.article h2{font-size:26px;line-height:1.5;margin:2.4em 0 .75em;padding-top:.3em;border-top:1px solid #dbe4e6;padding-top:22px;color:#123d42;text-wrap:balance;scroll-margin-top:24px}.article h3{font-size:20px;line-height:1.6;margin:1.9em 0 .6em;color:#1c4f50}.article p{margin:.85em 0;overflow-wrap:anywhere}.article ul,.article ol{padding-left:1.5em}.article li{margin:.4em 0}.article li p{margin:.4em 0}.article strong{font-weight:700;color:#1b3540}.article code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.85em;background:#edf3f2;padding:.12em .32em;border-radius:3px;overflow-wrap:anywhere}.article pre{background:#132d38;color:#f0f6f7;padding:18px 20px;border-radius:5px;overflow:auto;margin:1.2em 0;line-height:1.8;font-size:14px;tab-size:2}.article pre code{color:inherit;background:none;padding:0;font-size:inherit;overflow-wrap:normal}.table-wrap{width:100%;overflow-x:auto;margin:1.2em 0}.article table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.85}.article th{text-align:left;background:#e7f0ed;color:#18463e;font-weight:700}.article th,.article td{padding:11px 13px;border:1px solid #d3e0dd;vertical-align:top}.article td:first-child{font-weight:500}.article table code{font-size:12px;white-space:normal;overflow-wrap:anywhere}.footer{max-width:1216px;margin:0 auto;padding:24px 0 32px;border-top:1px solid #cbd9dc;font-size:14px;color:#3e5965;display:flex;justify-content:space-between;gap:15px}.mobile-contents{display:none}.reading-note{padding-top:18px;margin-top:30px;border-top:1px solid #d4dfe2;font-size:14px;color:#455f68}
+@media(max-width:1000px){.layout{grid-template-columns:210px minmax(0,1fr);padding:28px 22px 50px;gap:22px}.article{padding:24px 26px 38px}.contents{font-size:13px}.title{font-size:32px}.footer{margin:0 22px}}
+@media(max-width:760px){:root{font-size:16px}.masthead-inner{padding:22px 20px 26px}.topline{font-size:13px;flex-wrap:wrap}.title{font-size:28px;margin-top:22px;line-height:1.5}.masthead p{font-size:14px}.layout{display:block;padding:20px 14px 36px}.contents{display:none}.mobile-contents{display:block;background:#e4eeea;border:1px solid #c7d9d2;padding:13px 17px;margin-bottom:17px;border-radius:4px;font-size:14px}.mobile-contents summary{font-weight:700;color:#244e42;cursor:pointer}.mobile-contents ul{list-style:none;padding:4px 0;margin:0}.mobile-contents a{display:block;padding:7px 0;text-decoration:none}.article{padding:23px 18px 32px}.article h2{font-size:22px;margin-top:2.1em;padding-top:19px}.article h3{font-size:18px}.article pre{padding:14px 13px;font-size:13px}.article table{font-size:13px;min-width:420px}.article th,.article td{padding:9px 10px}.footer{display:block;font-size:13px;margin:0 20px;padding-top:20px}.footer span{display:block;margin-bottom:8px}}
+@media print{.guide-actions{display:none} @page{size:A4;margin:17mm 17mm 19mm}:root{font-size:10.5pt;color:#152b36;background:white;line-height:1.65}.masthead{background:white;color:#123d42;border-bottom:2px solid #347a68}.masthead-inner{padding:0 0 16px}.masthead p,.topline a{color:#344f5b}.topline{font-size:9pt}.title{font-size:24pt;margin:13px 0 9px;max-width:none}.layout{display:block;padding:0}.contents,.mobile-contents{display:none!important}.article{padding:0;box-shadow:none;border:0}.article h2{font-size:17pt;margin:1.7em 0 .65em;padding-top:13px;break-after:avoid}.article h3{font-size:13pt;break-after:avoid}.article pre{font-size:8.5pt;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;background:#eef3f3;color:#142e38;padding:12px;break-inside:auto}.article pre code{white-space:pre-wrap;overflow-wrap:anywhere}.table-wrap{overflow:visible}.article table{font-size:9pt;min-width:0}.article tr{break-inside:avoid}.article th,.article td{padding:6px 8px}.article table code{font-size:8.3pt}a{color:#195e50;text-decoration:none}p,li{orphans:3;widows:3}.footer{font-size:9pt;padding-top:15px;margin-top:24px}.reading-note{font-size:9pt}}
+</style></head><body>
+<header class="masthead"><div class="masthead-inner"><div class="topline"><span>Northstar 專案使用手冊</span><nav class="guide-actions" aria-label="閱讀格式"><a href="impeccable.zh-Hant.pdf" download>下載 PDF</a><a href="https://angusqaq.github.io/stock-website/">返回美股研究工作台</a></nav></div>
+<h1 class="title">用 Impeccable 製作有質感的網站：Codex 實用手冊</h1><p>從產品背景、設計評估到逐輪改善與發布。範例指令可直接貼到 Codex；涵蓋 Impeccable 4.8.0 的 24 個設計指令。</p></div></header>
+<div class="layout"><aside class="contents" aria-label="章節目錄"><h2>閱讀目錄</h2><div class="toc">
+<ul>
+<li><a href="#1-impeccable">1. 先理解 Impeccable 負責什麼</a></li>
+<li><a href="#2">2. 本專案目前裝了什麼</a></li>
+<li><a href="#3">3. 分清楚兩個輸入位置</a></li>
+<li><a href="#4-mac">4. 第一次在 Mac 使用：照這個順序</a></li>
+<li><a href="#5-codex">5. 讓 Codex 理解你的產品與設計</a></li>
+<li><a href="#6">6. 改善已有網站的完整流程</a></li>
+<li><a href="#7">7. 從零建立新頁面的流程</a></li>
+<li><a href="#8-24">8. 24 個指令：什麼時候用</a></li>
+<li><a href="#9">9. 一個好的提示詞要交代六件事</a></li>
+<li><a href="#10">10. 套用到你的五個重點區域</a></li>
+<li><a href="#11">11. 把所有重要狀態一起設計</a></li>
+<li><a href="#12">12. 如何審查成果</a></li>
+<li><a href="#13">13. 如何理解設計評分和提醒</a></li>
+<li><a href="#14-live">14. 進階：比較方案與 Live 模式</a></li>
+<li><a href="#15">15. 最後打磨與發布</a></li>
+<li><a href="#16">16. 常見問題</a></li>
+<li><a href="#17-codex">17. 可以直接貼給 Codex 的完整任務</a></li>
+<li><a href="#18">18. 一頁速查</a></li>
+<li><a href="#19">19. 官方參考與版本範圍</a></li>
+</ul>
+</div>
+</aside>
+<main class="article"><details class="mobile-contents"><summary>展開章節目錄</summary><div class="toc">
+<ul>
+<li><a href="#1-impeccable">1. 先理解 Impeccable 負責什麼</a></li>
+<li><a href="#2">2. 本專案目前裝了什麼</a></li>
+<li><a href="#3">3. 分清楚兩個輸入位置</a></li>
+<li><a href="#4-mac">4. 第一次在 Mac 使用：照這個順序</a></li>
+<li><a href="#5-codex">5. 讓 Codex 理解你的產品與設計</a></li>
+<li><a href="#6">6. 改善已有網站的完整流程</a></li>
+<li><a href="#7">7. 從零建立新頁面的流程</a></li>
+<li><a href="#8-24">8. 24 個指令：什麼時候用</a></li>
+<li><a href="#9">9. 一個好的提示詞要交代六件事</a></li>
+<li><a href="#10">10. 套用到你的五個重點區域</a></li>
+<li><a href="#11">11. 把所有重要狀態一起設計</a></li>
+<li><a href="#12">12. 如何審查成果</a></li>
+<li><a href="#13">13. 如何理解設計評分和提醒</a></li>
+<li><a href="#14-live">14. 進階：比較方案與 Live 模式</a></li>
+<li><a href="#15">15. 最後打磨與發布</a></li>
+<li><a href="#16">16. 常見問題</a></li>
+<li><a href="#17-codex">17. 可以直接貼給 Codex 的完整任務</a></li>
+<li><a href="#18">18. 一頁速查</a></li>
+<li><a href="#19">19. 官方參考與版本範圍</a></li>
+</ul>
+</div>
+</details><p>適用對象：使用 macOS、Codex 桌面程式，想把已有網站做得更專業、更易用的使用者。</p>
+<p>本文依據本專案已安裝的 <strong>Impeccable 4.8.0</strong> 撰寫；引擎版本為 <strong>0.1.18</strong>。範例以你的美股研究網站 Northstar 為主。這份手冊介紹操作方法，本次沒有替網站重新設計，也沒有把尚未接上的行情或分析服務描述為可用。</p>
+<p>正式網站入口：<a href="https://angusqaq.github.io/stock-website/">https://angusqaq.github.io/stock-website/</a>。設計修改先在本機預覽，驗收後再更新這個網址。</p>
+<h2 id="1-impeccable">1. 先理解 Impeccable 負責什麼</h2>
+<p>Impeccable 提供一套設計語言、工作流程、參考資料與檢查工具，讓 Codex 能更具體地處理排版、資訊層級、色彩、互動、文案和可用性。它需要配合 Codex 讀取你的程式碼、理解產品與執行修改。</p>
+<p>金融工作台的質感，主要來自以下幾件事：</p>
+<ul>
+<li><strong>一眼可讀</strong>：使用者能迅速找到股票、價格、報價時間、現金與風險。</li>
+<li><strong>層級明確</strong>：股價、盈虧、標籤和說明文字，各有適當的視覺重量。</li>
+<li><strong>規則一致</strong>：相同按鈕、輸入框、表格、邊距及數字格式，在每個頁面都一致。</li>
+<li><strong>狀態可靠</strong>：載入、休市、延遲、斷線和資料不足，都有準確的表示。</li>
+<li><strong>操作完整</strong>：鍵盤、手機、表單驗證、錯誤復原和長內容都能正常使用。</li>
+</ul>
+<p>Impeccable 可以改善這些體驗。行情來源、持倉資料庫、富途費率、Codex 訂閱授權及投資計算，仍需相應的資料、後端與測試。</p>
+<h2 id="2">2. 本專案目前裝了什麼</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>項目</th>
+<th>目前狀態</th>
+<th>位置／用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codex skill</td>
+<td>已安裝 4.8.0</td>
+<td><code>.agents/skills/impeccable/</code></td>
+</tr>
+<tr>
+<td>CLI</td>
+<td>已固定 4.8.0</td>
+<td><code>package.json</code> 的開發依賴</td>
+</tr>
+<tr>
+<td>引擎</td>
+<td>雲端 Linux 版已安裝、已校驗</td>
+<td>本機引擎 0.1.18，其他作業系統使用對應版本</td>
+</tr>
+<tr>
+<td>設計 hook</td>
+<td>專案設定已寫入</td>
+<td><code>.codex/hooks.json</code>；客戶端首次仍需信任／核准</td>
+</tr>
+<tr>
+<td>原本的投資 skills</td>
+<td>保留</td>
+<td>與 Impeccable 分開使用</td>
+</tr>
+<tr>
+<td>使用手冊</td>
+<td>本文件</td>
+<td>可搭配後面的提示詞直接操作</td>
+</tr>
+</tbody>
+</table></div>
+<p>這次實際安裝發生在 Codex 雲端工作區。你的 Mac 需要同步這次的 Git 更新，才能取得相同的技能檔與套件設定；這不代表已操作或安裝到你的 Mac。</p>
+<p>官方下載服務在這個雲端環境被網路政策拒絕，因此本次使用官方安裝器的本地來源模式，讀取固定 Git commit 內已編譯的 Codex skill。引擎仍保留 SHA-256 校驗，套件保留 npm integrity 驗證。來源與版本記錄在 <code>config/impeccable-install.json</code>。</p>
+<h2 id="3">3. 分清楚兩個輸入位置</h2>
+<p>這是最容易混淆的地方。以下兩種指令有不同用途：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>輸入位置</th>
+<th>範例</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Codex 聊天輸入框</strong></td>
+<td><code>$impeccable critique 股票詳情頁</code></td>
+<td>讓 Codex 使用設計工作流程，讀取、評估或修改網站</td>
+</tr>
+<tr>
+<td><strong>Terminal</strong></td>
+<td><code>npx --no-install impeccable detect src/</code></td>
+<td>執行工具安裝、版本檢查或確定性的程式掃描</td>
+</tr>
+</tbody>
+</table></div>
+<p>在 Codex 中，請使用 <code>$impeccable</code>。其他編輯器的教學可能使用 <code>/impeccable</code>，那是不同客戶端的入口。</p>
+<p><code>critique</code>、<code>polish</code>、<code>layout</code> 等設計工作，請在聊天中提出。Terminal 的 detector 不會自行替你完成一份 AI 設計改版。</p>
+<h2 id="4-mac">4. 第一次在 Mac 使用：照這個順序</h2>
+<h3 id="41">4.1 同步專案</h3>
+<p>在 Codex 桌面程式開啟你平常使用的 <code>stock-website</code> 專案資料夾，確認它是連到 <code>angusQAQ/stock-website</code> 的同一份倉庫。</p>
+<p>Terminal 進入該資料夾：</p>
+<pre><code class="language-bash">cd /你的專案路徑/stock-website
+git status --short
+</code></pre>
+<p>如果有尚未保存的修改，先妥善保存與提交。工作目錄乾淨後，再同步遠端，例如：</p>
+<pre><code class="language-bash">git pull --ff-only
+npm ci
+npx --no-install impeccable --version
+</code></pre>
+<p>最後一行應顯示 <code>4.8.0</code>。若找不到 <code>npm</code>，先安裝 Node.js；本網站需要 Node 22 以上，本次驗證使用 Node 24。</p>
+<h3 id="42-skills">4.2 重新探索 skills</h3>
+<p>在 Codex 桌面程式重新開啟專案的新工作階段，輸入 <code>$impeccable</code>，或到技能清單搜尋 Impeccable。已經開著的聊天不一定會立即重新探索新安裝的技能。</p>
+<p>本專案已把 skill 納入 Git，通常同步倉庫即可取得。要在其他新專案安裝，使用官方流程：</p>
+<pre><code class="language-bash">npx impeccable install --providers=codex --scope=project
+</code></pre>
+<p>安裝器可能詢問是否加入設計 hook。它會在代理修改 UI 檔案後提供品質提醒。Codex 首次載入專案 hook 時，依客戶端提示到 <code>/hooks</code> 檢查並核准；不同桌面版本的入口可能略有差異。安裝檔案存在與 hook 已獲客戶端信任，是兩個不同狀態。</p>
+<h3 id="43">4.3 開啟可預覽的本機網站</h3>
+<p>在第一個 Terminal：</p>
+<pre><code class="language-bash">npm run build
+npm run db:local
+npm run dev:api
+</code></pre>
+<p>這會提供本機 Worker 與測試用本機資料庫。接著另開第二個 Terminal：</p>
+<pre><code class="language-bash">npm run dev
+</code></pre>
+<p>第二個 Terminal 顯示的 Vite 網址就是設計時的預覽入口，預設通常是 <code>http://localhost:5173</code>；請以實際輸出為準。保留這兩個 Terminal，讓介面與 API 在你操作時持續執行。</p>
+<p>雲端 API 尚未連接時，正式 Pages 會顯示對應狀態。本機開發資料庫與正式雲端帳本分開，不要把測試資料當成真實資產，也不要把個人資料檔提交到 Git。</p>
+<h2 id="5-codex">5. 讓 Codex 理解你的產品與設計</h2>
+<p>Impeccable 主要使用兩份長期文件：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>文件</th>
+<th>回答的問題</th>
+<th>應包含的內容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PRODUCT.md</code></td>
+<td>網站服務誰、解決什麼問題？</td>
+<td>使用者、核心流程、能力、約束、真實資料與尚未決定的事項</td>
+</tr>
+<tr>
+<td><code>DESIGN.md</code></td>
+<td>這個網站如何呈現？</td>
+<td>色彩、字級、間距、版面、元件與狀態規範</td>
+</tr>
+</tbody>
+</table></div>
+<p>你已有網站，適合先建立產品背景，再記錄現有視覺系統。兩份文件都應保留在 Git，避免每次改一頁就換一套風格。</p>
+<h3 id="_1">第一步：建立產品背景</h3>
+<p>貼到 <strong>Codex 聊天</strong>：</p>
+<pre><code class="language-text">$impeccable init
+
+這是我的個人美股研究工作台 Northstar。
+請先讀 AGENTS.md、docs/product-requirements.md 和現有程式碼，沿用已確認的需求。
+主要流程是查股票、選投資期間、閱讀分析、查看美元持倉及記錄交易。
+介面需接近證券公司平台，資訊密集，分析報告則先呈現結論、理由和風險。
+請把可從現有文件確認的事實寫入 PRODUCT.md，只詢問文件中缺少且影響設計的資訊。
+</code></pre>
+<p><code>init</code> 主要整理產品背景，不負責決定新的視覺風格。涉及本金、帳戶或憑證時，使用資料類型與需求描述即可，不要把真實值寫進產品文件。</p>
+<h3 id="_2">第二步：記錄現有設計</h3>
+<p>貼到 <strong>Codex 聊天</strong>：</p>
+<pre><code class="language-text">$impeccable document
+
+請根據 src/styles.css、目前的 React 元件與本機畫面，整理現有設計系統到 DESIGN.md。
+保留深色證券工作台方向，記錄色彩、資訊層級、數字格式、表格、按鈕、表單與響應式規則。
+把已存在的規則與建議改善項目分清楚，避免把尚未實作的設計寫成現況。
+</code></pre>
+<p>若已有 <code>DESIGN.md</code>，先決定要更新哪些內容，再執行整理。工具可能會詢問採用合併、更新或覆寫；先看差異，保留有用的既有規則。</p>
+<h3 id="_3">對你的網站，最重要的背景</h3>
+<ul>
+<li>這是一個用來完成工作與判斷的介面，屬於 Impeccable 的 <strong>Operate</strong> 模式。</li>
+<li>密集行情與表格要有清楚分組、數字對齊、可讀字級和穩定的互動位置。</li>
+<li>綠／紅涉及市場漲跌語意，應在各頁保持一致。</li>
+<li>來源時間、盤前盤後、延遲及缺漏屬於功能資訊，需要真實表示。</li>
+<li>私人使用、公開網站、雲端儲存和存取控制要分開描述。</li>
+</ul>
+<p>品牌行銷頁會更重視說服與視覺表達；你的核心工作台應優先支援快速閱讀和準確操作。</p>
+<h3 id="_4">一組可討論的視覺起點</h3>
+<p>以下可作為與 Codex 討論的起始提案，確認後再納入 DESIGN.md。實際數值應配合內容長度、顯示密度及手機閱讀測試調整。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>項目</th>
+<th>起始提案</th>
+<th>判斷重點</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主要股價</td>
+<td>約 32–40px，使用等寬數字配置</td>
+<td>更新時小數位不跳動，價格易讀</td>
+</tr>
+<tr>
+<td>區塊標題</td>
+<td>約 18–22px</td>
+<td>區分報價、圖表、持倉及分析</td>
+</tr>
+<tr>
+<td>說明與分析正文</td>
+<td>約 14–16px，適當行高</td>
+<td>繁體中文長文能連續閱讀</td>
+</tr>
+<tr>
+<td>表格與功能標籤</td>
+<td>約 12–14px 起評估</td>
+<td>密集資訊仍能辨認，關鍵數據不靠極小字體</td>
+</tr>
+<tr>
+<td>手機輸入欄位</td>
+<td>約 16px 起評估</td>
+<td>避免為了版面壓縮而犧牲輸入可讀性</td>
+</tr>
+<tr>
+<td>間距</td>
+<td>4、8、12、16、24、32px 的少量級距</td>
+<td>相關資訊靠近，區塊之間明確分開</td>
+</tr>
+<tr>
+<td>色彩</td>
+<td>深色底、兩級表面色、主要操作色、漲跌色</td>
+<td>色彩有用途，次要文字仍有足夠對比</td>
+</tr>
+<tr>
+<td>數字格式</td>
+<td>金額、百分比、股數各有一致規則</td>
+<td>負號、幣別、小數位與缺值表示固定</td>
+</tr>
+</tbody>
+</table></div>
+<p>給 Codex 的決策依據應是「改完更容易完成什麼任務」。例如把漲跌數字與來源時間放在同一個視覺群組，讓使用者比較價格時也能確認新鮮度；這比單純指定更多陰影與裝飾更容易驗收。</p>
+<h2 id="6">6. 改善已有網站的完整流程</h2>
+<p>建議順序：</p>
+<ol>
+<li><strong>建立背景</strong>：<code>init</code> 與 <code>document</code>。</li>
+<li><strong>看整體體驗</strong>：<code>critique</code>。</li>
+<li><strong>查技術品質</strong>：<code>audit</code>。</li>
+<li><strong>選一個範圍改善</strong>：例如 <code>typeset</code> 或 <code>layout</code>。</li>
+<li><strong>處理不同尺寸</strong>：<code>adapt</code>。</li>
+<li><strong>補狀態與邊界</strong>：<code>harden</code>。</li>
+<li><strong>完成最後打磨</strong>：<code>polish</code>。</li>
+<li><strong>實際驗收與發布</strong>：操作、測試、建置、Git commit、部署。</li>
+</ol>
+<p>第一次建議從「股票詳情頁」或「交易記錄視窗」開始。一次處理一個主要區域，更容易比較成效與回復修改。</p>
+<h3 id="61">6.1 先請它評估整體體驗</h3>
+<pre><code class="language-text">$impeccable critique src/App.tsx 的股票詳情工作台
+
+目標使用者會快速查看股價、漲跌、來源時間、K 線與分析入口。
+請使用本機預覽檢查桌面與手機，先提供改善報告及優先順序。
+這一輪以評估為交付，列出最值得先處理的三項問題、具體位置與理由。
+</code></pre>
+<p><code>critique</code> 關注資訊層級、理解成本、產品特性與操作體驗。本版在可用時採用獨立代理分別評估，Codex 可能先詢問是否允許這次使用多代理。若你只想單一代理，可直接說明；報告應交代採用的方式，不能把降級評估當成完整獨立評估。</p>
+<h3 id="62">6.2 再請它檢查可驗證的品質</h3>
+<pre><code class="language-text">$impeccable audit src/TransactionModal.tsx
+
+請檢查標籤、鍵盤操作、焦點管理、錯誤訊息、手機尺寸與字體放大。
+先列出 P0 到 P3 的問題，附上重現方式和可用的證據，再建議修正順序。
+</code></pre>
+<p><code>audit</code> 的主要交付是技術品質報告。它與設計喜好的評估不同，也不應把 detector 的單一提示直接當成已證實的缺陷。</p>
+<h3 id="63">6.3 只處理選定的問題</h3>
+<p>假設你選擇改善「重要價格與說明文字層級」：</p>
+<pre><code class="language-text">$impeccable typeset 股票詳情頁的報價區及分析摘要
+
+目標：主要價格、漲跌、時間與摘要更容易掃讀。
+範圍：只調整字級、字重、行高、數字對齊與文字間距。
+保留：深色視覺方向、目前功能、投資文字、資料來源與金額計算。
+驗收：桌面與 390px 手機可讀，200% 放大時重要操作仍可使用。
+完成後說明修改檔案、改善理由及驗證結果。
+</code></pre>
+<p>完成一輪後，先看本機畫面與差異，再進下一輪。</p>
+<h2 id="7">7. 從零建立新頁面的流程</h2>
+<p>新增頁面適合先把任務與資訊架構想清楚：</p>
+<pre><code class="language-text">$impeccable shape 我的美元資產頁
+
+使用者要查看可用美元、持倉市值、成本、損益和交易紀錄，並可記錄入金與買賣。
+請先提出資訊優先順序、桌面與手機的區塊安排，以及主要操作路徑。
+沿用現有 Northstar 設計方向，清楚標示需要我決定的產品問題。
+</code></pre>
+<p>方向確認後，明確交代開始實作的範圍：</p>
+<pre><code class="language-text">請依剛才確認的方案實作美元資產頁。
+沿用 DESIGN.md 與既有元件，接上現有資料契約。
+顯示載入、無持倉、部分行情缺漏和錯誤狀態。
+使用者資產與報價以真實 API 資料為準；開發 fixture 需與正式程式分開。
+完成後提供本機預覽、手機檢查、測試與建置結果。
+</code></pre>
+<p>大幅改版或新的品牌風格，需要另外確認方向。已有證券工作台的設計約束，應清楚寫入提示詞和長期文件。</p>
+<h2 id="8-24">8. 24 個指令：什麼時候用</h2>
+<p>以下都以 <strong>Codex 聊天中的 <code>$impeccable 指令 目標</code></strong> 使用。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>適合處理的問題</th>
+<th>美股網站範例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>init</code></td>
+<td>產品背景未整理</td>
+<td>建立使用者、流程與資料約束</td>
+</tr>
+<tr>
+<td><code>document</code></td>
+<td>設計規則未記錄</td>
+<td>從現有 CSS 與元件整理 DESIGN.md</td>
+</tr>
+<tr>
+<td><code>shape</code></td>
+<td>功能存在但流程尚不清楚</td>
+<td>規劃持倉頁的資訊與操作路徑</td>
+</tr>
+<tr>
+<td><code>critique</code></td>
+<td>想知道整體體驗哪裡值得改善</td>
+<td>評估工作台是否容易快速判斷</td>
+</tr>
+<tr>
+<td><code>audit</code></td>
+<td>要查技術品質與可用性</td>
+<td>表單、對比、焦點、響應式與效能</td>
+</tr>
+<tr>
+<td><code>typeset</code></td>
+<td>字體層級與可讀性不足</td>
+<td>價格、數字欄位、分析段落</td>
+</tr>
+<tr>
+<td><code>layout</code></td>
+<td>排列、間距與分組不清楚</td>
+<td>K 線、報價與操作區的關係</td>
+</tr>
+<tr>
+<td><code>colorize</code></td>
+<td>顏色缺少清楚用途</td>
+<td>區分漲跌、警示與主要操作</td>
+</tr>
+<tr>
+<td><code>bolder</code></td>
+<td>重要元素存在感不足</td>
+<td>強化主要價格與分析結論</td>
+</tr>
+<tr>
+<td><code>quieter</code></td>
+<td>太多元素同時爭取注意</td>
+<td>收斂裝飾、陰影與次要標籤</td>
+</tr>
+<tr>
+<td><code>distill</code></td>
+<td>資訊或操作過多</td>
+<td>合併重複狀態、簡化工具列</td>
+</tr>
+<tr>
+<td><code>clarify</code></td>
+<td>文案難懂或不精確</td>
+<td>說明現金、成本、延遲與缺漏</td>
+</tr>
+<tr>
+<td><code>adapt</code></td>
+<td>不同裝置使用困難</td>
+<td>手機持倉表與圖表工具列</td>
+</tr>
+<tr>
+<td><code>harden</code></td>
+<td>只有理想情境能正常使用</td>
+<td>長代碼、錯誤、空值與重新送出</td>
+</tr>
+<tr>
+<td><code>optimize</code></td>
+<td>實際載入或互動偏慢</td>
+<td>圖表更新、資料請求與重繪</td>
+</tr>
+<tr>
+<td><code>onboard</code></td>
+<td>首次使用者不知道怎麼開始</td>
+<td>先填現金、再加入既有持倉</td>
+</tr>
+<tr>
+<td><code>animate</code></td>
+<td>操作回饋或狀態轉換不清楚</td>
+<td>儲存中、完成與展開收合</td>
+</tr>
+<tr>
+<td><code>delight</code></td>
+<td>希望加入適量品牌細節</td>
+<td>成功記帳的簡潔回饋</td>
+</tr>
+<tr>
+<td><code>overdrive</code></td>
+<td>需要高表現力的視覺效果</td>
+<td>適合特別展示頁，工作台需審慎使用</td>
+</tr>
+<tr>
+<td><code>extract</code></td>
+<td>重複樣式開始分歧</td>
+<td>抽出共用按鈕、輸入框與表格規則</td>
+</tr>
+<tr>
+<td><code>polish</code></td>
+<td>主要問題已解決，準備交付</td>
+<td>對齊、邊界、互動與狀態最後打磨</td>
+</tr>
+<tr>
+<td><code>live</code></td>
+<td>想在本機瀏覽器選元素比較方向</td>
+<td>選中分析摘要區作互動迭代</td>
+</tr>
+<tr>
+<td><code>generate</code></td>
+<td>想比較同一個元素的少量變體</td>
+<td>比較三種分析摘要版型</td>
+</tr>
+<tr>
+<td><code>craft</code></td>
+<td>舊的建立頁面入口</td>
+<td>本版已標示為棄用別名，直接描述建立需求即可</td>
+</tr>
+</tbody>
+</table></div>
+<p>另外有 <code>doctor</code>、<code>hooks</code> 等管理入口，用於檢查安裝、背景文件及 hook 狀態。它們屬於管理工具，不計入上表的 24 個設計指令。</p>
+<h2 id="9">9. 一個好的提示詞要交代六件事</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>欄位</th>
+<th>要寫什麼</th>
+<th>範例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目標</td>
+<td>使用者要更容易完成什麼？</td>
+<td>五秒內找到現金與最大持倉</td>
+</tr>
+<tr>
+<td>範圍</td>
+<td>要改哪個頁面或元件？</td>
+<td>PortfolioView.tsx 的資產摘要</td>
+</tr>
+<tr>
+<td>方向</td>
+<td>有哪些既定視覺與品牌約束？</td>
+<td>深色券商工作台、資訊密集</td>
+</tr>
+<tr>
+<td>保留內容</td>
+<td>哪些產品事實與行為要維持？</td>
+<td>財務數字、資料契約、交易計算</td>
+</tr>
+<tr>
+<td>狀態</td>
+<td>哪些真實情境必須處理？</td>
+<td>載入、無持倉、部分行情缺漏</td>
+</tr>
+<tr>
+<td>驗收</td>
+<td>怎樣算完成？</td>
+<td>390px 可用、鍵盤可操作、測試與建置通過</td>
+</tr>
+</tbody>
+</table></div>
+<p>你可以把「有質感」換成可檢查的要求：</p>
+<pre><code class="language-text">$impeccable layout 我的資產頁
+
+請讓現金、持倉市值與損益形成清楚的閱讀順序。
+保留目前深色券商風格及資料密度，用對齊、間距與分隔建立層級。
+主要數字採一致的小數位與定位；次要說明有足夠對比。
+桌面能比較多隻持倉，手機能清楚辨認股票、數量、成本與損益。
+請先說明方案，再完成該範圍的修改與驗證。
+</code></pre>
+<h2 id="10">10. 套用到你的五個重點區域</h2>
+<h3 id="101">10.1 看盤與報價</h3>
+<p>優先檢查價格、漲跌、交易時段與資料時間的層級；不同長度的股票名稱和大數字也要能容納。</p>
+<pre><code class="language-text">$impeccable polish 股票報價區
+請改善數字對齊、字重、間距及休市／延遲標示的清晰度。
+保留漲綠跌紅規則，所有價格、日期與狀態必須對應真實資料。
+</code></pre>
+<h3 id="102-k">10.2 K 線與技術指標</h3>
+<p>優先檢查圖表可用面積、時間範圍切換、標籤可讀性、手機橫向手勢和更新時的穩定性。</p>
+<pre><code class="language-text">$impeccable adapt src/StockChart.tsx 和圖表工具列
+請驗證 1440px、1024px 和 390px 的顯示與操作。
+圖表內容及指標計算保持一致，改善工具列排列、觸控操作與資料不足狀態。
+請交代哪些檢查用瀏覽器模擬、哪些手勢仍需要實機驗證。
+</code></pre>
+<h3 id="103">10.3 投資分析報告</h3>
+<p>閱讀順序建議是結論、理由、風險、參考價位、配置條件、完整證據。視覺強調應與資訊可靠程度一致。</p>
+<pre><code class="language-text">$impeccable layout src/AnalysisPanel.tsx
+讓使用者先讀懂結論、理由與風險，再展開細節和來源。
+保留來源日期、缺漏標示、費用輸入與倉位計算條件。
+針對長篇報告、資料不足和分析失敗狀態一起驗證。
+</code></pre>
+<h3 id="104">10.4 入金與交易表單</h3>
+<p>重點是理解、校對與回復操作：金額單位、首次現金與既有持倉的差別、費用、儲存結果和錯誤訊息。</p>
+<pre><code class="language-text">$impeccable harden src/TransactionModal.tsx
+請改善標籤、說明、焦點管理、手機鍵盤和錯誤回饋。
+驗證現金不足、股數不足、重複送出、費用格式錯誤與後端未連線。
+沿用現有帳本計算與防重複邏輯；若發現行為缺陷，分開說明原因與修正。
+</code></pre>
+<h3 id="105">10.5 新使用者的第一個畫面</h3>
+<p>沒有資料時，應清楚引導第一步。使用者填的是目前可用美元；既有股票另外記錄，避免重複扣減。</p>
+<pre><code class="language-text">$impeccable onboard 我的資產頁第一次使用流程
+讓使用者知道先輸入目前可用美元，再加入既有持倉。
+完成後清楚顯示已保存什麼、下一步能做什麼。
+所有示例與真實資產分開，帳本尚未連接時提供準確狀態。
+</code></pre>
+<h2 id="11">11. 把所有重要狀態一起設計</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>情境</th>
+<th>介面應說明什麼</th>
+<th>驗收重點</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>資料載入</td>
+<td>目前正在取得哪一部分資料</td>
+<td>版面穩定，必要操作有明確狀態</td>
+</tr>
+<tr>
+<td>尚無持倉</td>
+<td>下一步填什麼</td>
+<td>引導現金與既有持倉，不填假資產</td>
+</tr>
+<tr>
+<td>後端未連接</td>
+<td>哪些操作尚不可用</td>
+<td>儲存與模型工作清楚停用</td>
+</tr>
+<tr>
+<td>行情限流／斷線</td>
+<td>來源狀態與報價時間</td>
+<td>舊報價有標示，重新整理有合理節奏</td>
+</tr>
+<tr>
+<td>盤前／盤後／休市</td>
+<td>時段及價格基準</td>
+<td>色彩和文案一致，時間區域清楚</td>
+</tr>
+<tr>
+<td>分析排隊</td>
+<td>等待哪個執行端</td>
+<td>知道 Mac 是否在線及工作狀態</td>
+</tr>
+<tr>
+<td>資料不足</td>
+<td>哪些證據缺漏</td>
+<td>沒有用視覺把未知包裝成確定建議</td>
+</tr>
+<tr>
+<td>表單錯誤</td>
+<td>哪個欄位、如何修正</td>
+<td>保留輸入，焦點與訊息可被讀取</td>
+</tr>
+<tr>
+<td>操作成功</td>
+<td>儲存了什麼</td>
+<td>現金、持倉與交易紀錄一致更新</td>
+</tr>
+</tbody>
+</table></div>
+<p>這些狀態同時影響美感與信任，值得在修改版面時一起檢查。</p>
+<h2 id="12">12. 如何審查成果</h2>
+<h3 id="121">12.1 看實際畫面</h3>
+<p>至少檢查桌面約 1440px、較窄桌面約 1024px，以及手機約 390px。必要時補 320px，檢查最窄情況。</p>
+<ul>
+<li>重要數字與操作是否容易找到？</li>
+<li>表格是否維持正確欄位關係？需要橫向捲動時，是否只在表格區捲動？</li>
+<li>繁體中文、長公司名稱、大金額及負數是否正確換行？</li>
+<li>鍵盤能否進出選單、對話框與表單？焦點是否看得見？</li>
+<li>文字放大至 200% 後，內容與操作是否仍能使用？</li>
+<li>手機的點擊、滑動、展開與返回是否實際可操作？</li>
+</ul>
+<p>瀏覽器縮成手機寬度主要驗證版面；觸控手勢與實機閱讀仍應另外檢查。</p>
+<h3 id="122">12.2 跑工具檢查</h3>
+<p>在 Terminal：</p>
+<pre><code class="language-bash">npx --no-install impeccable detect src/
+npx --no-install impeccable detect --list-rules
+</code></pre>
+<p>掃描本機可見頁面，能檢查部分需要實際渲染的規則：</p>
+<pre><code class="language-bash">npx --no-install impeccable detect http://localhost:5173
+</code></pre>
+<p>若本機沒有可用瀏覽器，可依 CLI 提示安裝 Chrome／Chromium／Edge，或以 <code>IMPECCABLE_BROWSER</code> 指定已安裝的執行檔。雲端環境對正式網址可能有網域限制；本機預覽更適合修改與比較。</p>
+<p>Detector 的結束碼：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>結束碼</th>
+<th>含意</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>掃描完成，沒有主要規則發現；仍可能有 advisory</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>至少一個目標未成功掃描，應先處理工具或目標問題</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>掃描完成，有需要檢查的主要發現</td>
+</tr>
+</tbody>
+</table></div>
+<p>原始碼掃描與渲染後掃描能看到的問題不同。沒有報告項目，不能直接推論介面品質、無障礙或產品行為已全部合格。</p>
+<h3 id="123">12.3 檢查產品行為</h3>
+<p>設計調整後，在 Terminal 執行：</p>
+<pre><code class="language-bash">npm test
+npm run build
+</code></pre>
+<p>再操作與本次修改相關的流程。例如修改交易視窗，就實際測試輸入、費用、現金不足與重複提交；修改圖表，就檢查縮放、切換期間與更新狀態。測試使用開發資料，完成後清理自己的測試紀錄。</p>
+<h2 id="13">13. 如何理解設計評分和提醒</h2>
+<p>Impeccable 的分數與 detector 提醒，是改善的起點。請讓 Codex 對每一項說明：</p>
+<ol>
+<li>問題出現在什麼地方？</li>
+<li>有什麼畫面、程式或操作證據？</li>
+<li>對使用者的影響是什麼？</li>
+<li>怎麼修正，會影響哪些地方？</li>
+<li>修改後如何驗證？</li>
+</ol>
+<p>你的網站刻意採用資訊密集的證券工作台。若工具對卡片、色彩或密度提出風格提醒，應根據產品背景判斷；字級、對比和操作尺寸仍需維持可用。需要例外時，記錄具體元素與原因，避免為了取得好分數而廣泛關閉規則。</p>
+<p>本版 <code>audit</code> 會用 P0 至 P3 表示嚴重程度：P0 優先處理阻擋任務的問題，P1 處理重大可用性問題，再安排 P2、P3 的改善。評分不表示投資策略績效或財務計算已獲驗證。</p>
+<h2 id="14-live">14. 進階：比較方案與 Live 模式</h2>
+<p>你不確定一種排法是否適合時，可以先比較少量變體：</p>
+<pre><code class="language-text">$impeccable generate 3 分析摘要區的版型
+比較目標是結論、理由與風險的閱讀效率。
+沿用證券工作台風格，保持相同內容和功能，提出差異與適用情境。
+</code></pre>
+<p>若要在瀏覽器直接選元素：</p>
+<pre><code class="language-text">$impeccable live 本機股票詳情頁
+請只連接本機開發伺服器，讓我選擇分析摘要區。
+啟動 live 服務時設定 IMPECCABLE_LIVE_COPY_AGENT=chat，讓套用修改留在本次聊天協作。
+先提供少量變體預覽，再依我的選擇修改來源。
+</code></pre>
+<p>Live 是進階的本機工具。請保持在本地 checkout，不要把 overlay 注入正式 Pages，也不要為此降低正式網站的內容安全設定。</p>
+<p>本版官方文件說明：Live 的 Apply 在找不到近期聊天輪詢時，預設可能啟動本機 Codex／Claude 子程序並關閉其批准與 sandbox 保護。因此上述範例明確使用 <code>IMPECCABLE_LIVE_COPY_AGENT=chat</code>；若要完全關閉 Apply，可由啟動服務的環境設定為 <code>off</code>。在另一個 Terminal 做 <code>export</code>，不會改變已開啟的 Codex 桌面程式環境，應確認真正啟動 live 服務的程序收到設定。</p>
+<p>一般的 critique、排版改善與本機預覽，已足以完成多數工作台改進，不必先使用 Live。</p>
+<h2 id="15">15. 最後打磨與發布</h2>
+<p>當主要版面、狀態及行為已經通過檢查，再使用：</p>
+<pre><code class="language-text">$impeccable polish 本輪修改的股票詳情頁
+以已確認的 DESIGN.md 為準，完成對齊、間距、字體、焦點和狀態細節。
+保留目前的產品內容與資料行為，檢查桌面、手機及錯誤狀態。
+</code></pre>
+<p>發布前：</p>
+<pre><code class="language-bash">git status --short
+git diff
+npm test
+npm run build
+</code></pre>
+<p>檢查只包含本次預期的檔案，並確認沒有私人資產、金鑰、日誌或截圖被加入 Git，再提交：</p>
+<pre><code class="language-bash">git add 你已檢查的檔案
+git commit -m &quot;Improve stock detail typography and layout&quot;
+</code></pre>
+<p>在已授權發布的流程中推送到 <code>main</code>，Website workflow 會測試、建置並更新同一個 GitHub Pages 站點。最後在 Actions 確認該版本發布成功，再開正式網址檢查資源與功能。快取、部署失敗和後端連接狀態，要依實際結果分開判讀。</p>
+<h2 id="16">16. 常見問題</h2>
+<h3 id="codex-impeccable">Codex 找不到 <code>$impeccable</code></h3>
+<p>確認 <code>.agents/skills/impeccable/SKILL.md</code> 存在，專案已同步，並開啟新的 Codex 工作階段。Terminal 可用的 <code>npx impeccable</code> 不代表目前聊天已重新載入 skill。</p>
+<h3 id="cli">CLI 找不到套件</h3>
+<p>在專案根目錄執行 <code>npm ci</code>，再用 <code>npx --no-install impeccable --version</code> 檢查。使用 <code>--no-install</code> 可避免不小心臨時下載另一個版本。</p>
+<h3 id="checksum">顯示引擎下載或 checksum 錯誤</h3>
+<p>先檢查訊息中的下載來源、網路限制與套件版本，保留 TLS 與 checksum 檢查。不要把未知檔案改名為引擎，或修改預期雜湊來強行通過。若雲端家目錄不可寫，可為單次工具指令指定專案的快取位置，例如：</p>
+<pre><code class="language-bash">IMPECCABLE_HOME=&quot;$PWD/.local/impeccable/home&quot; npx --no-install impeccable --help
+</code></pre>
+<p>官方來源與目前版本都已記錄在 <code>config/impeccable-install.json</code>，排查時可用來比對。</p>
+<h3 id="hook">hook 已安裝，但沒有自動提醒</h3>
+<p>Codex 可能尚未載入或信任專案 hook。先重新載入專案，依 <code>/hooks</code> 的介面確認。也可在 Codex 聊天中使用 <code>$impeccable hooks status</code>，或在 Terminal 執行：</p>
+<pre><code class="language-bash">.agents/skills/impeccable/scripts/impeccable hooks status
+</code></pre>
+<p>Hook 會執行程式並繼承執行環境權限，不能把它描述為已在 sandbox 中隔離。首次核准前，可檢視 <code>.codex/hooks.json</code> 與其指向的官方 launcher。</p>
+<h3 id="_5">想知道哪些背景文件或安裝設定過時</h3>
+<p>在 Codex 聊天中使用 <code>$impeccable doctor</code>。先閱讀診斷結果，將需要修正的範圍說清楚；診斷與實際修復應分別確認。</p>
+<h3 id="impeccable">想升級 Impeccable</h3>
+<p>本專案目前固定 CLI 4.8.0，並提交相同版本的 skill。升級時一起確認套件、技能與引擎相容性，閱讀官方變更內容，再跑相應檢查與 Git diff。Terminal 的 <code>npx --no-install impeccable update</code> 會檢查並更新 skill，但不等於 <code>package.json</code> 的 CLI 固定版本也已同步升級。</p>
+<h3 id="_6">網站介面已改善，行情或儲存仍不能使用</h3>
+<p>先看頁面的 API 連線、資料來源與 Mac 狀態。GitHub Pages 提供靜態前端；雲端帳本、Yahoo 代理和 Mac 工作佇列需要另外接上的後端。把功能連接問題與設計品質問題分別追蹤。</p>
+<h2 id="17-codex">17. 可以直接貼給 Codex 的完整任務</h2>
+<p>以下範例適合開始改善你目前的網站：</p>
+<pre><code class="language-text">請使用 Impeccable 改善 Northstar 的股票詳情頁。
+
+產品：個人美股研究工作台，主要查看大型美股、一般 ETF、美元持倉和投資分析。
+視覺：沿用深色證券平台風格，以清楚的資訊密度、數字對齊、字體層級與穩定互動展現質感。
+
+請先讀 AGENTS.md、PRODUCT.md、DESIGN.md；缺少背景時先從現有文件與程式碼整理，只詢問無法推斷的關鍵事項。
+
+流程：
+1. 檢查本機可執行的畫面，對這個範圍做 critique 與 audit。
+2. 先呈現三項最值得改善的問題、證據、預計影響與方案。
+3. 依我選擇的方案，分輪處理 typeset、layout、adapt、harden，再做 polish。
+4. 每輪保留投資文字、資料來源、財務計算和既有功能，將新的產品決策分開提出。
+5. 行情、報告與本金以實際資料狀態呈現；開發 fixture 只用於有標示的測試。
+6. 驗證 1440px、1024px、390px、鍵盤操作與重要錯誤情境。
+7. 跑相關測試與正式建置，檢查差異，每個邏輯更新建立 Git commit。
+8. 已授權發布時更新既有 GitHub Pages 網址，並報告實際發布結果與尚未驗證的功能。
+
+這一輪先做第 1、2 步。
+</code></pre>
+<h2 id="18">18. 一頁速查</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>你的目的</th>
+<th>建議起手式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一次讓工具理解專案</td>
+<td><code>$impeccable init</code></td>
+</tr>
+<tr>
+<td>保留並整理現有風格</td>
+<td><code>$impeccable document</code></td>
+</tr>
+<tr>
+<td>先知道問題在哪裡</td>
+<td><code>$impeccable critique 目標</code></td>
+</tr>
+<tr>
+<td>檢查技術可用性</td>
+<td><code>$impeccable audit 目標</code></td>
+</tr>
+<tr>
+<td>文字不易讀</td>
+<td><code>$impeccable typeset 目標</code></td>
+</tr>
+<tr>
+<td>結構與間距不清楚</td>
+<td><code>$impeccable layout 目標</code></td>
+</tr>
+<tr>
+<td>元素太搶眼</td>
+<td><code>$impeccable quieter 目標</code></td>
+</tr>
+<tr>
+<td>手機使用困難</td>
+<td><code>$impeccable adapt 目標</code></td>
+</tr>
+<tr>
+<td>表單或錯誤處理不完整</td>
+<td><code>$impeccable harden 目標</code></td>
+</tr>
+<tr>
+<td>準備發布前最後整理</td>
+<td><code>$impeccable polish 目標</code></td>
+</tr>
+<tr>
+<td>Terminal 檢查程式規則</td>
+<td><code>npx --no-install impeccable detect src/</code></td>
+</tr>
+<tr>
+<td>網站功能與編譯驗證</td>
+<td><code>npm test</code>、<code>npm run build</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="19">19. 官方參考與版本範圍</h2>
+<ul>
+<li><a href="https://github.com/pbakaus/impeccable">Impeccable 官方倉庫與安裝說明</a></li>
+<li><a href="https://impeccable.style/docs/">官方工作流程與指令文件</a></li>
+<li><a href="https://github.com/angusQAQ/stock-website/blob/main/config/impeccable-install.json">本專案安裝紀錄</a></li>
+<li><a href="https://github.com/angusQAQ/stock-website/blob/main/.agents/skills/impeccable/SKILL.md">本專案 Codex skill</a></li>
+<li><a href="https://github.com/angusQAQ/stock-website/blob/main/docs/deployment.md">本專案部署說明</a></li>
+</ul>
+<p>本文依本次安裝的 4.8.0 版與其內附參考資料編寫。將來升級後，優先對照實際安裝版本與官方說明；本文件沒有宣稱已完成網站設計改版、正式後端連接或完整無障礙認證。</p>
+<p class="reading-note">離線閱讀：使用瀏覽器的列印功能（macOS：⌘P），即可另存 PDF。本文以安裝版本為準，網站功能狀態需另外驗證。</p></main></div>
+<footer class="footer"><span>Impeccable 4.8.0 · Engine 0.1.18</span><span>繁體中文 · Codex / macOS · Northstar</span></footer></body></html>
