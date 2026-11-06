@@ -2,7 +2,9 @@
 
 ## 目前完成與尚待完成
 
-已完成網站原始碼、真實 SQLite 帳本、行情代理、分析工作佇列、Mac CLI 連接程式與 GitHub Actions。已在本機 Cloudflare Worker/D1 執行網站。這不等於正式網站已發佈；正式平台選擇、帳戶權限與外部連線仍需完成。
+正式前端入口為 [https://angusqaq.github.io/stock-website/](https://angusqaq.github.io/stock-website/)，由使用者於 2026-11-06 提供並確認；後續發佈沿用此網址。本雲端代理對該網址的請求仍回覆 CONNECT 403，因此未獨立驗證其線上 HTTP 或功能狀態。
+
+已完成網站原始碼、真實 SQLite 帳本、行情代理、分析工作佇列、Mac CLI 連接程式與 GitHub Actions，並在本機 Cloudflare Worker/D1 驗證。正式後端、實際行情及 Mac 分析連接仍待完成。
 
 正式前端網址採用 GitHub Pages，程式保留在 Private GitHub 倉庫，main 的網站更新自動發佈到同一 Pages 網站。雲端帳本、行情代理與 Mac 工作佇列仍需獨立後端；目前已準備 Cloudflare Worker/D1 的部署流程，尚未連接。
 
@@ -36,7 +38,7 @@ Pages 建置使用 configure-pages 回傳的 base_path，確保專案子路徑�
 
 若未設定 VITE_API_BASE_URL，仍可發佈網站介面，頁面會清楚顯示「尚未連接雲端 API」，不送出資金寫入、不輪詢不存在的行情代理、不啟動模型分析。這只是前端發佈，不代表完整投資平台可用。
 
-後端部署完成後，將真實 API origin 設為 GitHub Actions Variable VITE_API_BASE_URL。Worker 的 FRONTEND_ORIGIN 設為 Pages origin（scheme + host，不含專案路徑），再重新部署 Worker 及 Pages。這是跨來源設定，不是登入保護。Cloudflare token 不是 Pages 前端發佈的必要條件，但啟用 Cloudflare 後端仍需它。
+後端部署完成後，將真實 API origin 設為 GitHub Actions Variable VITE_API_BASE_URL。Worker 部署設定會從 config/site.json 自動帶入 https://angusqaq.github.io 作為允許的前端 origin；只有需要覆寫時才設定 FRONTEND_ORIGIN（scheme + host，不含專案路徑），再重新部署 Worker 及 Pages。這是跨來源設定，不是登入保護。Cloudflare token 不是 Pages 前端發佈的必要條件，但啟用 Cloudflare 後端仍需它。
 
 ## Cloudflare 正式部署
 

@@ -2,7 +2,7 @@ name: Website
 on:
   push:
     branches: [main]
-    paths: ['src/**', 'shared/**', 'worker/**', 'migrations/**', 'public/**', 'tests/**', 'package*.json', '*config*', 'index.html', 'scripts/prepare-deploy.mjs', '.github/workflows/website.yml']
+    paths: ['src/**', 'shared/**', 'worker/**', 'migrations/**', 'public/**', 'tests/**', 'package*.json', '*config*', 'config/site.json', 'index.html', 'scripts/prepare-deploy.mjs', '.github/workflows/website.yml']
   pull_request:
     paths: ['src/**', 'shared/**', 'worker/**', 'tests/**', 'package*.json', '*config*', 'index.html']
   workflow_dispatch:

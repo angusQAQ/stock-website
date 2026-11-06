@@ -2,6 +2,8 @@
 
 ## User requirements
 
+- Canonical frontend URL, confirmed by the user: https://angusqaq.github.io/stock-website/. Keep future deployments at this URL. `config/site.json` records it; backend CORS defaults to its origin. The cloud agent has not independently verified live HTTP access because the network proxy denies this host.
+
 - Personal US stock research site, Traditional Chinese, dense broker-style quotes/charts/tables, readable expandable analysis reports.
 - Large-cap US stocks and ordinary non-leveraged ETFs first. No live order execution, margin, short selling, options, leveraged or inverse ETFs.
 - Manual USD cash, initial holdings and buy/sell transaction entry; deposits are ledger entries. HKD is excluded from US position-sizing cash. Use applicable Futu Hong Kong fees, versioned by effective date; allow actual fee corrections.

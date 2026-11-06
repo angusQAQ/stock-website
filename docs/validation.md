@@ -1,5 +1,7 @@
 # 驗證紀錄
 
+2026-11-06 正式入口記錄：使用者提供並確認 https://angusqaq.github.io/stock-website/。雲端直接請求仍被代理以 CONNECT 403 拒絕；此網址的上線狀態屬使用者回報，非雲端獨立 HTTP 驗證。已將網址保存至 config/site.json，供後續部署和後端 origin 設定共用。
+
 2026-11-06 GitHub Pages 目標：24 項網站測試與專案子路徑建置通過；瀏覽器驗證 `/stock-website/` 的 CSS、JavaScript、favicon、桌面／手機版面。未配置 API 時，無 API 請求、無資金寫入、分析按鈕停用，介面明確顯示後端未連接。GitHub Pages 設定／線上發佈結果尚無法讀取，因這個環境的 GitHub API 被網路政策拒絕。
 
 2026-11-06 續行部署：使用者已選 Cloudflare；重跑網站 22 項測試及正式 build 均通過。雲端 Wrangler 回覆未登入，Cloudflare API 實際請求被代理以 CONNECT 403 拒絕；新增安全 secret 與該 API 網域的設定草稿已保存，尚待使用者填入及套用。未建立遠端資源，未取得正式網址。

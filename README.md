@@ -1,5 +1,7 @@
 # Northstar · 美股研究工作台
 
+正式前端入口：[https://angusqaq.github.io/stock-website/](https://angusqaq.github.io/stock-website/)。後續更新沿用同一網址。
+
 以 GitHub Pages 固定網址發佈的個人美股網站：公開行情與 K 線、自選股、美元資金帳本、持倉及按需 Codex 分析。證券平台式深色介面，支援桌面與手機。不執行券商交易。
 
 ```sh
