@@ -4,7 +4,7 @@
 
 已完成網站原始碼、真實 SQLite 帳本、行情代理、分析工作佇列、Mac CLI 連接程式與 GitHub Actions。已在本機 Cloudflare Worker/D1 執行網站。這不等於正式網站已發佈；正式平台選擇、帳戶權限與外部連線仍需完成。
 
-建議架構：Private GitHub 倉庫管理程式，Cloudflare Worker 提供同一個固定網址、靜態介面與 API，D1 保存帳本和報告。若必須使用 GitHub Pages 網址，Pages 只部署前端，另外連接 Worker API。
+使用者已於 2026-11-06 確認採用 Cloudflare：Private GitHub 倉庫管理程式，Cloudflare Worker 提供同一個固定網址、靜態介面與 API，D1 保存帳本和報告。GitHub Pages 保留為替代流程，非目前部署目標。
 
 目前依使用者要求不設網站登入或持倉 API 存取驗證。Private GitHub 倉庫不能保護部署後的網站或 API；任何可連上它的人都可能讀寫持倉，亦可能建立分析工作。Mac 領取工作及回傳報告另外使用機器端秘密，避免任意回傳模型結果；這不限制網站訪客建立工作。未輸入任何真實本金、持倉或憑證。
 
@@ -27,6 +27,10 @@ npm run dev:api
 ## Cloudflare 正式部署
 
 使用你自己的 Cloudflare 帳戶。可在自己的終端用 `npx wrangler login` 登入，或透過部署環境的安全設定提供 `CLOUDFLARE_API_TOKEN`；不要在聊天貼 token。若平台已注入身分，先用現有身分測試，不重複登入或擷取憑證。
+
+2026-11-06 的實際檢查：雲端 `wrangler whoami` 回覆未登入，Cloudflare API 請求被環境代理以 CONNECT 403 拒絕。目前未配置 Cloudflare 注入身分或 secret；使用者在瀏覽器登入 Cloudflare，不會自動把部署權限傳入這台雲端機器。
+
+已將 `CLOUDFLARE_API_TOKEN` 的安全 secret 需求加入環境草稿，目的地主機僅 `api.cloudflare.com`，並將該網域加入既有 allowlist 草稿，未移除原本網域。使用者需在環境設定安全填入值、儲存並發布，然後重試。建議 token 僅限預定部署的帳戶，具備 Workers Scripts 編輯、D1 編輯及 Account Settings 讀取。不得在 Git 或聊天保存 token。設定草稿保存成功不代表憑證已填入、網路已套用或網站已部署。
 
 1. 在已授權的帳戶建立 D1：`npx wrangler d1 create stock-website-portfolio`。
 2. 記錄回傳的 database_id，於執行環境設定非秘密變數 `CLOUDFLARE_D1_DATABASE_ID` 和 `CLOUDFLARE_ACCOUNT_ID`。

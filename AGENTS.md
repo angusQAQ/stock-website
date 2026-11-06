@@ -8,8 +8,8 @@
 - Select short-term, swing or long-term horizon before analysis. Offer configurable conservative/balanced/aggressive risk profiles; earlier numeric examples remain proposals, not finalized policy.
 - User explicitly presses Analyze; do not schedule model calls or call on every quote update.
 - Public Yahoo Finance data preferred; target 1–5 second refresh including pre/post market, with actual source timestamps and honest stale/unavailable states. Refresh frequency is not a guarantee of real-time source data.
-- Cloud portfolio persistence and fixed URL updated in place, GitHub-hosted frontend preferred. User currently requests no login/access controls. Private source repositories do not make a deployed website private; never claim otherwise. Hosting, storage and exposure implications remain documented design conditions.
-- macOS Codex desktop is the intended local analysis environment, using the existing subscription if a supported integration can be verified. A browser-to-Mac task bridge has not yet been built or authorized via desktop login.
+- User confirmed Cloudflare hosting on 2026-11-06: Private GitHub source, Cloudflare Worker for the fixed website/API URL and D1 for cloud portfolio persistence. User currently requests no login/access controls. Private source repositories do not make a deployed website private; never claim otherwise.
+- macOS Codex desktop is the intended local analysis environment, using the existing subscription if a supported integration can be verified. The CLI bridge is implemented but has not been connected to the user's Mac or verified against their subscription.
 - Commit each logical code/configuration update to Git. Cash, holdings, keys, tokens and generated personal reports must not be committed. Do not push or publish unless instructed.
 
 ## Research toolkit
