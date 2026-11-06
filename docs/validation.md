@@ -1,5 +1,16 @@
 # 驗證紀錄
 
+2026-11-06 Northstar 0.3.1 公開行情接線與刪文：依使用者三則瀏覽器標註，移除市場頁宣傳大標與說明、分析區介紹；加入不依賴帳本 API 的官方公開圖表與 ETF 報價帶。見 [公開行情連接](public-market.md)。
+
+- 實際搜尋 GitHub 並讀取 MIT 開源整合的 README／程式／授權，核對 main commit `04a3eddfc4e4278a9a904865f20ebb8673f722e7` 的圖表及 ticker tape 介面。接入的是官方免費嵌入服務，不稱為開源市場數據。
+- 61 項網站測試、TypeScript、一般與 Pages 子路徑正式建置通過。新增測試涵蓋全部支援代碼的交易所映射、BRK-B、七種期間、共用載入、拒絕後重試及逾時後恢復。
+- Chromium 1440／1466／790／390／320px 契約測試通過：圖表在沒有 API 時也請求官方程式、股票／期間可切換、重試不累積 iframe、每秒時鐘不重建圖表、官方程式只載入一次。1466／790／390／320px 另測來源拒絕及鍵盤重試焦點；無整頁橫向溢出、未處理 JS 錯誤、帳本 API 請求或模型呼叫。測試框架明示「沒有股價或合成 K 線」，沒有以假數據模擬實時行情。
+- 真實 curl 經現有代理請求官方程式回覆 CONNECT 403；實際 Chromium 明確使用環境代理及保留 TLS 驗證，回報 `net::ERR_TUNNEL_CONNECTION_FAILED`。真實網絡結果與本機契約測試分開保存，`marketDataVerified=false`。沒有關閉 TLS 或繞過目的地主機政策。
+- 本輪 detector 僅執行一次：2 warnings（既有 Helvetica 常見度及 Helvetica Neue 宣告比對提示）、104 advisories（5 色彩／95 字級／4 圓角）。保留既有風格與設計文件，不旁修先前側車過期提示，不稱零發現。
+- 獨立 finish reviewer 確認十張 required captures 有效，五段合約完整，disposition 為 ship、無 material fixes；範圍僅接線、刪文、版面與錯誤／恢復。**真實價格、K 線及正式網站功能驗收仍 pending**，iframe 建立、契約模擬與這次 ship 均不證明行情已接通。已請使用者在原網址確認新版及實際 K 線結果，尚未取得回覆。
+
+程式已推送 `437833a` 至 main；本機驗證資料位於被忽略的 `.local/market-connect/` 及 `.impeccable/review/market-connect/`。Actions／Pages 成功結果及訪客瀏覽器來源可用性尚未獨立驗證。
+
 2026-11-06 Northstar 0.3：按使用者確認直接修改網站，加入持續更新的多期間 K 線、預設 30 天研究、五級評級、新聞影響與白話解說、互動報告圖表及可追溯量化證據。詳細來源與限制見 [研究說明](research-data.md)。
 
 - 56 項 Vitest 與 6 項 Python 標準庫測試通過。真實 SQLite 工作流程驗證新月報、不可變日線快照、新舊報告相容及不足證據不得評級；另驗證技術指標參考算式／暖身期、引用與日期／評級一致性、CLI schema 與後端一致，以及財報單季／累計／未來申報、Form 4 代碼、期權覆蓋、來源拒絕、新聞日期與 SEC 聯絡設定。
