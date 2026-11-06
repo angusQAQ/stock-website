@@ -26,6 +26,7 @@
 
 ## Design toolkit and handbook
 
+- Northstar's confirmed product record is `PRODUCT.md`. On 2026-11-06 the user explicitly requested a replacement visual identity closely following https://longbridge.com/hk/en?channel=OWNN00060, with reference analysis before implementation. This supersedes preserving the old palette, while retaining product functions and information density. Read `docs/northstar-redesign-brief.zh-Hant.md`; reference access is currently blocked, so no Longbridge palette, typography or composition has been verified.
 - Impeccable CLI/skill 4.8.0 and engine 0.1.18 are installed for this project. Provenance is in `config/impeccable-install.json`; the native skill is `.agents/skills/impeccable/` and the project hook is `.codex/hooks.json`. Hook registration does not establish client trust or approval.
 - The Traditional Chinese handbook is `docs/impeccable-guide.zh-Hant.md`; its generated web edition is `public/guides/impeccable.html`. Render with `scripts/render-impeccable-guide.py` using Python Markdown (available in the AI Berkshire venv) when changing the handbook. Export the PDF from the rendered web edition before publication.
 - Installing the toolkit or writing its manual does not request a website redesign. For future UI work, preserve the user's dense broker interface and product truth; use relevant Impeccable guidance within the requested scope. Follow its workflow-specific delegation requirements only when that workflow is actually invoked.
