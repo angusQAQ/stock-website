@@ -24,7 +24,7 @@
 
 | 類別 | 來源 | 接入及限制 |
 | --- | --- | --- |
-| 報價與歷史 OHLCV | [Yahoo Finance](https://finance.yahoo.com/) chart endpoint | Worker 已接入，含來源可提供的盤前／盤後。1Y 日線、5Y 週線、MAX 月線。未復權 OHLC；拆股須另核對，不混用復權收盤與未復權開高低。 |
+| 報價與歷史 OHLCV | [Yahoo Finance](https://finance.yahoo.com/) chart endpoint | Worker 已接入，含來源可提供的盤前／盤後。1Y 日線、5Y 週線、MAX 月線。平台直接使用來源 OHLC，不另作復權；來源對拆股／股息的調整方式尚須核對，不混用不同調整口徑的收盤與開高低。 |
 | 歷史交叉核對 | [Investing.com](https://www.investing.com/) | 使用者指定參考；此雲端實測 CONNECT 403，沒有取得其數據或冒稱接入 API。分析端僅在可合法讀取時參考，不繞過登入、付費或來源限制。 |
 | 財務報表 | [SEC Company Facts](https://www.sec.gov/search-filings/edgar-application-programming-interfaces)、公司 IR | Mac 擷取 US-GAAP 數值，保留單季／全年／時點、單位、申報日與 accession；排除截止日之後披露，累計 YTD 不冒充單季。IFRS、TTM、估值及指引由模型查核原文補足，查不到列缺漏。 |
 | 新聞 | Google News RSS 線索、原始發布者與公司公告 | 先收最近 30 天及發布時間；標題不算已核實全文。Codex 須搜尋並精讀原文，寫「事件→營收／成本／估值→可能反應→反證」的段落。年份隨執行日期更新，2026 年新聞不會永久當成最新。 |

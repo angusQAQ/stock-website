@@ -25,7 +25,7 @@
 1. summary 開頭直接寫「股票代碼／公司名：評級。未來一個月……」，直接給結論、主因及最大風險。research.rating 用 strong-buy／moderate-buy／hold／moderate-sell／strong-sell（強烈買入／適度買入／持有／適度賣出／強烈賣出）。缺乏足夠證據時 rating=null、verdict=insufficient-data，列出缺漏及價格全為 null，不硬給評級。
    評級尺度：強烈買入需要多項獨立證據支持、可說明的風險報酬及反證檢查；適度買入表示條件式偏多；持有表示證據足夠但多空混合或新增投入吸引力不足；適度賣出表示現有倉位的風險轉差；強烈賣出須有多項重大負面證據支持。不可由單一 RSI／一則新聞直接給強烈評級；沒有足夠資料是暫不評級，並非持有。
 2. outlook 解釋 window 內走勢、催化劑與會推翻立場的條件。scenarios 固定 bull／base／bear 三種條件情境；未有數值依據的目標價填 null，不把情境當必然結果或捏造概率。
-3. technicalSummary 使用 researchSnapshot 的真實日 K 線及程式計算指標，明確說明哪個數值支持／反對你的立場。核對 MA20／50／200、RSI14、MACD12/26/9、Bollinger20/2、ATR14、近20日支撐／阻力、相對量能。樣本不足不可補算；盤中未完成 K 線及未復權／拆股影響要指出。指標不是必然預測。
+3. technicalSummary 使用 researchSnapshot 的真實日 K 線及程式計算指標，明確說明哪個數值支持／反對你的立場。核對 MA20／50／200、RSI14、MACD12/26/9、Bollinger20/2、ATR14、近20日支撐／阻力、相對量能。樣本不足不可補算；盤中未完成 K 線及來源復權／拆股口徑須核對，不推定原始 OHLC 一定未經拆股調整。指標不是必然預測。
 4. newsImpact 每則是一段因果解說：事件與日期 → 如何影響營收、成本、利率或估值 → 可能的股價反應／可核對的觀察 → 不確定性與反證。至少處理與個股相關的美國或世界事件；查無可靠新聞則留空並列明缺漏，勿杜撰漲跌歸因。
 5. evidence 恰有 financials／market／flows／insiders／options 五類。每類明示 available／unavailable／not-applicable、資料日期、白話解說及量化 metrics。available 必須有日期與來源；其餘 metrics 空陣列。metrics 每項都附單位與期間及自己的來源，不混淆單季、累計、全年或 TTM。ETF 改用基金披露，不編造公司的 EPS／高管交易。
 6. financials：營收、盈利／EPS、毛利／營業利潤、現金流、負債與估值，區分 GAAP／non-GAAP、管理層指引與預測；不同期間不能直接相加或比較。財報很舊時須說明。

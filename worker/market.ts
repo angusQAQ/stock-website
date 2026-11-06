@@ -43,7 +43,7 @@ export function parseYahoo(symbol: string, range: string, data: any, now = Date.
     timestamp, session, source: 'Yahoo Finance', fetchedAt: new Date(now).toISOString(),
     exchangeDelayMinutes: number(meta.exchangeDataDelayedBy) ? meta.exchangeDataDelayedBy : null,
     bars: unique, range, marketCap: number(meta.marketCap) ? meta.marketCap : null,
-    interval:RANGES[range]?.interval,priceBasis:'未復權 OHLC；跨拆股比較須另行核對',
+    interval:RANGES[range]?.interval,priceBasis:'來源 OHLC，平台未另行復權；來源拆股／股息口徑須核對',
     sourceUrl:`https://finance.yahoo.com/quote/${encodeURIComponent(symbol)}/history/` };
 }
 
