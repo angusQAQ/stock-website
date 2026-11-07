@@ -54,3 +54,7 @@ Latest browser steering additionally removes the entire “股價為甚麼會變
 ## Report entry decision extension · 0.4.2
 
 New report contract learning-decision-factors-v2 adds four grounded drivers and an explicit final timing decision. Preserve v1/legacy reports and jobs without retrofitting fields. Missing factors cannot contain invented numeric data, dates, causal diagrams or directions; no rating means no entry triggers. Consider-now requires a buy verdict, entry/stop prices and confirmation triggers. Conditions are research, not automatically monitored orders. Keep causal charts inside actual reports; do not restore the removed generic lesson panel. Every driver/decision/trigger retains citations, unknowns and invalidation conditions. Update generated model schema from shared/report-schema.ts and run meaningful gate/workflow tests.
+
+## Pending Alpha Consensus request
+
+User asks to add the Alpha Consensus feature at the URL in docs/alpha-consensus.md and explicitly chooses the REFERENCE PAGE'S trader list. Do not substitute invented/custom traders. capafy.ai is saved in the environment draft but still blocked in active policy (CONNECT 403); no reference contents/list were read and no Alpha feature is installed yet. Resume by applying/checking current environment readiness, then read the actual page/list before implementing. Preserve the completed stock report extension. Read docs/alpha-consensus.md and docs/cursor-connection.md for the two separate blockers.
