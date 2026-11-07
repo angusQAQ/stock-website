@@ -1,6 +1,6 @@
 {
   "name": "stock-website",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "type": "module",
   "engines": {
@@ -15,7 +15,9 @@
     "test:research": "python3 -m unittest discover -s tests -p test_research_data.py",
     "schema:report": "node --experimental-strip-types scripts/generate-report-schema.mjs",
     "db:local": "wrangler d1 migrations apply DB --local",
-    "deploy": "npm run build && node scripts/prepare-deploy.mjs && wrangler d1 migrations apply DB --remote --config .local/deploy/wrangler.json && wrangler deploy --config .local/deploy/wrangler.json"
+    "deploy": "npm run build && node scripts/prepare-deploy.mjs && wrangler d1 migrations apply DB --remote --config .local/deploy/wrangler.json && wrangler deploy --config .local/deploy/wrangler.json",
+    "test:cursor": "python3 -m unittest discover -s tests -p test_cursor_connection.py",
+    "check:cursor": "python3 scripts/check-cursor.py"
   },
   "dependencies": {
     "lightweight-charts": "^5.0.0",

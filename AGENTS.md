@@ -40,5 +40,13 @@
 ## Beginner teaching update · 0.4
 
 - Explicit candle `interval` replaces TradingView lookback `range`; D / 5D / W / M mean candle duration. Own chart aggregation uses actual sessions/calendar boundaries and marks incomplete groups. Never substitute synthetic candles.
-- Add interactive general mechanisms (not fabricated current events). New report contract `learning-prices-citations-v1` requires explicit sell/take-profit fields, paragraph references and news causal mechanisms; preserve legacy report parsing. No DB migration is added.
+- Keep causal explanations interactive inside actual reports (not fabricated current events); the standalone general lesson panel was removed by later user steering. New report contract `learning-prices-citations-v1` requires explicit sell/take-profit fields, paragraph references and news causal mechanisms; preserve legacy report parsing. No DB migration is added.
 - Public embeds cannot receive custom plan lines. Those are drawn on Northstar’s own immutable report chart with four colors and price-axis labels. Explain this boundary honestly.
+
+## Sidebar quotes and Cursor request · 0.4.1
+
+- User removed the global AI service notice. Do not restore it; keep operation-specific analysis/setup errors local to the action.
+- Public stock rows now embed official TradingView Single Ticker quotes without backend/API keys. Preserve full provider content and attribution, stable mounts and per-symbol retry; do not scrape, fabricate or claim every update is an exchange tick. Keep symbol-selection buttons independent and accessible.
+- User supplied a Cursor credential and requested connection. Never repeat it or place it in source/frontend/Git. Environment draft has a CURSOR_API_KEY requirement scoped only to api.cursor.com; active runtime has not yet received it or the network changes. scripts/check-cursor.py is a read-only account probe, not an enabled report engine. Read docs/cursor-connection.md; no real agent/model call is authorized by mere startup or quote refresh.
+
+Latest browser steering additionally removes the entire “股價為甚麼會變？” general lesson panel and renames the analysis heading “股票分析”. Preserve the plain-language explanations and interactive causal evidence inside actual reports; do not restore a separate lesson panel.
