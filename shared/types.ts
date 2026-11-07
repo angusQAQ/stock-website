@@ -36,6 +36,18 @@ export interface ResearchEvidence {
   status:'available'|'unavailable'|'not-applicable'; asOf:string|null; summary:string; sourceIndices:number[];
   metrics:{label:string;value:number;unit:string;period:string;sourceIndices:number[]}[];
 }
+export interface PriceMechanism {trigger:string;transmission:string;companyEffect:string;possiblePriceEffect:string;counterpoint:string}
+export const FACTOR_NAMES={earnings:'公司業績','rates-jobs':'利率／非農',energy:'能源',geopolitics:'地緣政治'} as const;
+export interface ResearchDriver {
+  kind:keyof typeof FACTOR_NAMES;status:'available'|'unavailable';asOf:string|null;
+  direction:'supportive'|'pressure'|'mixed'|'uncertain';summary:string;mechanism:PriceMechanism|null;
+  sourceIndices:number[];metrics:ResearchEvidence['metrics'];
+}
+export interface InvestmentDecision {
+  action:'consider-now'|'wait'|'avoid'|'insufficient-data';nowExplanation:string;expectedPath:string;
+  waitFor:string[];entryTriggers:{condition:string;status:'pending'|'confirmed';confirmation:string;invalidation:string;sourceIndices:number[]}[];
+  invalidateWhen:string[];reviewWhen:string;sourceIndices:number[];
+}
 export interface ResearchV2 {
   version:2; rating:Rating|null; outlook:string; plainLanguage:string; technicalSummary:string;
   newsImpact:{date:string;title:string;impact:string;sourceIndices:number[];mechanism?:{trigger:string;transmission:string;companyEffect:string;possiblePriceEffect:string;counterpoint:string}}[];
@@ -43,6 +55,8 @@ export interface ResearchV2 {
   scenarios:{case:'bull'|'base'|'bear';condition:string;outcome:string;targetPrice:number|null}[];
   conflicts:string;
   references?:ReportReferences;
+  drivers?:ResearchDriver[];
+  decision?:InvestmentDecision;
 }
 export interface ReportReferences {
   summary:number[];plainLanguage:number[];outlook:number[];technicalSummary:number[];

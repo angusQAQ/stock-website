@@ -561,6 +561,283 @@
             "targetPrice"
           ],
           "additionalProperties": false
+        },
+        "drivers": {
+          "minItems": 4,
+          "maxItems": 4,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "earnings",
+                  "rates-jobs",
+                  "energy",
+                  "geopolitics"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "available",
+                  "unavailable"
+                ]
+              },
+              "asOf": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "supportive",
+                  "pressure",
+                  "mixed",
+                  "uncertain"
+                ]
+              },
+              "summary": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "mechanism": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "trigger": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
+                      },
+                      "transmission": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
+                      },
+                      "companyEffect": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
+                      },
+                      "possiblePriceEffect": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
+                      },
+                      "counterpoint": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
+                      }
+                    },
+                    "required": [
+                      "trigger",
+                      "transmission",
+                      "companyEffect",
+                      "possiblePriceEffect",
+                      "counterpoint"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sourceIndices": {
+                "maxItems": 12,
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 39
+                }
+              },
+              "metrics": {
+                "maxItems": 6,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    },
+                    "value": {
+                      "type": "number"
+                    },
+                    "unit": {
+                      "type": "string",
+                      "maxLength": 80
+                    },
+                    "period": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    },
+                    "sourceIndices": {
+                      "minItems": 1,
+                      "maxItems": 12,
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 39
+                      }
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value",
+                    "unit",
+                    "period",
+                    "sourceIndices"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "status",
+              "asOf",
+              "direction",
+              "summary",
+              "mechanism",
+              "sourceIndices",
+              "metrics"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "decision": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "consider-now",
+                "wait",
+                "avoid",
+                "insufficient-data"
+              ]
+            },
+            "nowExplanation": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4000
+            },
+            "expectedPath": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4000
+            },
+            "waitFor": {
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              }
+            },
+            "entryTriggers": {
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "condition": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "confirmed"
+                    ]
+                  },
+                  "confirmation": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000
+                  },
+                  "invalidation": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000
+                  },
+                  "sourceIndices": {
+                    "minItems": 1,
+                    "maxItems": 12,
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 39
+                    }
+                  }
+                },
+                "required": [
+                  "condition",
+                  "status",
+                  "confirmation",
+                  "invalidation",
+                  "sourceIndices"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "invalidateWhen": {
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              }
+            },
+            "reviewWhen": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4000
+            },
+            "sourceIndices": {
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 39
+              }
+            }
+          },
+          "required": [
+            "action",
+            "nowExplanation",
+            "expectedPath",
+            "waitFor",
+            "entryTriggers",
+            "invalidateWhen",
+            "reviewWhen",
+            "sourceIndices"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -573,7 +850,9 @@
         "evidence",
         "scenarios",
         "conflicts",
-        "references"
+        "references",
+        "drivers",
+        "decision"
       ],
       "additionalProperties": false
     }

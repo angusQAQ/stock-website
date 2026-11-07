@@ -1,3 +1,5 @@
+> 0.4.2：新股票分析要求四因素圖及綜合入場判斷。更新 Worker、Mac 提示／schema 與 bridge 後再建立新工作；舊工作相容，沒有新 migration。詳見 [research-pipeline.md](research-pipeline.md)。
+
 # 部署與 Mac 分析連接
 
 ## 0.4 教學版

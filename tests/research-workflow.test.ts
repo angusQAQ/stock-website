@@ -99,14 +99,23 @@ describe('exact historical reports and queue cancellation', () => {
     const job=await (await request('/analysis/jobs',{symbol:'AAPL',horizon:'month',risk:'balanced'})).json() as any;
     const claim=await (await request('/bridge/claim',{},true)).json() as any;
     const send=(report:unknown)=>request('/bridge/result',{id:job.id,claimToken:claim.claimToken,report},true);
-    for(const field of ['sellPrice','takeProfitPrice','references','mechanism']){
+    for(const field of ['sellPrice','takeProfitPrice','references','mechanism','drivers','decision']){
       const report=researchReport();
       if(field==='references')delete report.research!.references;
+      else if(field==='drivers'||field==='decision')delete report.research![field];
       else if(field==='mechanism'){report.sources=[{title:'Fixture',url:'https://example.com/news',asOf:'2026-11-06'}];report.research!.newsImpact=[{date:'2026-11-06',title:'Test only',impact:'Unverified test event',sourceIndices:[0]}];}
       else delete report[field as 'sellPrice'|'takeProfitPrice'];
-      const response=await send(report);expect(response.status).toBe(400);expect((await response.json() as any).error).toContain('教學因果');
+      const response=await send(report);expect(response.status).toBe(400);expect((await response.json() as any).error).toContain(field==='drivers'||field==='decision'?'四因素圖':'教學因果');
     }
     expect((await send(researchReport())).status).toBe(200);
+  });
+  it('accepts the previous report contract without retroactively requiring new diagrams',async()=>{
+    const id='eeeeeeee-0000-4000-8000-000000000002',stamp=new Date().toISOString();
+    const snapshot={reportVersion:2,reportContract:'learning-prices-citations-v1'};
+    await env.DB.prepare('INSERT INTO analysis_jobs(id,symbol,horizon,risk,snapshot,created_at,updated_at) VALUES(?,?,?,?,?,?,?)').bind(id,'AAPL','month','balanced',JSON.stringify(snapshot),stamp,stamp).run();
+    const claim=await (await request('/bridge/claim',{},true)).json() as any;
+    const report=researchReport();delete report.research!.drivers;delete report.research!.decision;
+    expect((await request('/bridge/result',{id,claimToken:claim.claimToken,report},true)).status).toBe(200);
   });
   it('captures daily evidence for a new one-month report and protects it after completion', async()=>{
     const now=Math.floor(Date.now()/1000);
@@ -116,7 +125,7 @@ describe('exact historical reports and queue cancellation', () => {
     const start=Date.parse(job.researchSnapshot.window.start),end=Date.parse(job.researchSnapshot.window.end);expect(end-start).toBe(30*86400000);
     const claim=await (await request('/bridge/claim',{},true)).json() as any;
     expect(claim.snapshot).not.toHaveProperty('portfolio');
-    expect(claim.snapshot.reportContract).toBe('learning-prices-citations-v1');
+    expect(claim.snapshot.reportContract).toBe('learning-decision-factors-v2');
     const report=researchReport();report.verdict='buy';report.research!.rating='moderate-buy';report.sources=[{title:'Test company filing',url:'https://example.com/filing',asOf:new Date().toISOString().slice(0,10)}];
     const refs=report.research!.references!;refs.summary=refs.plainLanguage=refs.outlook=refs.technicalSummary=[0];refs.risks=[[0]];refs.details=[[0]];refs.scenarios=[[0],[0],[0]];
     report.research!.evidence[0]={kind:'financials',status:'available',asOf:new Date().toISOString().slice(0,10),summary:'Test filing only',sourceIndices:[0],metrics:[{label:'Test revenue',value:100,unit:'USD',period:'Test quarter only',sourceIndices:[0]}]};

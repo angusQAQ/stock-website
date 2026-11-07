@@ -9,6 +9,11 @@ export const referenceSchema=z.object({summary:citations,plainLanguage:citations
   entryPrice:citations,sellPrice:citations,stopLoss:citations,takeProfitPrice:citations,targetPrice:citations}).strict();
 const mechanismSchema=z.object({trigger:z.string().min(1).max(1000),transmission:z.string().min(1).max(1000),companyEffect:z.string().min(1).max(1000),possiblePriceEffect:z.string().min(1).max(1000),counterpoint:z.string().min(1).max(1000)}).strict();
 const newsSchema=z.object({date,title:z.string().min(1).max(500),impact:text,sourceIndices:citations.min(1),mechanism:mechanismSchema.optional()}).strict();
+export const driverSchema=z.object({kind:z.enum(['earnings','rates-jobs','energy','geopolitics']),status:z.enum(['available','unavailable']),asOf:date.nullable(),
+  direction:z.enum(['supportive','pressure','mixed','uncertain']),summary:text,mechanism:mechanismSchema.nullable(),sourceIndices:citations,metrics:z.array(metric).max(6)}).strict();
+export const decisionSchema=z.object({action:z.enum(['consider-now','wait','avoid','insufficient-data']),nowExplanation:text,expectedPath:text,
+  waitFor:z.array(text).max(6),entryTriggers:z.array(z.object({condition:text,status:z.enum(['pending','confirmed']),confirmation:text,invalidation:text,sourceIndices:citations.min(1)}).strict()).max(6),
+  invalidateWhen:z.array(text).max(6),reviewWhen:text,sourceIndices:citations}).strict();
 export const researchSchema=z.object({
   version:z.literal(2),rating:z.enum(['strong-buy','moderate-buy','hold','moderate-sell','strong-sell']).nullable(),
   outlook:text,plainLanguage:text,technicalSummary:text,
@@ -17,6 +22,7 @@ export const researchSchema=z.object({
   scenarios:z.array(z.object({case:z.enum(['bull','base','bear']),condition:text,outcome:text,targetPrice:z.number().positive().nullable()}).strict()).length(3),
   conflicts:text,
   references:referenceSchema.optional(),
+  drivers:z.array(driverSchema).length(4).optional(),decision:decisionSchema.optional(),
 }).strict();
 export const reportSchema=z.object({
   verdict:z.enum(['buy','hold','reduce','avoid','insufficient-data']),summary:z.string().min(1).max(2000),
@@ -26,13 +32,14 @@ export const reportSchema=z.object({
   details:z.string().max(30000),sources:z.array(z.object({title:z.string().min(1).max(500),url:z.url().startsWith('https://'),asOf:z.string().min(1).max(100)}).strict()).max(40),
   missingData:z.array(z.string().max(1000)).max(30),research:researchSchema.optional(),
 }).strict();
-export const modelReportSchema=reportSchema.required().extend({research:researchSchema.extend({references:referenceSchema,newsImpact:z.array(newsSchema.required()).max(12)})});
+export const modelReportSchema=reportSchema.required().extend({research:researchSchema.extend({references:referenceSchema,newsImpact:z.array(newsSchema.required()).max(12),drivers:z.array(driverSchema).length(4),decision:decisionSchema})});
 
 // Cross-field checks run when ingesting a result, not merely in the model prompt.
 export function validateResearchReport(report:z.infer<typeof reportSchema>,now=new Date()):string|null {
   const research=report.research;if(!research)return null;
   const today=now.toISOString().slice(0,10);
   const refs=[...research.newsImpact.flatMap(item=>item.sourceIndices),...research.evidence.flatMap(item=>[...item.sourceIndices,...item.metrics.flatMap(metric=>metric.sourceIndices)])];
+  refs.push(...(research.drivers??[]).flatMap(item=>[...item.sourceIndices,...item.metrics.flatMap(metric=>metric.sourceIndices)]),...(research.decision?.sourceIndices??[]),...(research.decision?.entryTriggers??[]).flatMap(item=>item.sourceIndices));
   const references=research.references;
   if(references){
     for(const value of Object.values(references))for(const indices of value){if(Array.isArray(indices))refs.push(...indices);else refs.push(indices);}
@@ -49,6 +56,22 @@ export function validateResearchReport(report:z.infer<typeof reportSchema>,now=n
   if(references){
     for(const field of ['entryPrice','sellPrice','stopLoss','takeProfitPrice','targetPrice'] as const)if(report[field]!=null&&!references[field].length)return '每個建議價位都需要依據註腳。';
     if(research.rating!==null&&[references.summary,references.plainLanguage,references.outlook,references.technicalSummary,...references.reasons,...references.risks,...references.details,...references.scenarios].some(indices=>!indices.length))return '研究段落需要可點擊的來源註腳。';
+  }
+  if(research.drivers){
+    if(new Set(research.drivers.map(item=>item.kind)).size!==4)return '四類影響因素不可重複或缺漏。';
+    for(const item of research.drivers){
+      if(item.asOf&&item.asOf>today)return '影響因素不可使用未來日期的已發生資料。';
+      if(item.status==='available'&&(!item.asOf||!item.sourceIndices.length||!item.mechanism))return '可用影響因素需要日期、來源與因果路徑。';
+      if(item.status==='unavailable'&&(item.metrics.length||item.mechanism||item.direction!=='uncertain'||item.asOf!==null))return '因素資料不足時不可補造數字、日期、因果或影響方向。';
+    }
+  }
+  const decision=research.decision;
+  if(decision){
+    if(research.rating===null&&(decision.action!=='insufficient-data'||decision.entryTriggers.length))return '暫不評級時不可提供入場觸發建議。';
+    if(decision.action==='insufficient-data'&&decision.entryTriggers.length)return '入場資料不足時不可提供觸發建議。';
+    if(decision.action!=='insufficient-data'&&!decision.sourceIndices.length)return '入場判斷需要來源註腳。';
+    if(decision.action==='wait'&&!decision.waitFor.length)return '等待判斷需要列出可觀察條件。';
+    if(decision.action==='consider-now'&&(report.verdict!=='buy'||report.entryPrice===null||report.stopLoss===null||(!decision.entryTriggers.length||decision.entryTriggers.some(item=>item.status!=='confirmed'))))return '當下入手建議需要買入立場、買入及止損價與已確認條件。';
   }
   return null;
 }

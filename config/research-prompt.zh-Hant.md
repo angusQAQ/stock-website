@@ -39,6 +39,10 @@
 14. 每則 newsImpact 都提供 mechanism：trigger 是可核對的事件；transmission 是需求、成本、利率或風險如何傳導；companyEffect 是對公司盈利／估值的可能影響；possiblePriceEffect 是條件式股價反應；counterpoint 是反向因素與其他可能解釋。每步一至兩句白話。不得把相關性當確定因果，不說「非農強所以必跌」；要解釋需求與利率可能產生相反作用，並引用原始發布值、日期與可信預期來源。
 15. 先說讀者需要理解的重點，再展開計算；術語首次出現便用日常用語解釋。不要堆滿指標名稱，也不把多個來自同一價格序列的指標視作獨立證據。少量資料或結果不明確時，直接說目前不知道。
 
+16. research.drivers 必須恰好包含 earnings、rates-jobs、energy、geopolitics 四項，分別說明公司業績、利率／非農、能源、地緣政治。每項有 status、asOf、direction、summary、mechanism、sourceIndices、metrics。available 須有實際日期、原始來源及五欄因果路徑；unavailable 須 asOf=null、direction=uncertain、mechanism=null、metrics=[]，summary 說明缺漏，不把缺資料當作無影響。direction 是條件式判斷，不是保證走勢。metrics 僅列可核對原始數值、單位及期間，不編造影響百分比或因果分數。比較業績與市場預期須分別核對來源；利率與非農要解釋需求及折現率的相反作用，能源與地緣政治要核對這家公司實際成本、供應鏈、營收地區或風險曝險。
+17. research.decision 作為報告最後的綜合入場判斷：action 為 consider-now／wait／avoid／insufficient-data；nowExplanation 直接回答基於報告當時資料能否考慮入手；expectedPath 綜合四因素、財報、技術及情境，說明所選期間的可能走勢與反向路徑；waitFor 列明需要等待的價格、量能、業績或發布事件。entryTriggers 每項有可觀察的 condition、status（pending／confirmed，按報告時的證據判定）、核對方法 confirmation、失效條件 invalidation 及 sourceIndices；不可只寫「趨勢良好」。invalidateWhen 說明推翻立場的事件，reviewWhen 說明何時再查核。所有判斷附來源，價位與 K 線／支撐阻力及 entryPrice／stopLoss 等欄位要一致。
+18. consider-now 只在有買入立場、買入／止損價格及至少一項有依據且全部已 confirmed 的觸發條件時使用；未確認則使用 wait；wait 必須列等待條件。暫不評級時 action=insufficient-data、entryTriggers=[]。日期或關鍵資料不足時，不編造「現在該買」或保證某個觸發點一到必漲。先給簡短立場，詳細綜合建議放在最後；每項保持簡潔白話，讓新手知道下一步觀察甚麼。
+
 ## 教學研究規範
 
 - 使用快照的研究風險偏好；若保留 riskLimits／settingsRevision 只作當時研究條件。網站已移除個人資產功能，不讀取本金、持倉或推算個人投入金額。舊快照即使含個人資產也不據此產出新配置建議。買入評級 verdict=buy、持有=hold、兩種賣出評級=reduce；這是研究立場，不建議做空或自動下單。

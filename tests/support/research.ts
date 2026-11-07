@@ -5,5 +5,7 @@ export function researchReport():AnalysisReport {
     evidence:(['financials','market','flows','insiders','options'] as const).map(kind=>({kind,status:'unavailable',asOf:null,summary:'沒有可核實資料，不以零或推測替代。',sourceIndices:[],metrics:[]})),
     scenarios:(['bull','base','bear'] as const).map(item=>({case:item,condition:'需要進一步證據。',outcome:'目前無法量化。',targetPrice:null})),conflicts:'測試；未核實利益衝突。',
     references:{summary:[],plainLanguage:[],outlook:[],technicalSummary:[],reasons:[],risks:[[]],details:[[]],scenarios:[[],[],[]],entryPrice:[],sellPrice:[],stopLoss:[],takeProfitPrice:[],targetPrice:[]},
+    drivers:(['earnings','rates-jobs','energy','geopolitics'] as const).map(kind=>({kind,status:'unavailable',asOf:null,direction:'uncertain',summary:'未取得可核實的當期資料。',mechanism:null,sourceIndices:[],metrics:[]})),
+    decision:{action:'insufficient-data',nowExplanation:'資料尚未齊備，暫不判斷入手時機。',expectedPath:'目前無足夠資料預測走勢。',waitFor:['補齊當期財報及日K。'],entryTriggers:[],invalidateWhen:['新增資料可能改變判斷。'],reviewWhen:'資料齊備後再分析。',sourceIndices:[]},
   } satisfies ResearchV2};
 }

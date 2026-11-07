@@ -100,3 +100,13 @@
 - Impeccable detector 本輪只執行一次：2 項既有字體 warning、109 項 advisory；保留既有藝術風格及設計系統。檢查及截圖位於忽略的 `.impeccable/review/sidebar-quotes/`。
 - Cursor 請求：設定草稿已保存安全欄位與所需網域，但再次讀取執行環境仍為 allowed_hosts=[]、secrets=[]。官方文件 CONNECT 403，未發送憑證、驗證帳戶或建立代理任務。唯讀探測器、無重新導向與不洩漏錯誤內容的離線測試及說明已準備；不是已啟用 AI 報告的證據。
 - 獨立完成審查查看全部 18 張有效畫面，對這次 UI／整合擴充給予 disposition=ship，無 material fix；範圍不包含真實 TradingView 報價、官方元件實際字體或 Cursor 正式連線。既有 DESIGN.md／sidecar 保留，沒有新增圖像資產。
+
+
+## 0.4.2 四因素圖與入場判斷 · 2026-11-07
+
+- 新報告可切換公司業績、利率／非農、能源及地緣政治，以有來源的箭頭圖連起事件／數據、傳導、盈利／估值及可能價格反應，並列反證與資料缺漏。沒有恢復被刪除的通用教學面板。
+- 最後綜合回答現在、等待、走勢、觸發、失效及再檢查時機；觸發點有待確認／報告時已確認標示，可展開核對確認方法與失效條件。資料不足不可製造入場訊號；現在入手需要買入立場、價位及全部已確認條件。
+- 78 項網站測試、11 項 Python 測試通過；TypeScript、Vite、Pages 子路徑建置及 Worker dryrun 通過。新工作契約 learning-decision-factors-v2，DB schemaVersion 仍為 2、無新 migration，v1／legacy 工作與報告保留。
+- Chromium 1440／1466×730／790×730／390／320px：42 個報告／延續畫面及 1 個 Pages 手動研究流程擷取，無 JS 錯誤／橫向溢出。四因素切換、來源連結、跳轉焦點、鍵盤展開、原有 K 線保留、舊報告及缺資料情境通過；0 模型呼叫／寫入。正常及缺資料的合成 fixture 另通過真實模型 schema 與伺服器證據門檻。
+- 所有研究數字與報告是有明示標籤的本機合成 fixture，不進入部署資產。正式研究 API／Mac／Cursor 仍待連接，不能把本機成功視為已執行真實股票研究。Cursor 的 Secret／網路草稿未套用，不宣稱驗證金鑰或額度。
+- 本輪 detector 一次，2 項既有字體 warning、118 項 advisory；新增控制／狀態顏色以既有 DESIGN.md 的數值局部實作，未改寫設計系統。獨立複核讀取全部 43 張有效畫面，disposition=ship，範圍限此報告 UI／整合擴充，不涵蓋另行提出的 Alpha Consensus 或正式服務連線。

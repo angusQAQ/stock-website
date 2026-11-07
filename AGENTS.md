@@ -50,3 +50,7 @@
 - User supplied a Cursor credential and requested connection. Never repeat it or place it in source/frontend/Git. Environment draft has a CURSOR_API_KEY requirement scoped only to api.cursor.com; active runtime has not yet received it or the network changes. scripts/check-cursor.py is a read-only account probe, not an enabled report engine. Read docs/cursor-connection.md; no real agent/model call is authorized by mere startup or quote refresh.
 
 Latest browser steering additionally removes the entire “股價為甚麼會變？” general lesson panel and renames the analysis heading “股票分析”. Preserve the plain-language explanations and interactive causal evidence inside actual reports; do not restore a separate lesson panel.
+
+## Report entry decision extension · 0.4.2
+
+New report contract learning-decision-factors-v2 adds four grounded drivers and an explicit final timing decision. Preserve v1/legacy reports and jobs without retrofitting fields. Missing factors cannot contain invented numeric data, dates, causal diagrams or directions; no rating means no entry triggers. Consider-now requires a buy verdict, entry/stop prices and confirmation triggers. Conditions are research, not automatically monitored orders. Keep causal charts inside actual reports; do not restore the removed generic lesson panel. Every driver/decision/trigger retains citations, unknowns and invalidation conditions. Update generated model schema from shared/report-schema.ts and run meaningful gate/workflow tests.
