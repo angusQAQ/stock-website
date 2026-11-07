@@ -5,6 +5,8 @@ import { CANDLE_PERIODS, type CandlePeriod } from '../shared/chart-periods';
 const symbols:Record<string,string>={AAPL:'NASDAQ:AAPL',MSFT:'NASDAQ:MSFT',NVDA:'NASDAQ:NVDA',GOOGL:'NASDAQ:GOOGL',AMZN:'NASDAQ:AMZN',META:'NASDAQ:META',TSLA:'NASDAQ:TSLA','BRK-B':'NYSE:BRK.B',JPM:'NYSE:JPM',V:'NYSE:V',LLY:'NYSE:LLY',COST:'NASDAQ:COST',VOO:'AMEX:VOO',SPY:'AMEX:SPY',QQQ:'NASDAQ:QQQ',VTI:'AMEX:VTI',SCHD:'AMEX:SCHD',BND:'NASDAQ:BND'};
 export const PUBLIC_CHART_SCRIPT='https://s3.tradingview.com/tv.js';
 export const PUBLIC_OVERVIEW_SCRIPT='https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+export const PUBLIC_QUOTE_SCRIPT='https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js';
+export function publicQuoteOptions(symbol:string){return {symbol:publicSymbol(symbol),width:'100%',colorTheme:'light',isTransparent:true,locale:'zh_TW'} as const;}
 export function publicSymbol(symbol:string):string {
   if(!UNIVERSE.some(stock=>stock.symbol===symbol)||!symbols[symbol])throw new Error('這隻股票尚未設定公開圖表來源。');
   return symbols[symbol];

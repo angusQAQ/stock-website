@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Activity, ArrowRight, BarChart3, ChevronRight, Clock3, Compass, Database, FileText, LayoutDashboard, ListFilter, RefreshCw, Search, Star } from 'lucide-react';
+import { Activity, BarChart3, ChevronRight, Clock3, Compass, FileText, LayoutDashboard, ListFilter, RefreshCw, Search, Star } from 'lucide-react';
 import type { AnalysisJob, Horizon, Quote, Risk, RiskSettings } from '../shared/types';
 import { UNIVERSE } from '../shared/types';
 import { technicals } from '../shared/indicators';
@@ -7,9 +7,9 @@ import { api, post, API_AVAILABLE } from './api';
 import StockChart from './StockChart';
 import AnalysisPanel from './AnalysisPanel';
 import ReportsView from './ReportsView';
-import MarketLesson from './MarketLesson';
 import { aggregateCandles, CANDLE_PERIODS, historyRange, type CandlePeriod } from '../shared/chart-periods';
 import { PublicMarketChart, PublicMarketOverview } from './PublicMarket';
+import PublicStockQuote from './PublicStockQuote';
 
 const pct=(n:number|null)=>n===null?'—':`${n>=0?'+':''}${n.toFixed(2)}%`;
 const compact=(n:number)=>Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:2}).format(n);
@@ -34,7 +34,7 @@ export default function App() {
   const [watchlist,setWatchlist]=useState<string[]>([]);
   const [jobs,setJobs]=useState<AnalysisJob[]>([]);
   const [bridge,setBridge]=useState({enabled:false,online:false,lastSeen:null as string|null});
-  const [serviceError,setServiceError]=useState('');
+  const [watchError,setWatchError]=useState('');
   const [analysisError,setAnalysisError]=useState('');
   const [horizon,setHorizon]=useState<Horizon>('month');
   const [risk,setRisk]=useState<Risk>('balanced');
@@ -89,10 +89,7 @@ export default function App() {
     if(j.status==='fulfilled')setJobs(j.value);
     if(b.status==='fulfilled')setBridge(b.value);
     if(s.status==='fulfilled')setSettings(previous=>previous&&previous.revision>s.value.revision?previous:s.value);else setSettings(null);
-    const labels=['自選清單','分析紀錄','Mac 分析端','風險設定','服務狀態'];
-    const grouped=new Map<string,string[]>();results.forEach((result,index)=>{if(result.status==='rejected'){const message=(result.reason as Error).message;grouped.set(message,[...(grouped.get(message)??[]),labels[index]])}});
-    const failures=[...grouped].map(([message,services])=>`${services.join('、')}：${message}`);
-    setServiceError(API_AVAILABLE?failures.join('；'):failures.length?'資料服務尚未連接。':'');setServiceChecked(true);
+    setServiceChecked(true);
     if(serviceRequest.current===controller)serviceRequest.current=null;
   },[]);
   async function cancelJob(id:string):Promise<AnalysisJob> {
@@ -113,7 +110,7 @@ export default function App() {
   const results=UNIVERSE.filter(x=>`${x.symbol} ${x.name} ${x.sector}`.toLowerCase().includes(query.toLowerCase())).slice(0,7);
   const stale=!!quote && ['pre','regular','post'].includes(quote.session) && clock-quote.timestamp*1000>90_000;
   async function toggleWatch(){
-    try{const exists=watchlist.includes(selected);await api('/watchlist',{method:exists?'DELETE':'POST',body:JSON.stringify({symbol:selected})});setWatchlist(old=>exists?old.filter(x=>x!==selected):[...old,selected])}catch(e){setServiceError((e as Error).message)}
+    setWatchError('');try{const exists=watchlist.includes(selected);await api('/watchlist',{method:exists?'DELETE':'POST',body:JSON.stringify({symbol:selected})});setWatchlist(old=>exists?old.filter(x=>x!==selected):[...old,selected])}catch(e){setWatchError((e as Error).message)}
   }
   async function analyze(){
     if(!settings){setAnalysisError('請先取得雲端風險設定。');return;}
@@ -167,10 +164,6 @@ export default function App() {
             <span className="market-clock"><Clock3 size={14}/>{new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hour12:false}).format(clock)}<small>紐約時間</small></span>
           </div>
         </div>}
-        {serviceError&&<div className="notice service-notice" role="status">
-          <Database size={17}/><span>{API_AVAILABLE?`資料服務連線：${serviceError}`:'AI 教學報告尚未啟用；你仍可查看圖表並使用下方互動教學。'}</span>
-          <button className="text-button" onClick={()=>loadResearch(true)}>重新檢查<ArrowRight size={14}/></button>
-        </div>}
 
         {page==='market'&&<>
           {publicChart?<PublicMarketOverview/>:<section className="market-cards" aria-label="市場 ETF 概覽">
@@ -179,19 +172,20 @@ export default function App() {
               <div className="market-card-bottom"><strong>{q?q.price.toFixed(2):'—'}</strong><span className={!q?'muted':q.changePercent!==null&&q.changePercent<0?'down':'up'}>{q?pct(q.changePercent):'等待行情'}</span></div>
             </button>})}
           </section>}
-          <div className="market-layout">
-            <aside className="market-sidebar panel" aria-label="股票清單">
+          <div className={`market-layout ${publicChart?'with-public-sidebar':''}`}>
+            <aside className={`market-sidebar panel ${publicChart?'with-public-quotes':''}`} aria-label="股票清單">
               <div className="panel-heading"><h2>選擇研究標的</h2><ListFilter size={16} aria-hidden="true"/></div>
               <div className="list-tabs" aria-label="股票清單篩選">
                 {([['popular','熱門'],['watchlist','自選'],['etf','ETF']] as const).map(([id,label])=><button key={id} className={listMode===id?'active':''} aria-pressed={listMode===id} onClick={()=>setListMode(id)}>{label}</button>)}
               </div>
               <div className="stock-list">
-                {displayed.map(symbol=>{const q=quotes[symbol],stock=UNIVERSE.find(x=>x.symbol===symbol);return <button key={symbol} className={`stock-row ${selected===symbol?'selected':''}`} aria-pressed={selected===symbol} onClick={()=>select(symbol)}>
+                {displayed.map(symbol=>{const q=quotes[symbol],stock=UNIVERSE.find(x=>x.symbol===symbol);return <div key={symbol} className={`stock-list-item ${selected===symbol?'selected':''}`}><button className={`stock-row ${selected===symbol?'selected':''}`} aria-pressed={selected===symbol} onClick={()=>select(symbol)}>
                   <span className="stock-identity"><strong>{symbol}</strong><span>{stock?.name??symbol}</span></span>
-                  <span className="stock-quote"><strong>{q?q.price.toFixed(2):publicChart?'看走勢':'—'}</strong><span className={!q?'muted':q.changePercent!==null&&q.changePercent<0?'down':'up'}>{q?pct(q.changePercent):publicChart?'圖內查看價格':'待更新'}</span></span>
-                </button>})}
+                  {publicChart?<ChevronRight size={14} aria-hidden="true"/>:<span className="stock-quote"><strong>{q?q.price.toFixed(2):'—'}</strong><span className={!q?'muted':q.changePercent!==null&&q.changePercent<0?'down':'up'}>{q?pct(q.changePercent):'待更新'}</span></span>}
+                </button>{publicChart&&<PublicStockQuote symbol={symbol}/>}</div>})}
                 {!displayed.length&&<div className="sidebar-empty"><Star size={22}/><p>把關注的股票放在一起。</p><span>{API_AVAILABLE?'在個股頁點擊星號，建立自選清單。':'連接資料服務後，即可儲存自選清單。'}</span></div>}
               </div>
+              {publicChart&&!!displayed.length&&<p className="sidebar-price-note">現價及升跌幅隨來源更新；休市時可能不變。延遲與時段以報價內標示為準。</p>}
               <div className="list-footnote">大型美股及常見 ETF</div>
             </aside>
 
@@ -202,6 +196,7 @@ export default function App() {
                   <div className="company-name"><div><h2>{selected}</h2><span className="badge">US</span><button className={`star-button ${watchlist.includes(selected)?'starred':''}`} onClick={toggleWatch} disabled={!API_AVAILABLE} aria-label={watchlist.includes(selected)?'移除自選':'加入自選'} aria-pressed={watchlist.includes(selected)}><Star size={18} fill={watchlist.includes(selected)?'currentColor':'none'}/></button></div><p>{quote?.name??UNIVERSE.find(x=>x.symbol===selected)?.name??selected}</p></div>
                   <div className="quote-market-status"><span className={`status-dot ${!publicChart&&quote?.session==='regular'?'online':''}`}/>{publicChart?'TradingView':quote?sessionNames[quote.session]:'行情連接中'}</div>
                 </div>
+                {watchError&&<p className="quote-error" role="alert">自選清單：{watchError}</p>}
                 <div className="chart-source-control"><label>圖表來源<select aria-label="圖表來源" value={publicChart?'public':'api'} onChange={event=>setChartSource(event.target.value as 'public'|'api')}><option value="public">互動行情圖（TradingView）</option><option value="api" disabled={!API_AVAILABLE}>研究資料圖（Yahoo Finance）</option></select></label></div>
                 {!publicChart&&<><div className="price-heading"><strong>{quote?quote.price.toFixed(2):'—'}<small>USD</small></strong><span className={!quote?'muted':quote.changePercent!==null&&quote.changePercent<0?'down':'up'}>{quote?.change!==null&&quote?`${quote.change>=0?'+':''}${quote.change.toFixed(2)}`:'—'} <b>{quote?pct(quote.changePercent):''}</b></span><button className="icon-button" aria-label="重新整理行情" onClick={()=>setRefresh(value=>value+1)}><RefreshCw size={16}/></button></div>
                 <div className="quote-facts">{[['開盤',latest?.open],['最高',latest?.high],['最低',latest?.low],['前收',quote?.previousClose]].map(([label,value])=><div key={String(label)}><span>{label}</span><strong>{typeof value==='number'?value.toFixed(2):'—'}</strong></div>)}<div><span>成交量 · 所選 K 線</span><strong>{latest&&!latest.volumeMissing?compact(latest.volume):'—'}</strong></div></div>
@@ -214,7 +209,6 @@ export default function App() {
                 <p className="data-freshness">報價時間 {quote?new Date(quote.timestamp*1000).toLocaleString('zh-HK'):'—'} · 來源延遲 {quote?.exchangeDelayMinutes!==null&&quote?.exchangeDelayMinutes!==undefined?`${quote.exchangeDelayMinutes} 分鐘`:'未提供'}{stale?' · 報價時間較早':''}。每 5 秒檢查更新；盤前／盤後及最新一根 K 線可能未完成，來源不保證交易所即時行情。</p>
                 </>}
               </section>
-              <MarketLesson symbol={selected}/>
               <AnalysisPanel symbol={selected} horizon={horizon} risk={risk} setHorizon={setHorizon} setRisk={setRisk} online={bridge.online} enabled={bridge.enabled} job={currentJob} analyze={analyze} busy={busy} error={analysisError} settings={settings} reload={()=>loadResearch(true)} pendingJob={pendingJob} cancel={cancelJob} cancellingId={cancellingId}/>
             </div>
 

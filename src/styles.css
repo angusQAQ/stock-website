@@ -156,6 +156,7 @@ select { color-scheme: light; }
 .list-tabs button.active { background: var(--ink); color: white; }
 .list-tabs button:hover:not(.active) { background: #f0f2f4; }
 .stock-list { padding: 0 8px 8px; }
+.stock-list-item { min-width: 0; }
 .stock-row { display: flex; justify-content: space-between; gap: 8px; width: 100%; text-align: left; background: none; padding: 13px 10px; border-radius: 9px; }
 .stock-row:hover { background: #f5f6f7; }
 .stock-row.selected { background: var(--brand-soft); }
@@ -410,6 +411,7 @@ th:first-child, td:first-child { text-align: left; }
   .market-sidebar>.panel-heading>svg { display: none; }
   .market-sidebar .list-tabs { justify-self: end; padding: 12px 16px 4px; min-width: 180px; }
   .stock-list { grid-column: 1/-1; display: flex; overflow-x: auto; padding: 9px 12px 12px; gap: 6px; }
+  .stock-list-item { flex: 0 0 156px; }
   .stock-row { flex: 0 0 156px; padding: 12px; }
   .stock-row.selected { background: var(--brand-soft); }
   .list-footnote { display: none; }
@@ -461,6 +463,7 @@ th:first-child, td:first-child { text-align: left; }
   .list-tabs button { font-size: 11px; min-height: 32px; }
   .stock-list { padding-left: 7px; padding-right: 7px; gap: 4px; }
   .stock-row { flex-basis: 150px; }
+  .stock-list-item { flex-basis: 150px; }
   .research-column { gap: 18px; }
   .quote-heading { padding: 20px 16px 0; gap: 10px; }
   .company-icon { width: 38px; height: 38px; font-size: 21px; border-radius: 10px; }
@@ -682,3 +685,24 @@ th:first-child, td:first-child { text-align: left; }
 
 .price-help>summary, .indicator-help>summary, .technical-data>summary, .causal-explanation>summary { min-height: 44px; }
 .report summary>.disclosure-icon { flex-shrink: 0; color: var(--muted); }
+
+/* Public quotes stay in provider frames; reserve their full supported surface. */
+.market-layout.with-public-sidebar { grid-template-columns: 280px minmax(0,1fr); }
+.with-public-quotes .stock-list-item { padding-bottom: 10px; margin-bottom: 8px; border-bottom: 1px solid var(--border); }
+.with-public-quotes .stock-list-item:last-child { border-bottom: 0; margin-bottom: 0; }
+.with-public-quotes .stock-list { max-height: max(360px,calc(100vh - 300px)); overflow: auto; scrollbar-gutter: stable; }
+.with-public-quotes .stock-row { align-items: center; padding-block: 9px; }
+.with-public-quotes .stock-row>svg { color: var(--muted); flex-shrink: 0; }
+.public-stock-quote { position: relative; min-width: 0; }
+.public-stock-quote-host { min-height: 126px; }
+.public-stock-quote-host iframe { display: block; width: 100%; border: 0; }
+.sidebar-quote-status { position: absolute; top: 0; inset-inline: 0; min-height: 126px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 12px; color: var(--muted); background: var(--panel); }
+.sidebar-quote-source { display: flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 10px; color: var(--brand-ink); line-height: 1.8; }
+.sidebar-price-note { padding: 10px 18px 14px; font-size: 11px; line-height: 1.8; color: var(--muted); }
+@media (max-width: 1280px) and (min-width: 921px) { .market-layout.with-public-sidebar { grid-template-columns: 260px minmax(0,1fr); } }
+@media (max-width: 920px) {
+  .market-layout.with-public-sidebar { grid-template-columns: minmax(0,1fr); }
+  .with-public-quotes .stock-list-item { flex: 0 0 270px; border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
+  .with-public-quotes .stock-list { max-height: none; scrollbar-gutter: auto; }
+  .with-public-quotes .sidebar-price-note { grid-column: 1/-1; padding-top: 0; }
+}

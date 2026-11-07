@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { UNIVERSE } from '../shared/types';
-import { publicChartLink, publicChartOptions, publicSymbol } from '../src/public-market';
+import { publicChartLink, publicChartOptions, publicQuoteOptions, publicSymbol } from '../src/public-market';
 import { CANDLE_PERIODS, type CandlePeriod } from '../shared/chart-periods';
 
 afterEach(()=>{vi.unstubAllGlobals();vi.useRealTimers()});
@@ -16,6 +16,10 @@ describe('public market connection',()=>{
       const options=publicChartOptions('AAPL',period,'chart-id');expect(options.interval).toBe(period);expect(options).not.toHaveProperty('range');expect(options.withdateranges).toBe(false);expect(options.style).toBe('1');expect(options.timezone).toBe('Asia/Hong_Kong');
     }
     expect(()=>publicChartOptions('AAPL','INVALID' as CandlePeriod,'chart-id')).toThrow();
+  });
+  it('configures live provider quotes for each supported list symbol without keys or invented prices',()=>{
+    for(const stock of UNIVERSE){const options=publicQuoteOptions(stock.symbol);expect(options.symbol).toBe(publicSymbol(stock.symbol));expect(options.width).toBe('100%');expect(options.locale).toBe('zh_TW');expect(options).not.toHaveProperty('price');expect(options).not.toHaveProperty('apiKey');}
+    expect(()=>publicQuoteOptions('INVALID')).toThrow('尚未設定');
   });
 });
 

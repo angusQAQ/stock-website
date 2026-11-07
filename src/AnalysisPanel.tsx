@@ -21,7 +21,7 @@ export default function AnalysisPanel({symbol,horizon,risk,setHorizon,setRisk,on
     try {await cancel(pendingJob.id);setQueueMessage(`已取消 ${pendingJob.symbol} 的排隊分析。`);riskSelect.current?.focus({preventScroll:true})}catch(error){setQueueError((error as Error).message)}
   }
   return <section className="panel analysis-panel">
-    <div className="panel-heading"><h2><Sparkles size={17}/>教學分析</h2></div>
+    <div className="panel-heading"><h2><Sparkles size={17}/>股票分析</h2></div>
     <div className="analysis-controls"><div><span className="field-label">投資期間 · 一個月為未來 30 天</span><div className="segmented">{(Object.entries(HORIZONS) as [Horizon,string][]).map(([key,label])=><button key={key} className={horizon===key?'active':''} aria-pressed={horizon===key} onClick={()=>setHorizon(key)}>{label}</button>)}</div></div>
       <label className="risk-select"><ShieldCheck size={14}/><select ref={riskSelect} aria-label="研究風險偏好" value={risk} onChange={event=>setRisk(event.target.value as Risk)}>{RISK_ORDER.map(key=><option value={key} key={key}>{RISK_NAMES[key]}</option>)}</select></label>
       <button ref={analyzeButton} className="button primary" aria-label={`分析 ${symbol}`} onClick={()=>{if(!API_AVAILABLE||!settings||!enabled)setSetupOpen(true);else{setSetupOpen(false);analyze()}}} disabled={busy||!!pendingJob}><Sparkles size={15}/>{busy?'提交中…':pendingJob?pendingJob.id===job?.id?(pendingJob.status==='queued'?'等待分析程式接收':'正在整理教學報告…'):'等待其他分析完成':`分析 ${symbol}`}</button>
