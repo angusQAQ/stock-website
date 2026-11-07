@@ -66,6 +66,28 @@
         }
       ]
     },
+    "sellPrice": {
+      "anyOf": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "takeProfitPrice": {
+      "anyOf": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "details": {
       "type": "string",
       "maxLength": 30000
@@ -177,13 +199,52 @@
                   "minimum": 0,
                   "maximum": 39
                 }
+              },
+              "mechanism": {
+                "type": "object",
+                "properties": {
+                  "trigger": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000
+                  },
+                  "transmission": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000
+                  },
+                  "companyEffect": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000
+                  },
+                  "possiblePriceEffect": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000
+                  },
+                  "counterpoint": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000
+                  }
+                },
+                "required": [
+                  "trigger",
+                  "transmission",
+                  "companyEffect",
+                  "possiblePriceEffect",
+                  "counterpoint"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
               "date",
               "title",
               "impact",
-              "sourceIndices"
+              "sourceIndices",
+              "mechanism"
             ],
             "additionalProperties": false
           }
@@ -345,6 +406,161 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 4000
+        },
+        "references": {
+          "type": "object",
+          "properties": {
+            "summary": {
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 39
+              }
+            },
+            "plainLanguage": {
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 39
+              }
+            },
+            "outlook": {
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 39
+              }
+            },
+            "technicalSummary": {
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 39
+              }
+            },
+            "reasons": {
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "maxItems": 12,
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 39
+                }
+              }
+            },
+            "risks": {
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "maxItems": 12,
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 39
+                }
+              }
+            },
+            "details": {
+              "maxItems": 100,
+              "type": "array",
+              "items": {
+                "maxItems": 12,
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 39
+                }
+              }
+            },
+            "scenarios": {
+              "minItems": 3,
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "maxItems": 12,
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 39
+                }
+              }
+            },
+            "entryPrice": {
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 39
+              }
+            },
+            "sellPrice": {
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 39
+              }
+            },
+            "stopLoss": {
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 39
+              }
+            },
+            "takeProfitPrice": {
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 39
+              }
+            },
+            "targetPrice": {
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 39
+              }
+            }
+          },
+          "required": [
+            "summary",
+            "plainLanguage",
+            "outlook",
+            "technicalSummary",
+            "reasons",
+            "risks",
+            "details",
+            "scenarios",
+            "entryPrice",
+            "sellPrice",
+            "stopLoss",
+            "takeProfitPrice",
+            "targetPrice"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -356,7 +572,8 @@
         "newsImpact",
         "evidence",
         "scenarios",
-        "conflicts"
+        "conflicts",
+        "references"
       ],
       "additionalProperties": false
     }
@@ -369,6 +586,8 @@
     "entryPrice",
     "targetPrice",
     "stopLoss",
+    "sellPrice",
+    "takeProfitPrice",
     "details",
     "sources",
     "missingData",

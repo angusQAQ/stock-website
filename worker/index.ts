@@ -32,7 +32,7 @@ async function api(request: Request, env: Env, ctx: ExecutionContext): Promise<R
       await env.DB.prepare('SELECT id FROM ledger LIMIT 1').first();
       await getRiskSettings(env.DB);
       await env.DB.prepare('SELECT cancelled_at FROM analysis_jobs LIMIT 1').first();
-      return json({ status: 'ok', service: 'northstar-api', storage: true, version: '0.3.0', schemaVersion: 2,
+      return json({ status: 'ok', service: 'northstar-api', storage: true, version: '0.4.0', schemaVersion: 2,
         capabilities: ['portfolio','quotes','risk-settings','analysis-history','queue-cancel','research-v2'] });
     } catch { return json({ status: 'unavailable', service: 'northstar-api', storage: false,
       error: '帳本尚未就緒，請檢查資料庫連線與結構更新。' }, 503); }
@@ -104,9 +104,9 @@ async function api(request: Request, env: Env, ctx: ExecutionContext): Promise<R
     const now = new Date().toISOString();
     await env.DB.prepare("UPDATE analysis_jobs SET status='failed',error='Mac 工作中斷，請重新分析。',updated_at=? WHERE status='running' AND updated_at<?")
       .bind(now, new Date(Date.now()-900_000).toISOString()).run();
-    const [quote, portfolio, researchSnapshot] = await Promise.all([fetchQuote(input.symbol), getPortfolio(env.DB),captureResearch(input.symbol,input.horizon,new Date(now))]);
-    const snapshot = { quote, portfolio, horizon: input.horizon, risk: input.risk, capturedAt: now,
-      riskLimits: settings.profiles[input.risk], settingsRevision: settings.revision,researchSnapshot,reportVersion:2 };
+    const [quote, researchSnapshot] = await Promise.all([fetchQuote(input.symbol),captureResearch(input.symbol,input.horizon,new Date(now))]);
+    const snapshot = { quote, horizon: input.horizon, risk: input.risk, capturedAt: now,
+      riskLimits: settings.profiles[input.risk], settingsRevision: settings.revision,researchSnapshot,reportVersion:2,reportContract:'learning-prices-citations-v1' };
     const id = crypto.randomUUID();
     const inserted = await env.DB.prepare(`INSERT INTO analysis_jobs (id,symbol,horizon,risk,snapshot,created_at,updated_at)
       SELECT ?,?,?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM analysis_jobs WHERE status IN ('queued','running'))`)
@@ -138,6 +138,7 @@ async function api(request: Request, env: Env, ctx: ExecutionContext): Promise<R
       if(input.report){
         const saved=JSON.parse(row.snapshot);
         if(saved.reportVersion===2&&!input.report.research)throw new InputError('這份工作需要新版研究報告，請更新 Mac 分析連接程式。');
+        if(saved.reportContract==='learning-prices-citations-v1'&&(!input.report.research?.references||!('sellPrice' in input.report)||!('takeProfitPrice' in input.report)||input.report.research.newsImpact.some(item=>!item.mechanism)))throw new InputError('這份工作需要教學因果、四類價位與逐段註腳，請更新 Mac 分析程式。');
         const invalid=validateResearchReport(input.report);if(invalid)throw new InputError(invalid);
         if(input.report.research?.rating!==null&&input.report.research){
           const fundamentals=input.report.research.evidence.find(item=>item.kind==='financials');

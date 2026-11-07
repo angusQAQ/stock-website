@@ -143,7 +143,7 @@ select { color-scheme: light; }
 .market-card-bottom { margin-top: 14px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .market-card-bottom strong { font-size: 27px; letter-spacing: -.025em; font-variant-numeric: tabular-nums; line-height: 1.2; }
 .market-card-bottom>span { font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.market-layout { display: grid; grid-template-columns: 202px minmax(0,1fr) 250px; gap: 20px; align-items: start; }
+.market-layout { display: grid; grid-template-columns: 202px minmax(0,1fr); gap: 20px; align-items: start; }
 .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); min-width: 0; }
 .panel-heading { min-height: 64px; padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--border); }
 .panel-heading h2 { display: inline-flex; align-items: center; gap: 8px; }
@@ -170,7 +170,7 @@ select { color-scheme: light; }
 .sidebar-empty { padding: 24px 12px; color: var(--muted); text-align: center; }
 .sidebar-empty p { font-size: 13px; line-height: 1.8; margin: 12px 0 6px; color: var(--ink); }
 .sidebar-empty>span { font-size: 12px; line-height: 1.8; display: block; }
-.research-column, .context-column { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.research-column { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 .quote-panel { overflow: hidden; }
 .quote-heading { display: flex; gap: 12px; align-items: center; padding: 23px 24px 0; }
 .company-icon { display: flex; align-items: center; justify-content: center; height: 43px; width: 43px; border-radius: 12px; background: #f0f2f4; font-size: 24px; font-weight: 650; flex-shrink: 0; }
@@ -288,9 +288,9 @@ th:first-child, td:first-child { text-align: left; }
 .report-columns { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 26px; margin-top: 26px; }
 .report h4 { font-size: 13px; font-weight: 650; margin-bottom: 12px; }
 .report-columns p { display: flex; align-items: flex-start; gap: 8px; color: #505862; font-size: 13px; line-height: 1.95; margin-bottom: 12px; overflow-wrap: anywhere; }
-.report-columns p>span { flex-shrink: 0; }
-.report-columns p>svg { margin-top: 5px; }
-.price-plan { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; background: #f5f6f7; border-radius: 10px; padding: 17px; margin: 24px 0; }
+.report-columns p>span { flex: 1; min-width: 0; }
+.report-columns p>svg { margin-top: 5px; flex-shrink: 0; }
+.price-plan { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; background: var(--bg); border-radius: 10px; padding: 17px; margin: 12px 0 24px; }
 .price-plan>div { display: flex; flex-direction: column; gap: 10px; }
 .price-plan span { font-size: 11px; color: var(--muted); }
 .price-plan strong { font-size: 18px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
@@ -379,7 +379,7 @@ th:first-child, td:first-child { text-align: left; }
 .form-hint { font-size: 12px; line-height: 1.8; color: var(--muted); margin-top: -8px; }
 .form-error { font-size: 13px; line-height: 1.8; color: var(--red); }
 .modal form>.button { margin-top: 5px; }
-@media (min-width: 1600px) { .market-layout { grid-template-columns: 216px minmax(0,1fr) 272px; gap: 24px; } }
+@media (min-width: 1600px) { .market-layout { grid-template-columns: 216px minmax(0,1fr); gap: 24px; } }
 @media (max-width: 1180px) {
   .topbar, .workspace { padding-left: 28px; padding-right: 28px; }
   .topbar { gap: 24px; }
@@ -389,7 +389,6 @@ th:first-child, td:first-child { text-align: left; }
   .header-actions { gap: 10px; }
   .header-deposit { padding: 10px 14px; }
   .market-layout { grid-template-columns: 190px minmax(0,1fr); }
-  .context-column { grid-column: 2; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; }
   .asset-card { padding: 22px; }
   .asset-card strong { font-size: 26px; }
 }
@@ -417,7 +416,6 @@ th:first-child, td:first-child { text-align: left; }
   .sidebar-empty { width: 100%; padding: 12px 20px 18px; text-align: left; }
   .sidebar-empty>svg { display: none; }
   .sidebar-empty p { margin-top: 0; }
-  .context-column { grid-column: 1; }
   .chart-canvas { height: 340px; }
   .asset-cards { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .portfolio-view>.page-title { align-items: flex-start; flex-direction: column; }
@@ -463,7 +461,7 @@ th:first-child, td:first-child { text-align: left; }
   .list-tabs button { font-size: 11px; min-height: 32px; }
   .stock-list { padding-left: 7px; padding-right: 7px; gap: 4px; }
   .stock-row { flex-basis: 150px; }
-  .research-column, .context-column { gap: 18px; }
+  .research-column { gap: 18px; }
   .quote-heading { padding: 20px 16px 0; gap: 10px; }
   .company-icon { width: 38px; height: 38px; font-size: 21px; border-radius: 10px; }
   .company-name h2 { font-size: 20px; }
@@ -501,7 +499,6 @@ th:first-child, td:first-child { text-align: left; }
   .bridge-status { padding: 0 16px 18px; flex-wrap: wrap; font-size: 10px; row-gap: 7px; }
   .bridge-status>span:last-child { width: 100%; margin-left: 12px; }
   .analysis-panel>.notice { margin-left: 16px; margin-right: 16px; }
-  .context-column { grid-template-columns: minmax(0,1fr); }
   .asset-cards { gap: 12px; }
   .asset-card { padding: 20px 16px; gap: 14px; }
   .asset-card>span { font-size: 11px; }
@@ -626,3 +623,62 @@ th:first-child, td:first-child { text-align: left; }
   .settings-actions .text-button { font-size: 11px; }
   .settings-note { font-size: 11px; }
 }
+
+/* Learning controls and evidence stay outside the candle pane. */
+.chart-period-heading { padding: 8px 24px 0; font-size: 12px; color: var(--muted); }
+.chart-period-note { padding: 0 16px; font-size: 12px; line-height: 1.8; color: var(--muted); }
+.price-level.entryPrice { --level-color: var(--green); }
+.price-level.sellPrice { --level-color: var(--blue); }
+.price-level.stopLoss { --level-color: var(--red); }
+.price-level.takeProfitPrice { --level-color: var(--warning); }
+.price-plan .price-level>span, .price-plan .price-level>strong { color: var(--level-color); }
+.price-plan-heading { margin-top: 28px; }
+.price-line-legend { list-style: none; padding: 0; margin: 16px 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.price-line-legend li { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--level-color); font-variant-numeric: tabular-nums; }
+.price-line-legend i { width: 26px; height: 2px; background: var(--level-color); flex-shrink: 0; }
+.price-line-legend .stopLoss i { height: 0; border-top: 2px dotted var(--level-color); background: none; }
+.price-line-legend .sellPrice i { height: 0; border-top: 2px dashed var(--level-color); background: none; }
+.price-line-legend .takeProfitPrice i { height: 0; border-top: 2px dashed var(--level-color); background: none; }
+.report>.plain-language { margin-top: 20px; font-size: 14px; line-height: 1.95; }
+.report>.plain-language p { max-width: 72ch; color: var(--support-ink); }
+.report-learning-note { margin: 14px 0; font-size: 12px; line-height: 1.8; color: var(--muted); max-width: 72ch; }
+.citations { font-size: 11px; vertical-align: super; white-space: normal; }
+.citations a { display: inline-block; color: var(--brand-ink); padding: 2px 3px; min-width: 20px; line-height: 1.5; text-decoration: underline; text-underline-offset: 2px; }
+.report-footnotes { margin-top: 28px; border-top: 1px solid var(--border); padding-top: 20px; font-size: 13px; line-height: 1.8; overflow-wrap: anywhere; }
+.report-footnotes ol { list-style: none; margin: 0; padding: 0; }
+.report-footnotes li { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.report-footnotes a { color: var(--brand-ink); text-decoration: underline; text-underline-offset: 3px; }
+.report-footnotes span { display: block; font-size: 11px; color: var(--muted); }
+.chart-source-footnote { margin-top: 14px; }
+.lesson-body { padding: 22px 24px; font-size: 14px; line-height: 1.9; color: var(--support-ink); }
+.lesson-caption { color: var(--muted); font-size: 12px; }
+.lesson-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 24px; }
+.lesson-tabs button { background: var(--control-bg); border-radius: 8px; padding: 9px 12px; font-size: 13px; min-height: 40px; }
+.lesson-tabs button:hover { background: var(--control-hover); }
+.lesson-tabs button.active { background: var(--brand-soft); color: var(--brand-ink); }
+.lesson-explanation h3 { color: var(--ink); font-size: 16px; margin-bottom: 14px; }
+.lesson-explanation>p { margin-top: 14px; max-width: 72ch; }
+.causal-chain { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 18px; list-style: none; margin: 18px 0; padding: 0; }
+.causal-chain li { border-top: 1px solid var(--border); padding-top: 14px; min-width: 0; }
+.causal-chain small { font-size: 12px; font-weight: 600; color: var(--brand-ink); }
+.causal-chain p { font-size: 14px; margin-top: 8px; line-height: 1.9; overflow-wrap: anywhere; }
+.lesson-sources { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; color: var(--muted); margin-top: 20px; }
+.lesson-sources a { color: var(--brand-ink); text-decoration: underline; text-underline-offset: 3px; }
+.analysis-connection { border-top: 1px solid var(--border); padding: 24px; font-size: 14px; line-height: 1.9; }
+.analysis-connection h3 { font-size: 17px; }
+.analysis-connection p { max-width: 72ch; margin: 12px 0 18px; color: var(--support-ink); }
+.analysis-connection details { margin: 18px 0; }
+.analysis-connection summary { cursor: pointer; font-size: 13px; color: var(--ink); }
+.analysis-connection textarea { display: block; margin-top: 12px; width: 100%; min-height: 250px; padding: 12px; font: inherit; font-size: 13px; line-height: 1.9; border: 1px solid var(--input-border); border-radius: 8px; }
+.analysis-connection .text-button { margin: 8px 18px 0 0; }
+@media(max-width:900px) { .causal-chain { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media(max-width:640px) {
+  .causal-chain { grid-template-columns: minmax(0,1fr); gap: 10px; }
+  .price-plan { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .lesson-body, .analysis-connection { padding: 18px 16px; }
+  .chart-period-heading { padding-inline: 16px; }
+  .indicator-controls { justify-content: flex-start; }
+}
+
+.price-help>summary, .indicator-help>summary, .technical-data>summary, .causal-explanation>summary { min-height: 44px; }
+.report summary>.disclosure-icon { flex-shrink: 0; color: var(--muted); }

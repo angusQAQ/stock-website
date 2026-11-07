@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { UNIVERSE } from '../shared/types';
 import { publicChartLink, publicChartOptions, publicSymbol } from '../src/public-market';
+import { CANDLE_PERIODS, type CandlePeriod } from '../shared/chart-periods';
 
 afterEach(()=>{vi.unstubAllGlobals();vi.useRealTimers()});
 describe('public market connection',()=>{
@@ -10,11 +11,11 @@ describe('public market connection',()=>{
     expect(()=>publicSymbol('UNMAPPED')).toThrow('尚未設定');
     expect(publicChartLink('BRK-B')).toBe('https://www.tradingview.com/chart/?symbol=NYSE%3ABRK.B');
   });
-  it('maps each Northstar period to a supported public chart period',()=>{
-    for(const [range,expected] of Object.entries({'1D':'1D','5D':'5D','1M':'1M','3M':'3M','1Y':'12M','5Y':'60M',MAX:'ALL'})){
-      const options=publicChartOptions('AAPL',range,'chart-id');expect(options.range).toBe(expected);expect(options.style).toBe('1');expect(options.timezone).toBe('Asia/Hong_Kong');
+  it('sets a candle interval, never an automatic intraday lookback range',()=>{
+    for(const period of Object.keys(CANDLE_PERIODS) as CandlePeriod[]){
+      const options=publicChartOptions('AAPL',period,'chart-id');expect(options.interval).toBe(period);expect(options).not.toHaveProperty('range');expect(options.withdateranges).toBe(false);expect(options.style).toBe('1');expect(options.timezone).toBe('Asia/Hong_Kong');
     }
-    expect(()=>publicChartOptions('AAPL','INVALID','chart-id')).toThrow();
+    expect(()=>publicChartOptions('AAPL','INVALID' as CandlePeriod,'chart-id')).toThrow();
   });
 });
 

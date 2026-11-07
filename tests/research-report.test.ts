@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { macdSeries, technicals } from '../shared/indicators';
-import { reportSchema, validateResearchReport } from '../shared/report-schema';
+import { modelReportSchema, reportSchema, validateResearchReport } from '../shared/report-schema';
 import { captureResearch } from '../worker/research';
 import { researchReport } from './support/research';
 import { readFileSync } from 'node:fs';
@@ -32,7 +32,7 @@ describe('structured research quality gates',()=>{
   const now=new Date('2026-11-06T12:00:00Z');
   it('keeps the Mac output schema aligned with the Worker validator',()=>{
     const schema=JSON.parse(readFileSync(new URL('../config/analysis-report.schema.json',import.meta.url),'utf8'));
-    expect(schema).toEqual(z.toJSONSchema(reportSchema.required(),{target:'draft-7'}));
+    expect(schema).toEqual(z.toJSONSchema(modelReportSchema,{target:'draft-7'}));
   });
   it('accepts complete explicit data gaps without inventing a rating',()=>{
     const report=reportSchema.parse(researchReport());expect(validateResearchReport(report,now)).toBeNull();
@@ -60,5 +60,14 @@ describe('structured research quality gates',()=>{
   });
   it('continues to parse genuine legacy results without retrofitting new claims',()=>{
     const report=researchReport();delete report.research;expect(reportSchema.parse(report).research).toBeUndefined();expect(validateResearchReport(report,now)).toBeNull();
+  });
+  it('requires source references for each displayed price and matching paragraph counts',()=>{
+    const report=researchReport();report.verdict='hold';report.research!.rating='hold';
+    report.sources=[{title:'Fixture',url:'https://example.com/filing',asOf:'2026-11-06'}];
+    const refs=report.research!.references!;refs.summary=refs.plainLanguage=refs.outlook=refs.technicalSummary=[0];refs.risks=[[0]];refs.details=[[0]];refs.scenarios=[[0],[0],[0]];
+    report.sellPrice=120;expect(validateResearchReport(report,now)).toContain('價位');
+    refs.sellPrice=[0];expect(validateResearchReport(report,now)).toBeNull();
+    refs.details=[];expect(validateResearchReport(report,now)).toContain('段落數目');
+    refs.details=[[1]];expect(validateResearchReport(report,now)).toContain('不存在');
   });
 });

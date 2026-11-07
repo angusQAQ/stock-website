@@ -38,10 +38,16 @@ export interface ResearchEvidence {
 }
 export interface ResearchV2 {
   version:2; rating:Rating|null; outlook:string; plainLanguage:string; technicalSummary:string;
-  newsImpact:{date:string;title:string;impact:string;sourceIndices:number[]}[];
+  newsImpact:{date:string;title:string;impact:string;sourceIndices:number[];mechanism?:{trigger:string;transmission:string;companyEffect:string;possiblePriceEffect:string;counterpoint:string}}[];
   evidence:ResearchEvidence[];
   scenarios:{case:'bull'|'base'|'bear';condition:string;outcome:string;targetPrice:number|null}[];
   conflicts:string;
+  references?:ReportReferences;
+}
+export interface ReportReferences {
+  summary:number[];plainLanguage:number[];outlook:number[];technicalSummary:number[];
+  reasons:number[][];risks:number[][];details:number[][];scenarios:number[][];
+  entryPrice:number[];sellPrice:number[];stopLoss:number[];takeProfitPrice:number[];targetPrice:number[];
 }
 export interface TechnicalEvidence {
   ma20:number|null;ma50:number|null;ma200:number|null;rsi14:number|null;
@@ -54,6 +60,7 @@ export interface AnalysisReport {
   verdict: 'buy' | 'hold' | 'reduce' | 'avoid' | 'insufficient-data';
   summary: string; reasons: string[]; risks: string[];
   entryPrice: number | null; targetPrice: number | null; stopLoss: number | null;
+  sellPrice?:number|null;takeProfitPrice?:number|null;
   details: string;
   sources: { title: string; url: string; asOf: string }[];
   missingData: string[];

@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronRight, FileText, RefreshCw } from 'lucide-react';
-import { UNIVERSE, HORIZONS, type AnalysisHistory, type AnalysisJob, type Horizon, type Portfolio, type Quote } from '../shared/types';
+import { UNIVERSE, HORIZONS, type AnalysisHistory, type AnalysisJob, type Horizon } from '../shared/types';
 import { RISK_NAMES } from '../shared/risk';
 import { api, API_AVAILABLE } from './api';
 import ResearchReport from './ResearchReport';
 
 const horizons=HORIZONS;
 const status=(job:AnalysisJob)=>job.cancelledAt?'已取消':({queued:'排隊中',running:'分析中',completed:'已完成',failed:'未完成'}[job.status]);
-export default function ReportsView({jobs,portfolio,quotes,select,cancel}:
-  {jobs:AnalysisJob[];portfolio:Portfolio|null;quotes:Record<string,Quote>;select:(symbol:string)=>void;cancel:(id:string)=>Promise<AnalysisJob>}) {
+export default function ReportsView({jobs,select,cancel}:
+  {jobs:AnalysisJob[];select:(symbol:string)=>void;cancel:(id:string)=>Promise<AnalysisJob>}) {
   const [symbol,setSymbol]=useState(''),[horizon,setHorizon]=useState('');
   const [items,setItems]=useState<AnalysisJob[]>([]),[cursor,setCursor]=useState<string|null>(null);
   const [selected,setSelected]=useState<AnalysisJob|null>(null),[busy,setBusy]=useState(false),[detailBusy,setDetailBusy]=useState(false),[cancelling,setCancelling]=useState(false);
@@ -57,12 +57,12 @@ export default function ReportsView({jobs,portfolio,quotes,select,cancel}:
   }
   const displayed=items.map(item=>jobs.find(job=>job.id===item.id)??item);
   return <div className="reports-view">
-    <div className="page-title"><div><h1 ref={reportHeading} tabIndex={-1}>{selected?`${selected.symbol} · ${horizons[selected.horizon]}研究`:'每次研究，都有跡可循。'}</h1><p>{selected?'保留這次分析的時間、依據與風險設定。':'回看分析結論、判斷依據與當時的風險。'}</p></div><span className="page-context">研究報告</span></div>
+    <div className="page-title"><div><h1 ref={reportHeading} tabIndex={-1}>{selected?`${selected.symbol} · ${horizons[selected.horizon]}研究`:'回看每次學到的市場判斷'}</h1><p>{selected?'保留這次分析的時間、依據與風險設定。':'先讀白話結論，再點開因果推理、價位圖與資料來源。'}</p></div><span className="page-context">研究報告</span></div>
     {error&&<div className="notice error" role="alert">{error}</div>}
     {selected?<section className="panel archive-detail">
       <div className="panel-heading"><button ref={backButton} className="text-button" onClick={()=>{const id=selected.id;setSelected(null);setError('');requestAnimationFrame(()=>document.getElementById(`archive-${id}`)?.focus())}}><ArrowLeft size={16}/>返回分析紀錄</button><span className={`job-status ${selected.cancelledAt?'cancelled':selected.status}`}>{status(selected)}</span></div>
-      <div className="archive-meta"><span>{RISK_NAMES[selected.risk]}配置 · 建立於 {new Date(selected.createdAt).toLocaleString('zh-HK')}</span><button className="text-button" onClick={()=>select(selected.symbol)}>研究這隻股票<ArrowRight size={15}/></button></div>
-      {selected.result&&selected.status==='completed'?<ResearchReport key={selected.id} job={selected} portfolio={portfolio} quotes={quotes} historical/>:<div className="empty-state"><FileText size={30}/><h3>{status(selected)}</h3><p>{selected.error??(selected.status==='queued'?'工作仍在等待你的 Mac 接收，尚未執行分析。':'Mac 正在處理這份報告，完成後會更新。')}</p>{selected.status==='queued'&&<button className="button secondary" disabled={cancelling} onClick={cancelSelected}>{cancelling?'正在取消…':'取消這份排隊分析'}</button>}</div>}
+      <div className="archive-meta"><span>{RISK_NAMES[selected.risk]}研究 · 建立於 {new Date(selected.createdAt).toLocaleString('zh-HK')}</span><button className="text-button" onClick={()=>select(selected.symbol)}>研究這隻股票<ArrowRight size={15}/></button></div>
+      {selected.result&&selected.status==='completed'?<ResearchReport key={selected.id} job={selected} historical/>:<div className="empty-state"><FileText size={30}/><h3>{status(selected)}</h3><p>{selected.error??(selected.status==='queued'?'工作仍在等待你的 Mac 接收，尚未執行分析。':'Mac 正在處理這份報告，完成後會更新。')}</p>{selected.status==='queued'&&<button className="button secondary" disabled={cancelling} onClick={cancelSelected}>{cancelling?'正在取消…':'取消這份排隊分析'}</button>}</div>}
     </section>:<section className="panel">
       <div className="panel-heading"><h2>分析紀錄</h2><button className="text-button" disabled={!API_AVAILABLE||busy||detailBusy} onClick={()=>load()}><RefreshCw size={14}/>重新整理</button></div>
       <div className="report-filters"><label>股票<select aria-label="報告股票篩選" value={symbol} onChange={event=>setSymbol(event.target.value)} disabled={detailBusy}><option value="">全部股票</option>{UNIVERSE.map(stock=><option key={stock.symbol} value={stock.symbol}>{stock.symbol} · {stock.name}</option>)}</select></label><label>分析期間<select aria-label="報告期間篩選" value={horizon} onChange={event=>setHorizon(event.target.value as Horizon|'')} disabled={detailBusy}><option value="">全部期間</option>{Object.entries(horizons).map(([key,label])=><option value={key} key={key}>{label}</option>)}</select></label><span className="muted" role="status">{busy?'讀取中…':detailBusy?'正在開啟報告…':!API_AVAILABLE?'待連接':`${items.length} 份紀錄`}</span></div>

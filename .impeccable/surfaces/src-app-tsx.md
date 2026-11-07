@@ -2,12 +2,12 @@
 version: 1
 slug: "src-app-tsx"
 primary_target: "src/App.tsx"
-related_targets: ["src/styles.css","src/StockChart.tsx","src/AnalysisPanel.tsx","src/PortfolioView.tsx","src/TransactionModal.tsx"]
+related_targets: ["src/styles.css","src/StockChart.tsx","src/AnalysisPanel.tsx","src/MarketLesson.tsx","src/ResearchReport.tsx"]
 ---
 
 # Northstar research workspace
 
-Target: `src/App.tsx`; related: `src/styles.css`, `src/StockChart.tsx`, `src/AnalysisPanel.tsx`, `src/PortfolioView.tsx`, `src/TransactionModal.tsx`.
+Target: `src/App.tsx`; related: `src/styles.css`, `src/StockChart.tsx`, `src/AnalysisPanel.tsx`, `src/MarketLesson.tsx`, `src/ResearchReport.tsx`.
 
 Mode: Operate. Build path: code-led (app screen; no standing build-path preference is set).
 
@@ -42,3 +42,7 @@ User steering: remove the entire “機會與風險，一起看清楚。” rese
 ## One-month research extension · 2026-11-06
 
 User confirmed direct implementation. Preserve the incumbent world and three destinations. Market candles refresh with source timestamps without rebuilding the chart; completed reports retain immutable evidence. The report reader gains a five-level rating, plain-language explanation, conditional 30-day outlook, interactive historical candles with RSI/MACD, news impact paragraphs and expandable dated evidence for financials, market, flows, insiders and Call/Put sentiment. Missing data withholds unsupported ratings; options research does not enable options trading. Verify four widths, long text/tables, chart refresh and interactions, disconnected/error/gap states. This is an extension; no new identity, comp or system rewrite.
+
+## Beginner teaching extension · 2026-11-07 (current)
+
+Latest user steering supersedes the former ledger and three-destination flow above. Preserve the incumbent tokens and white/orange visual identity. Two destinations: 看懂市場 and 教學報告. Remove all asset UI, funds actions, sizing and right asset column; preserve stored records. The chart uses the recovered width. Add clear D / 5D / W / M candle durations, interactive general causal lessons, simple first explanations, counterarguments and expandable data. Four cited plan lines use different colors and labels confined to the price axis, never over candles. Paragraph source footnotes open actual source URLs. Analyze remains clickable without a backend, opening an honest copy-to-Codex guide; automatic reports still require the API/Mac. This is a product/content extension, not replacement art direction or permission to rewrite DESIGN.md. Verify 1466×730, 790×730, 1440, 390 and 320 widths, including report chart, causal explanation, references, copy guide and source errors.

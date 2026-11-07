@@ -1,26 +1,26 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Activity, ArrowDownToLine, ArrowRight, ArrowUpRight, BarChart3, ChevronRight, Clock3, Compass, Database, FileText, LayoutDashboard, ListFilter, Plus, RefreshCw, Search, Star, Wallet } from 'lucide-react';
-import type { AnalysisJob, Horizon, LedgerKind, Portfolio, Quote, Risk, RiskSettings, RiskSettingsInput } from '../shared/types';
+import { Activity, ArrowRight, BarChart3, ChevronRight, Clock3, Compass, Database, FileText, LayoutDashboard, ListFilter, RefreshCw, Search, Star } from 'lucide-react';
+import type { AnalysisJob, Horizon, Quote, Risk, RiskSettings } from '../shared/types';
 import { UNIVERSE } from '../shared/types';
 import { technicals } from '../shared/indicators';
 import { api, post, API_AVAILABLE } from './api';
 import StockChart from './StockChart';
 import AnalysisPanel from './AnalysisPanel';
-import PortfolioView from './PortfolioView';
-import TransactionModal from './TransactionModal';
 import ReportsView from './ReportsView';
+import MarketLesson from './MarketLesson';
+import { aggregateCandles, CANDLE_PERIODS, historyRange, type CandlePeriod } from '../shared/chart-periods';
 import { PublicMarketChart, PublicMarketOverview } from './PublicMarket';
 
-const usd=(n:number)=>n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2});
 const pct=(n:number|null)=>n===null?'—':`${n>=0?'+':''}${n.toFixed(2)}%`;
 const compact=(n:number)=>Intl.NumberFormat('en-US',{notation:'compact',maximumFractionDigits:2}).format(n);
 const sessionNames={pre:'盤前交易',regular:'正常交易',post:'盤後交易',closed:'已休市',unknown:'時段待確認'};
-type Page='market'|'portfolio'|'reports';
+type Page='market'|'reports';
 
 export default function App() {
   const [page,setPage]=useState<Page>('market');
   const [selected,setSelected]=useState('AAPL');
-  const [range,setRange]=useState('1D');
+  const [candlePeriod,setCandlePeriod]=useState<CandlePeriod>('D');
+  const range=historyRange(candlePeriod);
   const [query,setQuery]=useState('');
   const [searchOpen,setSearchOpen]=useState(false);
   const [listMode,setListMode]=useState<'popular'|'watchlist'|'etf'>('popular');
@@ -30,8 +30,7 @@ export default function App() {
   const [chartError,setChartError]=useState('');
   const [chartSource,setChartSource]=useState<'public'|'api'>(API_AVAILABLE?'api':'public');
   const publicChart=!API_AVAILABLE||chartSource==='public';
-  const [portfolio,setPortfolio]=useState<Portfolio|null>(null);
-  const [accountChecked,setAccountChecked]=useState(false);
+  const [serviceChecked,setServiceChecked]=useState(false);
   const [watchlist,setWatchlist]=useState<string[]>([]);
   const [jobs,setJobs]=useState<AnalysisJob[]>([]);
   const [bridge,setBridge]=useState({enabled:false,online:false,lastSeen:null as string|null});
@@ -41,20 +40,18 @@ export default function App() {
   const [risk,setRisk]=useState<Risk>('balanced');
   const [busy,setBusy]=useState(false);
   const [settings,setSettings]=useState<RiskSettings|null>(null);
-  const [riskEditorOpen,setRiskEditorOpen]=useState(false);
   const [cancellingId,setCancellingId]=useState<string|null>(null);
-  const [modal,setModal]=useState<LedgerKind|null>(null);
   const [searchIndex,setSearchIndex]=useState(0);
   const [clock,setClock]=useState(Date.now());
   const [refresh,setRefresh]=useState(0);
-  const accountRequest=useRef<AbortController|null>(null);
+  const serviceRequest=useRef<AbortController|null>(null);
 
   useEffect(()=>{window.scrollTo(0,0)},[page]);
   const displayed=useMemo(()=>listMode==='watchlist'?watchlist:listMode==='etf'?UNIVERSE.filter(x=>x.sector==='ETF').map(x=>x.symbol):UNIVERSE.slice(0,8).map(x=>x.symbol),[listMode,watchlist]);
-  const symbols=useMemo(()=>[...new Set([selected,...displayed,'SPY','QQQ','VOO','BND',...(portfolio?.positions??[]).map(p=>p.symbol)])].slice(0,40).join(','),[displayed,selected,portfolio?.positions]);
+  const symbols=useMemo(()=>[...new Set([selected,...displayed,'SPY','QQQ','VOO','BND'])].slice(0,40).join(','),[displayed,selected]);
   useEffect(()=>{const timer=setInterval(()=>setClock(Date.now()),1000);return()=>clearInterval(timer)},[]);
   useEffect(()=>{
-    if(!accountChecked||!API_AVAILABLE)return;
+    if(!serviceChecked||!API_AVAILABLE)return;
     let cancelled=false,working=false;
     const controller=new AbortController();
     async function poll(){
@@ -67,7 +64,7 @@ export default function App() {
     }
     poll();const timer=setInterval(poll,5000);document.addEventListener('visibilitychange',poll);
     return()=>{cancelled=true;controller.abort();clearInterval(timer);document.removeEventListener('visibilitychange',poll)};
-  },[symbols,refresh,accountChecked]);
+  },[symbols,refresh,serviceChecked]);
   useEffect(()=>{
     setChart(previous=>previous?.symbol===selected&&previous.range===range?previous:null);setChartError('');
     if(range==='1D'||!API_AVAILABLE||publicChart)return;
@@ -81,57 +78,47 @@ export default function App() {
     return()=>{controller.abort();clearInterval(timer);document.removeEventListener('visibilitychange',poll)};
   },[selected,range,refresh,publicChart]);
   useEffect(()=>{if(quoteErrors[selected]||chartError)setChartSource('public')},[selected,quoteErrors,chartError]);
-  const loadAccount=useCallback(async(force=false)=>{
-    if(accountRequest.current&&!force)return;
-    accountRequest.current?.abort();const controller=new AbortController();accountRequest.current=controller;
+  const loadResearch=useCallback(async(force=false)=>{
+    if(serviceRequest.current&&!force)return;
+    serviceRequest.current?.abort();const controller=new AbortController();serviceRequest.current=controller;
     const options={signal:controller.signal};
-    const results=await Promise.allSettled([api<Portfolio>('/portfolio',options),api<string[]>('/watchlist',options),api<AnalysisJob[]>('/analysis/jobs',options),api<typeof bridge>('/analysis/status',options),api<RiskSettings>('/settings/risk',options),api<{version:string;schemaVersion:number;storage:boolean}>('/health',options)]);
+    const results=await Promise.allSettled([api<string[]>('/watchlist',options),api<AnalysisJob[]>('/analysis/jobs',options),api<typeof bridge>('/analysis/status',options),api<RiskSettings>('/settings/risk',options),api<{version:string;schemaVersion:number;storage:boolean}>('/health',options)]);
     if(controller.signal.aborted)return;
-    const [p,w,j,b,s]=results;
-    if(p.status==='fulfilled')setPortfolio(p.value);else setPortfolio(null);
+    const [w,j,b,s]=results;
     if(w.status==='fulfilled')setWatchlist(w.value);
     if(j.status==='fulfilled')setJobs(j.value);
     if(b.status==='fulfilled')setBridge(b.value);
     if(s.status==='fulfilled')setSettings(previous=>previous&&previous.revision>s.value.revision?previous:s.value);else setSettings(null);
-    const labels=['美元帳本','自選清單','分析紀錄','Mac 分析端','風險設定','服務狀態'];
+    const labels=['自選清單','分析紀錄','Mac 分析端','風險設定','服務狀態'];
     const grouped=new Map<string,string[]>();results.forEach((result,index)=>{if(result.status==='rejected'){const message=(result.reason as Error).message;grouped.set(message,[...(grouped.get(message)??[]),labels[index]])}});
     const failures=[...grouped].map(([message,services])=>`${services.join('、')}：${message}`);
-    setServiceError(API_AVAILABLE?failures.join('；'):failures.length?'資料服務尚未連接。':'');setAccountChecked(true);
-    if(accountRequest.current===controller)accountRequest.current=null;
+    setServiceError(API_AVAILABLE?failures.join('；'):failures.length?'資料服務尚未連接。':'');setServiceChecked(true);
+    if(serviceRequest.current===controller)serviceRequest.current=null;
   },[]);
-  const reloadRiskSettings=useCallback(async()=>{const value=await api<RiskSettings>('/settings/risk');setSettings(value);return value},[]);
-  const saveRiskSettings=async(input:RiskSettingsInput)=>{const value=await post<RiskSettings>('/settings/risk',input);setSettings(value);return value};
   async function cancelJob(id:string):Promise<AnalysisJob> {
     setCancellingId(id);
-    try {const value=await post<AnalysisJob>(`/analysis/jobs/${encodeURIComponent(id)}/cancel`,{});setJobs(old=>old.map(job=>job.id===id?value:job));await loadAccount(true);return value}finally{setCancellingId(null)}
+    try {const value=await post<AnalysisJob>(`/analysis/jobs/${encodeURIComponent(id)}/cancel`,{});setJobs(old=>old.map(job=>job.id===id?value:job));await loadResearch(true);return value}finally{setCancellingId(null)}
   }
-  useEffect(()=>{
-    if(page!=='portfolio'||!riskEditorOpen)return;
-    const frame=requestAnimationFrame(()=>{const section=document.getElementById('risk-settings');section?.scrollIntoView({block:'start'});section?.querySelector('summary')?.focus({preventScroll:true})});
-    return()=>cancelAnimationFrame(frame);
-  },[page,riskEditorOpen]);
-  useEffect(()=>{loadAccount();const timer=setInterval(()=>{if(!document.hidden)loadAccount()},10000);return()=>{clearInterval(timer);accountRequest.current?.abort();accountRequest.current=null}},[loadAccount]);
+  useEffect(()=>{loadResearch();const timer=setInterval(()=>{if(!document.hidden)loadResearch()},10000);return()=>{clearInterval(timer);serviceRequest.current?.abort();serviceRequest.current=null}},[loadResearch]);
 
   const select=(symbol:string)=>{setSelected(symbol);setPage('market');setSearchOpen(false);setQuery('');setAnalysisError('');window.scrollTo(0,0)};
   const quote=quotes[selected];
   const activeChart=range==='1D'?quote:chart?.symbol===selected&&chart.range===range?chart:null;
-  const bars=activeChart?.bars??[];
+  const rawBars=activeChart?.bars??[];
+  const bars=useMemo(()=>aggregateCandles(rawBars,candlePeriod),[rawBars,candlePeriod]);
   const tech=technicals(bars);
   const latest=bars.at(-1);
   const currentJob=jobs.find(j=>j.symbol===selected&&j.horizon===horizon&&j.risk===risk);
   const pendingJob=jobs.find(job=>job.status==='queued'||job.status==='running');
   const results=UNIVERSE.filter(x=>`${x.symbol} ${x.name} ${x.sector}`.toLowerCase().includes(query.toLowerCase())).slice(0,7);
   const stale=!!quote && ['pre','regular','post'].includes(quote.session) && clock-quote.timestamp*1000>90_000;
-  const complete=!!portfolio&&portfolio.positions.every(p=>quotes[p.symbol]);
-  const total=complete?portfolio.cashCents/100+portfolio.positions.reduce((sum,p)=>sum+p.quantity*quotes[p.symbol].price,0):null;
-
   async function toggleWatch(){
     try{const exists=watchlist.includes(selected);await api('/watchlist',{method:exists?'DELETE':'POST',body:JSON.stringify({symbol:selected})});setWatchlist(old=>exists?old.filter(x=>x!==selected):[...old,selected])}catch(e){setServiceError((e as Error).message)}
   }
   async function analyze(){
     if(!settings){setAnalysisError('請先取得雲端風險設定。');return;}
     setBusy(true);setAnalysisError('');
-    try{const job=await post<AnalysisJob>('/analysis/jobs',{symbol:selected,horizon,risk,settingsRevision:settings.revision});setJobs(old=>[job,...old]);await loadAccount(true)}
+    try{const job=await post<AnalysisJob>('/analysis/jobs',{symbol:selected,horizon,risk,settingsRevision:settings.revision});setJobs(old=>[job,...old]);await loadResearch(true)}
     catch(e){setAnalysisError((e as Error).message)}finally{setBusy(false)}
   }
   function searchSubmit(event:React.FormEvent){event.preventDefault();if(results.length)select(results[Math.min(searchIndex,results.length-1)].symbol)}
@@ -142,10 +129,10 @@ export default function App() {
       <div className="topbar">
         <a className="brand" href="#" onClick={event=>{event.preventDefault();setPage('market')}} aria-label="Northstar 首頁">
           <Compass className="brand-symbol" size={34} strokeWidth={2}/>
-          <span className="brand-name">Northstar<small>美股研究平台</small></span>
+          <span className="brand-name">Northstar<small>美股學習平台</small></span>
         </a>
         <nav className="primary-nav" aria-label="主要導覽">
-          {([{id:'market',label:'市場研究',icon:LayoutDashboard},{id:'portfolio',label:'我的資產',icon:Wallet},{id:'reports',label:'研究報告',icon:FileText}] as const).map(item=>
+          {([{id:'market',label:'看懂市場',icon:LayoutDashboard},{id:'reports',label:'教學報告',icon:FileText}] as const).map(item=>
             <button key={item.id} className={page===item.id?'active':''} aria-current={page===item.id?'page':undefined} onClick={()=>setPage(item.id)}>
               <item.icon size={16}/><span>{item.label}</span>
             </button>)}
@@ -166,7 +153,7 @@ export default function App() {
               </button>):<p role="status">未找到股票。請搜尋大型美股或常見 ETF。</p>}
             </div>}
           </form>
-          <button className="button primary header-deposit" aria-label="記錄美元資金" onClick={()=>setModal('deposit')}><Plus size={18}/><span>記錄資金</span></button>
+
         </div>
       </div>
     </header>
@@ -174,15 +161,15 @@ export default function App() {
     <main className="main-content" id="main-content" tabIndex={-1}>
       <div className="workspace">
         {page==='market'&&<div className="market-status-bar">
-          <h1 className="sr-only">市場研究</h1>
+          <h1 className="sr-only">看懂市場</h1>
           <div className="market-meta">
             <span className="live-label"><span className={`status-dot ${!publicChart&&quote&&!stale&&!quoteErrors[selected]?'online':''}`}/>{publicChart?'TradingView 公開行情':'每 5 秒檢查行情'}</span>
             <span className="market-clock"><Clock3 size={14}/>{new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hour12:false}).format(clock)}<small>紐約時間</small></span>
           </div>
         </div>}
         {serviceError&&<div className="notice service-notice" role="status">
-          <Database size={17}/><span>{API_AVAILABLE?`資料服務連線：${serviceError}`:'資金帳本與 Codex 分析尚未連接；公開行情由 TradingView 獨立載入。'}</span>
-          <button className="text-button" onClick={()=>loadAccount(true)}>重新檢查<ArrowRight size={14}/></button>
+          <Database size={17}/><span>{API_AVAILABLE?`資料服務連線：${serviceError}`:'AI 教學報告尚未啟用；你仍可查看圖表並使用下方互動教學。'}</span>
+          <button className="text-button" onClick={()=>loadResearch(true)}>重新檢查<ArrowRight size={14}/></button>
         </div>}
 
         {page==='market'&&<>
@@ -194,14 +181,14 @@ export default function App() {
           </section>}
           <div className="market-layout">
             <aside className="market-sidebar panel" aria-label="股票清單">
-              <div className="panel-heading"><h2>市場清單</h2><ListFilter size={16} aria-hidden="true"/></div>
+              <div className="panel-heading"><h2>選擇研究標的</h2><ListFilter size={16} aria-hidden="true"/></div>
               <div className="list-tabs" aria-label="股票清單篩選">
                 {([['popular','熱門'],['watchlist','自選'],['etf','ETF']] as const).map(([id,label])=><button key={id} className={listMode===id?'active':''} aria-pressed={listMode===id} onClick={()=>setListMode(id)}>{label}</button>)}
               </div>
               <div className="stock-list">
                 {displayed.map(symbol=>{const q=quotes[symbol],stock=UNIVERSE.find(x=>x.symbol===symbol);return <button key={symbol} className={`stock-row ${selected===symbol?'selected':''}`} aria-pressed={selected===symbol} onClick={()=>select(symbol)}>
                   <span className="stock-identity"><strong>{symbol}</strong><span>{stock?.name??symbol}</span></span>
-                  <span className="stock-quote"><strong>{q?q.price.toFixed(2):publicChart?'查看圖表':'—'}</strong><span className={!q?'muted':q.changePercent!==null&&q.changePercent<0?'down':'up'}>{q?pct(q.changePercent):publicChart?'來源內報價':'待更新'}</span></span>
+                  <span className="stock-quote"><strong>{q?q.price.toFixed(2):publicChart?'看走勢':'—'}</strong><span className={!q?'muted':q.changePercent!==null&&q.changePercent<0?'down':'up'}>{q?pct(q.changePercent):publicChart?'圖內查看價格':'待更新'}</span></span>
                 </button>})}
                 {!displayed.length&&<div className="sidebar-empty"><Star size={22}/><p>把關注的股票放在一起。</p><span>{API_AVAILABLE?'在個股頁點擊星號，建立自選清單。':'連接資料服務後，即可儲存自選清單。'}</span></div>}
               </div>
@@ -215,43 +202,29 @@ export default function App() {
                   <div className="company-name"><div><h2>{selected}</h2><span className="badge">US</span><button className={`star-button ${watchlist.includes(selected)?'starred':''}`} onClick={toggleWatch} disabled={!API_AVAILABLE} aria-label={watchlist.includes(selected)?'移除自選':'加入自選'} aria-pressed={watchlist.includes(selected)}><Star size={18} fill={watchlist.includes(selected)?'currentColor':'none'}/></button></div><p>{quote?.name??UNIVERSE.find(x=>x.symbol===selected)?.name??selected}</p></div>
                   <div className="quote-market-status"><span className={`status-dot ${!publicChart&&quote?.session==='regular'?'online':''}`}/>{publicChart?'TradingView':quote?sessionNames[quote.session]:'行情連接中'}</div>
                 </div>
-                <div className="chart-source-control"><label>圖表來源<select aria-label="圖表來源" value={publicChart?'public':'api'} onChange={event=>setChartSource(event.target.value as 'public'|'api')}><option value="public">TradingView 公開行情</option><option value="api" disabled={!API_AVAILABLE}>Yahoo Finance · 雲端 API</option></select></label></div>
+                <div className="chart-source-control"><label>圖表來源<select aria-label="圖表來源" value={publicChart?'public':'api'} onChange={event=>setChartSource(event.target.value as 'public'|'api')}><option value="public">互動行情圖（TradingView）</option><option value="api" disabled={!API_AVAILABLE}>研究資料圖（Yahoo Finance）</option></select></label></div>
                 {!publicChart&&<><div className="price-heading"><strong>{quote?quote.price.toFixed(2):'—'}<small>USD</small></strong><span className={!quote?'muted':quote.changePercent!==null&&quote.changePercent<0?'down':'up'}>{quote?.change!==null&&quote?`${quote.change>=0?'+':''}${quote.change.toFixed(2)}`:'—'} <b>{quote?pct(quote.changePercent):''}</b></span><button className="icon-button" aria-label="重新整理行情" onClick={()=>setRefresh(value=>value+1)}><RefreshCw size={16}/></button></div>
                 <div className="quote-facts">{[['開盤',latest?.open],['最高',latest?.high],['最低',latest?.low],['前收',quote?.previousClose]].map(([label,value])=><div key={String(label)}><span>{label}</span><strong>{typeof value==='number'?value.toFixed(2):'—'}</strong></div>)}<div><span>成交量 · 所選 K 線</span><strong>{latest&&!latest.volumeMissing?compact(latest.volume):'—'}</strong></div></div>
                 {quoteErrors[selected]&&<div className="quote-error" role="status"><Activity size={14}/><span>{quoteErrors[selected]}{quote&&' 保留先前報價，請留意時間。'}</span></div>}</>}
-                <div className="chart-toolbar"><div className="range-tabs" aria-label="圖表期間">{['1D','5D','1M','3M','1Y','5Y','MAX'].map(value=><button key={value} className={range===value?'active':''} aria-pressed={range===value} onClick={()=>setRange(value)}>{value}</button>)}</div><div className="chart-tools">{!publicChart&&<><span><i className="legend-dot amber-bg"/>MA20</span><span><i className="legend-dot blue-bg"/>MA50</span></>}<span><BarChart3 size={14}/>K 線</span></div></div>
-                {publicChart?<PublicMarketChart symbol={selected} range={range}/>:<>
+                <div className="chart-period-heading">每根 K 線代表多久？</div><div className="chart-toolbar"><div className="range-tabs" aria-label="K線週期">{(['D','5D','W','M'] as const).map(value=><button key={value} className={candlePeriod===value?'active':''} aria-pressed={candlePeriod===value} onClick={()=>setCandlePeriod(value)}>{CANDLE_PERIODS[value]}</button>)}</div><div className="chart-tools">{!publicChart&&<><span><i className="legend-dot amber-bg"/>MA20</span><span><i className="legend-dot blue-bg"/>MA50</span></>}<span><BarChart3 size={14}/>K 線</span></div></div>
+                {publicChart?<PublicMarketChart symbol={selected} period={candlePeriod}/>:<>
                 {chartError&&<div className="quote-error" role="status">K 線更新失敗：{chartError} {activeChart?'保留上次圖表，請留意資料時間。':'尚無可用圖表。'}</div>}
-                <StockChart key={`${selected}-${range}`} bars={bars} symbol={selected}/>
+                <StockChart key={`${selected}-${candlePeriod}`} bars={rawBars} symbol={selected} candlePeriod={candlePeriod}/>
                 <div className="chart-footer"><span>MA20 <b className="amber">{tech.ma20?.toFixed(2)??'—'}</b></span><span>MA50 <b className="blue">{tech.ma50?.toFixed(2)??'—'}</b></span><span>RSI(14) <b>{tech.rsi14?.toFixed(1)??'—'}</b></span><span className="chart-source">{activeChart?.source??'Yahoo Finance'} · K 線 {bars.at(-1)?new Date(bars.at(-1)!.time*1000).toLocaleString('zh-HK'):'尚無資料'}</span></div>
                 <p className="data-freshness">報價時間 {quote?new Date(quote.timestamp*1000).toLocaleString('zh-HK'):'—'} · 來源延遲 {quote?.exchangeDelayMinutes!==null&&quote?.exchangeDelayMinutes!==undefined?`${quote.exchangeDelayMinutes} 分鐘`:'未提供'}{stale?' · 報價時間較早':''}。每 5 秒檢查更新；盤前／盤後及最新一根 K 線可能未完成，來源不保證交易所即時行情。</p>
                 </>}
               </section>
-              <AnalysisPanel symbol={selected} horizon={horizon} risk={risk} setHorizon={setHorizon} setRisk={setRisk} online={bridge.online} enabled={bridge.enabled} job={currentJob} analyze={analyze} busy={busy} error={analysisError} portfolio={portfolio} quotes={quotes} settings={settings} pendingJob={pendingJob} editSettings={()=>{setRiskEditorOpen(true);setPage('portfolio')}} cancel={cancelJob} cancellingId={cancellingId}/>
+              <MarketLesson symbol={selected}/>
+              <AnalysisPanel symbol={selected} horizon={horizon} risk={risk} setHorizon={setHorizon} setRisk={setRisk} online={bridge.online} enabled={bridge.enabled} job={currentJob} analyze={analyze} busy={busy} error={analysisError} settings={settings} reload={()=>loadResearch(true)} pendingJob={pendingJob} cancel={cancelJob} cancellingId={cancellingId}/>
             </div>
 
-            <aside className="context-column" aria-label="資產與研究資訊">
-              <section className="panel account-summary">
-                <div className="panel-heading"><h2>我的美元資產</h2><button className="icon-button" aria-label="資產總覽" onClick={()=>setPage('portfolio')}><ArrowUpRight size={18}/></button></div>
-                <div className="summary-value"><span>總資產估值 · USD</span><strong>{total===null?'—':usd(total)}</strong></div>
-                <div className="summary-line"><span>可用現金</span><strong>{portfolio?usd(portfolio.cashCents/100):'—'}</strong></div>
-                <div className="summary-line"><span>持有股票</span><strong>{portfolio?.positions.length??'—'} <small>隻</small></strong></div>
-                <button className="button dark full" onClick={()=>setModal('deposit')}><ArrowDownToLine size={15}/>記錄美元入金</button>
-              </section>
-              <section className="panel focus-panel">
-                <div className="panel-heading"><h2>持倉速覽</h2><span className="badge">USD</span></div>
-                {portfolio?.positions.length?portfolio.positions.map(position=><button className="holding-mini" onClick={()=>select(position.symbol)} key={position.symbol}><span><strong>{position.symbol}</strong><small>{position.quantity} 股</small></span><span><strong>{quotes[position.symbol]?usd(position.quantity*quotes[position.symbol].price):'待行情'}</strong><small>成本 {usd(position.averageCost)}</small></span></button>):<div className="mini-empty"><Wallet size={28} strokeWidth={1.5}/><p>先記錄持倉，<br/>再看整體配置。</p><button className="text-button" onClick={()=>setModal('opening')}>加入既有持倉<Plus size={14}/></button></div>}
-              </section>
 
-            </aside>
           </div>
         </>}
 
-        {page==='portfolio'&&<PortfolioView portfolio={portfolio} quotes={quotes} open={setModal} select={select} settings={settings} saveSettings={saveRiskSettings} reloadSettings={reloadRiskSettings} settingsOpen={riskEditorOpen} toggleSettings={setRiskEditorOpen}/>}
-        {page==='reports'&&<ReportsView jobs={jobs} portfolio={portfolio} quotes={quotes} select={select} cancel={cancelJob}/>}
-        <footer className="footer"><a className="footer-brand" href="#" onClick={event=>{event.preventDefault();setPage('market')}}><Compass size={20}/>Northstar</a><span>研究及手動記帳 · 不執行券商交易</span><span>公開資料來源 · 請留意數據時間</span></footer>
+        {page==='reports'&&<ReportsView jobs={jobs} select={select} cancel={cancelJob}/>}
+        <footer className="footer"><a className="footer-brand" href="#" onClick={event=>{event.preventDefault();setPage('market')}}><Compass size={20}/>Northstar</a><span>美股教學研究 · 不執行券商交易</span><span>公開資料來源 · 請留意數據時間</span></footer>
       </div>
     </main>
-    {modal&&<TransactionModal initial={modal} close={()=>setModal(null)} saved={setPortfolio}/>}
   </div>;
 }

@@ -1,3 +1,5 @@
+> 三套工具的分工、部署與目前尚未直接啟用的引擎見 [research-pipeline.md](research-pipeline.md)。安裝成功不代表正式報告服務已連接。網站資產功能已在 0.4 移除，下方舊持倉描述僅為歷史背景。
+
 # 研究工具安裝與使用
 
 五個指定來源安裝在本專案；不影響其他專案的全域 skills。版本見 `config/research-sources.json`，上游授權見 `third_party/research/`。

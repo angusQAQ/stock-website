@@ -1,6 +1,6 @@
 const BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
 export const API_AVAILABLE = import.meta.env.VITE_DEPLOYMENT_TARGET !== 'github-pages' || BASE !== '';
-export const API_UNAVAILABLE_MESSAGE = 'GitHub Pages 目前只部署介面，尚未連接雲端 API；資金與持倉不會被儲存。';
+export const API_UNAVAILABLE_MESSAGE = '尚未連接研究服務；目前無法建立雲端教學分析工作。';
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   if (!API_AVAILABLE) throw new Error(API_UNAVAILABLE_MESSAGE);
   const timeoutController = new AbortController();

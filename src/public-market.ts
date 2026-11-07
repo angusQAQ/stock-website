@@ -1,4 +1,5 @@
 import { UNIVERSE } from '../shared/types';
+import { CANDLE_PERIODS, type CandlePeriod } from '../shared/chart-periods';
 
 // Resolve each supported ticker explicitly: BRK-B is BRK.B on TradingView.
 const symbols:Record<string,string>={AAPL:'NASDAQ:AAPL',MSFT:'NASDAQ:MSFT',NVDA:'NASDAQ:NVDA',GOOGL:'NASDAQ:GOOGL',AMZN:'NASDAQ:AMZN',META:'NASDAQ:META',TSLA:'NASDAQ:TSLA','BRK-B':'NYSE:BRK.B',JPM:'NYSE:JPM',V:'NYSE:V',LLY:'NYSE:LLY',COST:'NASDAQ:COST',VOO:'AMEX:VOO',SPY:'AMEX:SPY',QQQ:'NASDAQ:QQQ',VTI:'AMEX:VTI',SCHD:'AMEX:SCHD',BND:'NASDAQ:BND'};
@@ -9,11 +10,12 @@ export function publicSymbol(symbol:string):string {
   return symbols[symbol];
 }
 export function publicChartLink(symbol:string){return `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(publicSymbol(symbol))}`;}
-export function publicChartOptions(symbol:string,range:string,containerId:string){
-  const ranges:Record<string,string>={'1D':'1D','5D':'5D','1M':'1M','3M':'3M','1Y':'12M','5Y':'60M',MAX:'ALL'};
-  if(!ranges[range])throw new Error('圖表期間無效。');
-  return {autosize:true,symbol:publicSymbol(symbol),range:ranges[range],timezone:'Asia/Hong_Kong',theme:'light',style:'1',locale:'zh_TW',
-    enable_publishing:false,allow_symbol_change:false,withdateranges:true,hide_side_toolbar:false,save_image:false,details:true,container_id:containerId};
+export function publicChartOptions(symbol:string,period:CandlePeriod,containerId:string){
+  if(!(period in CANDLE_PERIODS))throw new Error('K線週期無效。');
+  // `range` is a lookback window and lets the widget choose an intraday
+  // resolution. Explicit `interval` controls the duration of each candle.
+  return {autosize:true,symbol:publicSymbol(symbol),interval:period,timezone:'Asia/Hong_Kong',theme:'light',style:'1',locale:'zh_TW',
+    enable_publishing:false,allow_symbol_change:false,withdateranges:false,hide_side_toolbar:false,save_image:false,details:true,container_id:containerId};
 }
 export const publicOverviewOptions={colorTheme:'light',locale:'zh_TW',isTransparent:true,showSymbolLogo:true,displayMode:'adaptive',
   symbols:[{proName:'AMEX:SPY',title:'標普 500 · SPY'},{proName:'NASDAQ:QQQ',title:'納斯達克 100 · QQQ'},{proName:'AMEX:VOO',title:'美國大型股 · VOO'},{proName:'NASDAQ:BND',title:'美國綜合債券 · BND'}]};

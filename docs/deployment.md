@@ -1,5 +1,11 @@
 # 部署與 Mac 分析連接
 
+## 0.4 教學版
+
+已移除網站資產功能與個人配置估算；新工作不載入本金或持倉，原有資料不刪除。保留看懂市場、教學報告、公開圖表及互動因果教學。三套工具的能力與目前實際連接見 [research-pipeline.md](research-pipeline.md)。
+
+沒有研究 API／Mac 時，按分析會開啟可複製到 Codex 的研究題目，明示不會自動回寫網站。自動報告仍需完成下方部署。0.4 必須同步新版 Mac 提示與 JSON schema：新增四類價格、逐段註腳、新聞因果欄位；舊程式回傳不完整會被拒絕，舊報告仍可讀。沒有新增 migration，健康版本 0.4.0／schemaVersion 2。
+
 ## 目前完成與尚待完成
 
 正式前端入口為 [https://angusqaq.github.io/stock-website/](https://angusqaq.github.io/stock-website/)，由使用者於 2026-11-06 提供並確認；後續發佈沿用此網址。本雲端代理對該網址的請求仍回覆 CONNECT 403，因此未獨立驗證其線上 HTTP 或功能狀態。
@@ -8,7 +14,7 @@
 
 正式前端網址採用 GitHub Pages，程式保留在 Private GitHub 倉庫，main 的網站更新自動發佈到同一 Pages 網站。雲端帳本、行情代理與 Mac 工作佇列仍需獨立後端；目前已準備 Cloudflare Worker/D1 的部署流程，尚未連接。
 
-目前依使用者要求不設網站登入或持倉 API 存取驗證。Private GitHub 倉庫不能保護部署後的網站或 API；任何可連上它的人都可能讀寫持倉，亦可能建立分析工作。Mac 領取工作及回傳報告另外使用機器端秘密，避免任意回傳模型結果；這不限制網站訪客建立工作。未輸入任何真實本金、持倉或憑證。
+目前依使用者要求不設網站登入；保留的舊 API 也未新增存取驗證。Private GitHub 倉庫不能保護部署後的網站或 API；任何可連上它的人都可能讀寫持倉，亦可能建立分析工作。Mac 領取工作及回傳報告另外使用機器端秘密，避免任意回傳模型結果；這不限制網站訪客建立工作。未輸入任何真實本金、持倉或憑證。
 
 ## 本機執行
 
@@ -24,7 +30,7 @@ npm run dev:api
 
 本機 schema migration 可重跑；不會建立遠端資料庫或把本機帳本複製到雲端。Vite 開發介面另執行 `npm run dev`。`npm run dev:api` 提供完整已建置網站與本機 API。
 
-0.2 版新增 `0002_research_workflow.sql`，保存三組風險設定及取消排隊時間；本機與正式後端都需套用全部 migrations。0.3 沿用同一 schema，`/api/health` 成功回報 `version: 0.3.0`、`schemaVersion: 2`。更新不需清空帳本或報告；見 [架構說明](architecture.md) 及 [新版研究與來源](research-data.md)。
+0.2 版新增 `0002_research_workflow.sql`，保存三組風險設定及取消排隊時間；本機與正式後端都需套用全部 migrations。0.4 沿用同一 schema，`/api/health` 成功回報 `version: 0.4.0`、`schemaVersion: 2`。更新不需清空帳本或報告；見 [架構說明](architecture.md) 及 [新版研究與來源](research-data.md)。
 
 `wrangler.jsonc` 的全零 database_id 僅供本機開發，部署腳本會拒絕它。個人資料、套件快取、Wrangler 本機資料庫及建置產物都被 Git 忽略。
 
@@ -38,7 +44,7 @@ npm run dev:api
 
 Pages 建置使用 configure-pages 回傳的 base_path，確保專案子路徑的 JavaScript、CSS 和 favicon 可載入。環境旗標 VITE_DEPLOYMENT_TARGET=github-pages 區分 Pages 與同源 Worker 執行模式。
 
-若未設定 VITE_API_BASE_URL，0.3.1 會直接在瀏覽器載入 TradingView 官方 K 線及 ETF 報價帶；不用 Cloudflare 或 API 金鑰。頁面仍明示帳本／Codex 未連接，不送出金融寫入、不輪詢不存在的代理、不啟動模型。來源實際可用性與延遲需在訪客瀏覽器核對，詳見 [公開行情連接](public-market.md)。
+若未設定 VITE_API_BASE_URL，0.3.1 會直接在瀏覽器載入 TradingView 官方 K 線及 ETF 報價帶；不用 Cloudflare 或 API 金鑰。頁面仍明示 AI 報告未連接，不輪詢不存在的代理、不啟動模型。來源實際可用性與延遲需在訪客瀏覽器核對，詳見 [公開行情連接](public-market.md)。
 
 後端部署完成後，將真實 API origin 設為 GitHub Actions Variable VITE_API_BASE_URL。Worker 部署設定會從 config/site.json 自動帶入 https://angusqaq.github.io 作為允許的前端 origin；只有需要覆寫時才設定 FRONTEND_ORIGIN（scheme + host，不含專案路徑），再重新部署 Worker 及 Pages。這是跨來源設定，不是登入保護。Cloudflare token 不是 Pages 前端發佈的必要條件，但啟用 Cloudflare 後端仍需它。
 
@@ -54,7 +60,7 @@ Pages 建置使用 configure-pages 回傳的 base_path，確保專案子路徑�
 2. 記錄回傳的 database_id，於執行環境設定非秘密變數 `CLOUDFLARE_D1_DATABASE_ID` 和 `CLOUDFLARE_ACCOUNT_ID`。
 3. 執行 `npm run deploy`。腳本會建置、產生被忽略的部署設定、套用遠端 migrations，再部署 Worker。
 4. 使用部署成功回傳的實際網址；後續部署沿用同一帳戶與 `stock-website` 名稱，所以網址不變。不要自行推定 workers.dev 子網域。
-5. 驗證 `/api/health`、`/api/portfolio`、`/api/quote?symbol=AAPL&range=1D`，確認實際 source timestamp、盤前盤後行為及資料保留。
+5. 驗證 `/api/health`、`/api/analysis/history`、`/api/quote?symbol=AAPL&range=1Y`，確認實際 source timestamp、盤前盤後行為及資料保留。
 
 GitHub 自動部署：在私人倉庫的 Actions Secrets 設 `CLOUDFLARE_API_TOKEN`，Variables 設 `CLOUDFLARE_ACCOUNT_ID` 和 `CLOUDFLARE_D1_DATABASE_ID`。缺少 database_id 時，push 只跑驗證，不會假裝已部署。設定完成後 main 的網站變更會更新同一 Worker。`.github/workflows/website.yml` 也可手動選 cloudflare 執行。
 
@@ -77,11 +83,11 @@ CLI 使用 `codex --search exec --sandbox read-only --ephemeral --output-schema 
 
 單次分析上限 15 分鐘，執行時定期更新租約。工作中斷後，新的分析請求會清理已過期的執行中工作。只有一份 queued/running 工作可存在，避免重複按鈕造成多份同時執行。這不代表模型分析的事實或績效已驗證。
 
-## 行情與富途費率
+## 行情與保留的舊費率功能
 
 Yahoo 公開端點可能延遲、限流或拒絕雲端 IP。網站保留來源時間並顯示錯誤，不把輪詢次數當成實時行情授權。若正式部署的來源取不到資料，需進一步選擇可用來源，不能用合成價格代替。
 
-目前雲端環境未允許 GitHub API、Yahoo 與富途費率頁存取，所需域名已保存至環境設定草稿；需使用者儲存並發布設定後重測。API 驗證、富途適用費率及即時資料的新鮮度尚未完成。帳本先要求輸入實際富途成交費用，倉位計算也要求手動輸入已核對的預計費用。
+目前雲端環境未允許 GitHub API、Yahoo 與富途費率頁存取，所需域名已保存至環境設定草稿；需使用者儲存並發布設定後重測。API 驗證、富途適用費率及即時資料的新鮮度尚未完成。0.4 已移除網站資產與費用操作；原有費用程式只作歷史相容，並未因此完成官方費率核實。
 
 ## 版本與更新
 
